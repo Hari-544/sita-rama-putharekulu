@@ -15,6 +15,7 @@ import hero from "./assets/hero.jpg";
 function SitaRamaPutharekulu() {
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
+
   const [customer, setCustomer] = useState({
     name: "",
     phone: "",
@@ -133,54 +134,81 @@ function SitaRamaPutharekulu() {
     0
   );
 
-  const proceedToPayment = () => {
-    if (
-      !customer.name ||
-      !customer.phone ||
-      !customer.address ||
-      !customer.pincode
-    ) {
-      alert("Please fill all delivery details");
-      return;
-    }
+  const proceedToPayment = async () => {
+  if (
+    !customer.name ||
+    !customer.phone ||
+    !customer.address ||
+    !customer.pincode
+  ) {
+    alert("Please fill all delivery details");
+    return;
+  }
 
-    const orderDetails = cart
-      .map(
-        (item) =>
-          `${item.name} x ${item.quantity} = ₹${
-            item.price * item.quantity
-          }`
-      )
-      .join("%0A");
+  const orderDetails = cart
+    .map(
+      (item) =>
+        `${item.name} x ${item.quantity} = ₹${
+          item.price * item.quantity
+        }`
+    )
+    .join("\n");
 
-    const whatsappMessage = `Hello SITA RAMA PUTHAREKULU,%0A%0AName: ${customer.name}%0APhone: ${customer.phone}%0AAddress: ${customer.address}%0APincode: ${customer.pincode}%0A%0AOrder Details:%0A${orderDetails}%0A%0ATotal: ₹${totalAmount}`;
+  const formData = {
+    access_key: "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
 
-    window.open(
-      `https://wa.me/919652999544?text=${whatsappMessage}`,
-      "_blank"
-    );
+    name: customer.name,
+    phone: customer.phone,
+    address: customer.address,
+    pincode: customer.pincode,
 
-    window.open(paymentLink, "_blank");
+    order_details: orderDetails,
+
+    total_amount: totalAmount,
   };
+
+  const response = await fetch("https://api.web3forms.com/submit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+    alert("Order placed successfully!");
+
+    window.location.href = paymentLink;
+  } else {
+    alert("Something went wrong!");
+  }
+};
 
   return (
     <div className="min-h-screen bg-orange-50 text-gray-800">
+
       {/* Navbar */}
       <div className="sticky top-0 z-50 bg-white shadow-md px-6 py-4 flex justify-between items-center">
+
         <h1 className="text-2xl font-bold text-orange-800">
           SITA RAMA PUTHAREKULU
         </h1>
 
         <button
           onClick={() => setShowCart(!showCart)}
-          className="bg-orange-700 text-white px-5 py-2 rounded-xl"
+          className="bg-orange-700 hover:bg-orange-800 text-white px-5 py-2 rounded-xl transition"
         >
           Cart ({cart.length})
         </button>
+
       </div>
 
-      {/* Hero */}
+      {/* Hero Section */}
       <section className="bg-gradient-to-r from-orange-100 to-yellow-50 py-10 px-6 text-center">
+
         <img
           src={hero}
           alt="Hero"
@@ -194,21 +222,27 @@ function SitaRamaPutharekulu() {
         <p className="text-xl max-w-3xl mx-auto text-gray-700 leading-8">
           Handmade Traditional Sweets Prepared Fresh With Premium Ingredients.
         </p>
+
       </section>
 
       {/* Products */}
       <section className="py-16 px-6 bg-white">
+
         <div className="max-w-7xl mx-auto">
+
           <h2 className="text-4xl font-bold text-center text-orange-800 mb-12">
             Our Products
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
             {products.map((product) => (
+
               <div
                 key={product.id}
-                className="bg-orange-50 rounded-3xl overflow-hidden shadow-lg"
+                className="bg-orange-50 rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition"
               >
+
                 <img
                   src={product.image}
                   alt={product.name}
@@ -216,11 +250,14 @@ function SitaRamaPutharekulu() {
                 />
 
                 <div className="p-6">
+
                   <h3 className="text-2xl font-bold text-orange-900">
                     {product.name}
                   </h3>
 
-                  <p className="mt-3 text-gray-600">{product.sizes}</p>
+                  <p className="mt-3 text-gray-600">
+                    {product.sizes}
+                  </p>
 
                   <p className="mt-4 text-2xl font-bold text-green-700">
                     ₹{product.price}
@@ -228,42 +265,54 @@ function SitaRamaPutharekulu() {
 
                   <button
                     onClick={() => addToCart(product)}
-                    className="w-full mt-6 bg-orange-700 hover:bg-orange-800 text-white py-3 rounded-2xl font-semibold"
+                    className="w-full mt-6 bg-orange-700 hover:bg-orange-800 text-white py-3 rounded-2xl font-semibold transition"
                   >
                     Add To Cart
                   </button>
+
                 </div>
               </div>
+
             ))}
+
           </div>
         </div>
       </section>
 
       {/* Cart Drawer */}
       {showCart && (
+
         <div className="fixed top-0 right-0 w-full md:w-[450px] h-screen bg-white shadow-2xl z-50 overflow-y-auto p-6">
+
           <div className="flex justify-between items-center mb-6">
+
             <h2 className="text-3xl font-bold text-orange-800">
               Your Cart
             </h2>
 
             <button
               onClick={() => setShowCart(false)}
-              className="text-red-600 text-xl"
+              className="text-red-600 text-2xl"
             >
               ✕
             </button>
+
           </div>
 
           {cart.length === 0 ? (
+
             <p>Your cart is empty.</p>
+
           ) : (
+
             <>
               {cart.map((item) => (
+
                 <div
                   key={item.id}
                   className="border-b py-4 flex gap-4 items-center"
                 >
+
                   <img
                     src={item.image}
                     alt={item.name}
@@ -271,11 +320,17 @@ function SitaRamaPutharekulu() {
                   />
 
                   <div className="flex-1">
-                    <h3 className="font-bold">{item.name}</h3>
 
-                    <p>₹{item.price}</p>
+                    <h3 className="font-bold">
+                      {item.name}
+                    </h3>
+
+                    <p>
+                      ₹{item.price}
+                    </p>
 
                     <div className="flex items-center gap-3 mt-2">
+
                       <button
                         onClick={() => decreaseQty(item.id)}
                         className="bg-red-500 text-white px-3 rounded"
@@ -291,23 +346,32 @@ function SitaRamaPutharekulu() {
                       >
                         +
                       </button>
+
                     </div>
+
                   </div>
+
                 </div>
+
               ))}
 
               <div className="mt-6">
+
                 <h3 className="text-2xl font-bold text-green-700 mb-4">
                   Total: ₹{totalAmount}
                 </h3>
 
                 <div className="space-y-4">
+
                   <input
                     type="text"
                     placeholder="Full Name"
                     value={customer.name}
                     onChange={(e) =>
-                      setCustomer({ ...customer, name: e.target.value })
+                      setCustomer({
+                        ...customer,
+                        name: e.target.value,
+                      })
                     }
                     className="w-full border p-3 rounded-xl"
                   />
@@ -317,7 +381,10 @@ function SitaRamaPutharekulu() {
                     placeholder="Phone Number"
                     value={customer.phone}
                     onChange={(e) =>
-                      setCustomer({ ...customer, phone: e.target.value })
+                      setCustomer({
+                        ...customer,
+                        phone: e.target.value,
+                      })
                     }
                     className="w-full border p-3 rounded-xl"
                   />
@@ -326,7 +393,10 @@ function SitaRamaPutharekulu() {
                     placeholder="Full Delivery Address"
                     value={customer.address}
                     onChange={(e) =>
-                      setCustomer({ ...customer, address: e.target.value })
+                      setCustomer({
+                        ...customer,
+                        address: e.target.value,
+                      })
                     }
                     className="w-full border p-3 rounded-xl"
                     rows="4"
@@ -337,29 +407,46 @@ function SitaRamaPutharekulu() {
                     placeholder="Pincode"
                     value={customer.pincode}
                     onChange={(e) =>
-                      setCustomer({ ...customer, pincode: e.target.value })
+                      setCustomer({
+                        ...customer,
+                        pincode: e.target.value,
+                      })
                     }
                     className="w-full border p-3 rounded-xl"
                   />
+
                 </div>
 
                 <button
                   onClick={proceedToPayment}
-                  className="w-full mt-6 bg-orange-700 hover:bg-orange-800 text-white py-4 rounded-2xl text-lg font-bold"
+                  className="w-full mt-6 bg-orange-700 hover:bg-orange-800 text-white py-4 rounded-2xl text-lg font-bold transition"
                 >
                   Proceed To Payment
                 </button>
+
+                <p className="text-sm text-gray-500 mt-3 text-center">
+                  After payment, please send payment screenshot on WhatsApp.
+                </p>
+
               </div>
             </>
+
           )}
+
         </div>
+
       )}
 
       {/* Contact */}
       <section className="py-16 px-6 bg-orange-900 text-white text-center">
-        <h2 className="text-4xl font-bold mb-6">Contact Us</h2>
 
-        <p className="text-xl mb-4">WhatsApp: +91 9652999544</p>
+        <h2 className="text-4xl font-bold mb-6">
+          Contact Us
+        </h2>
+
+        <p className="text-xl mb-4">
+          WhatsApp: +91 9652999544
+        </p>
 
         <a
           href="https://wa.me/919652999544"
@@ -369,7 +456,9 @@ function SitaRamaPutharekulu() {
         >
           Chat on WhatsApp
         </a>
+
       </section>
+
     </div>
   );
 }
