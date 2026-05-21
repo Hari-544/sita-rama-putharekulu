@@ -15,6 +15,7 @@ import hero from "../assets/hero.jpg";
 
 function HomePage() {
   const [cart, setCart] = useState([]);
+  const [processing, setProcessing] = useState(false);
   const [showCart, setShowCart] = useState(false);
 
   const [customer, setCustomer] = useState({
@@ -146,6 +147,8 @@ function HomePage() {
     return;
   }
 
+  setProcessing(true);
+
   const orderDetails = cart
     .map(
       (item) =>
@@ -168,23 +171,23 @@ function HomePage() {
     total_amount: totalAmount,
   };
 
-  const response = await fetch("https://api.web3forms.com/submit", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
-    body: JSON.stringify(formData),
-  });
+  try {
+    await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-  const result = await response.json();
+    setTimeout(() => {
+      window.location.href = paymentLink;
+    }, 200);
 
-  if (result.success) {
-    alert("Order placed successfully!");
-
-    window.location.href = paymentLink;
-  } else {
+  } catch (error) {
     alert("Something went wrong!");
+    setProcessing(false);
   }
 };
 
@@ -402,9 +405,10 @@ function HomePage() {
 
                 <button
                   onClick={proceedToPayment}
+                  disabled={processing}
                   className="w-full mt-6 bg-orange-700 hover:bg-orange-800 text-white py-4 rounded-2xl text-lg font-bold transition"
                 >
-                  Proceed To Payment
+                  {processing ? "Processing Order..." : "Proceed To Payment"}
                 </button>
 
                 <p className="text-sm text-gray-500 mt-3 text-center">
