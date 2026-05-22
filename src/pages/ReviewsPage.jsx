@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+} from "firebase/firestore";
+
+import { db } from "../firebase";
+
 function ReviewsPage() {
 
   const [reviews, setReviews] = useState([]);
@@ -12,13 +22,29 @@ function ReviewsPage() {
   });
 
   useEffect(() => {
-    const savedReviews =
-      JSON.parse(localStorage.getItem("reviews")) || [];
 
-    setReviews(savedReviews);
+    const q = query(
+      collection(db, "reviews"),
+      orderBy("createdAt", "desc")
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+
+      const reviewsData = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setReviews(reviewsData);
+
+    });
+
+    return () => unsubscribe();
+
   }, []);
 
-  const submitReview = (e) => {
+  const submitReview = async (e) => {
+
     e.preventDefault();
 
     if (!formData.name || !formData.review) {
@@ -26,25 +52,26 @@ function ReviewsPage() {
       return;
     }
 
-    const newReview = {
-      ...formData,
-      date: new Date().toLocaleDateString(),
-    };
+    try {
 
-    const updatedReviews = [newReview, ...reviews];
+      await addDoc(collection(db, "reviews"), {
+        ...formData,
+        createdAt: new Date(),
+      });
 
-    setReviews(updatedReviews);
+      setFormData({
+        name: "",
+        rating: "⭐⭐⭐⭐⭐",
+        review: "",
+      });
 
-    localStorage.setItem(
-      "reviews",
-      JSON.stringify(updatedReviews)
-    );
+      alert("Review submitted successfully!");
 
-    setFormData({
-      name: "",
-      rating: "⭐⭐⭐⭐⭐",
-      review: "",
-    });
+    } catch (error) {
+
+      alert("Something went wrong!");
+
+    }
   };
 
   return (
@@ -58,7 +85,7 @@ function ReviewsPage() {
         </h1>
 
         <p className="mt-4 text-orange-200 text-lg">
-          Share your sweet experience with us 🍯
+          Share your sweet experience 🍯
         </p>
 
       </div>
@@ -81,7 +108,7 @@ function ReviewsPage() {
 
         </div>
 
-        {/* Review Form */}
+        {/* Form */}
         <div className="bg-white rounded-3xl shadow-lg p-8 mb-16">
 
           <h2 className="text-3xl font-bold text-orange-800 mb-6">
@@ -150,46 +177,32 @@ function ReviewsPage() {
         {/* Reviews */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
 
-          {reviews.length === 0 ? (
+          {reviews.map((review) => (
 
-            <div className="col-span-full text-center text-gray-500 text-xl">
-              No reviews yet.
-            </div>
+            <div
+              key={review.id}
+              className="bg-white rounded-3xl p-8 shadow-lg"
+            >
 
-          ) : (
+              <div className="flex justify-between items-center mb-4">
 
-            reviews.map((review, index) => (
+                <h3 className="text-2xl font-bold text-orange-800">
+                  {review.name}
+                </h3>
 
-              <div
-                key={index}
-                className="bg-white rounded-3xl p-8 shadow-lg"
-              >
-
-                <div className="flex justify-between items-center mb-4">
-
-                  <h3 className="text-2xl font-bold text-orange-800">
-                    {review.name}
-                  </h3>
-
-                  <span className="text-sm text-gray-500">
-                    {review.date}
-                  </span>
-
-                </div>
-
-                <p className="text-xl mb-4">
+                <span className="text-sm text-gray-500">
                   {review.rating}
-                </p>
-
-                <p className="text-gray-700 leading-8">
-                  {review.review}
-                </p>
+                </span>
 
               </div>
 
-            ))
+              <p className="text-gray-700 leading-8">
+                {review.review}
+              </p>
 
-          )}
+            </div>
+
+          ))}
 
         </div>
 
