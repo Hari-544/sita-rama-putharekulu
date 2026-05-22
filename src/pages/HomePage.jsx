@@ -25,7 +25,6 @@ function HomePage() {
     pincode: "",
   });
 
-  const paymentLink = "https://razorpay.me/@sitaramaputharekulu";
 
   const products = [
     {
@@ -34,6 +33,7 @@ function HomePage() {
       sizes: "Small & Big Size",
       price: 150,
       image: jaggery,
+      paymentLink: "https://rzp.io/rzp/S7EMv5Se" // Replace with your actual Razorpay payment link,
     },
     {
       id: 2,
@@ -41,6 +41,7 @@ function HomePage() {
       sizes: "Small & Big Size",
       price: 150,
       image: sugar,
+      paymentLink: "https://rzp.io/rzp/YqVnJmPC" // Replace with your actual Razorpay payment link,
     },
     {
       id: 3,
@@ -48,6 +49,7 @@ function HomePage() {
       sizes: "Small - ₹200 | Big - ₹250",
       price: 200,
       image: dryfruit,
+      paymentLink: "https://rzp.io/rzp/7Pg1Mwa" // Replace with your actual Razorpay payment link,
     },
     {
       id: 4,
@@ -55,6 +57,7 @@ function HomePage() {
       sizes: "Small - ₹200 | Big - ₹250",
       price: 200,
       image: dryfruitSugar,
+      paymentLink: "https://rzp.io/rzp/7Pg1Mwa" // Replace with your actual Razorpay payment link,
     },
     {
       id: 5,
@@ -62,6 +65,7 @@ function HomePage() {
       sizes: "Small - ₹200 | Big - ₹250",
       price: 200,
       image: kova,
+      paymentLink: "https://rzp.io/rzp/AZykm5U" // Replace with your actual Razorpay payment link,
     },
     {
       id: 6,
@@ -69,6 +73,7 @@ function HomePage() {
       sizes: "Small - ₹120 | Big - ₹180",
       price: 120,
       image: karam,
+      paymentLink: "https://rzp.io/rzp/iIdB8raG" // Replace with your actual Razorpay payment link,
     },
     {
       id: 7,
@@ -76,6 +81,7 @@ function HomePage() {
       sizes: "Special Shape",
       price: 180,
       image: samosaJaggery,
+      paymentLink: "https://rzp.io/rzp/T2Pf7R12" // Replace with your actual Razorpay payment link,
     },
     {
       id: 8,
@@ -83,6 +89,7 @@ function HomePage() {
       sizes: "Special Shape",
       price: 180,
       image: samosaSugar,
+      paymentLink: "https://rzp.io/rzp/T2Pf7R12" // Replace with your actual Razorpay payment link,
     },
     {
       id: 9,
@@ -90,6 +97,7 @@ function HomePage() {
       sizes: "Small - ₹200 | Big - ₹250",
       price: 200,
       image: chocolate,
+      paymentLink: "https://rzp.io/rzp/CWGzDO2l" // Replace with your actual Razorpay payment link,
     },
   ];
 
