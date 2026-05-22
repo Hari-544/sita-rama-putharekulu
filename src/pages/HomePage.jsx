@@ -459,14 +459,12 @@ function HomePage() {
 
                   </div>
 
-                  <button
-                    onClick={() =>
-                      handleBuyNow(product)
-                    }
-                    className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-semibold"
+                  <a
+                    href={`/buy/${product.id}`}
+                    className="block w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-semibold text-center"
                   >
                     Buy Now
-                  </button>
+                  </a>
 
                 </div>
 
