@@ -4,9 +4,9 @@ function Footer() {
 
   return (
 
-    <footer className="bg-orange-950 text-white py-10 sm:py-12 px-4 sm:px-6">
+    <footer className="bg-gradient-to-t from-orange-900 to-orange-950 text-white py-12 sm:py-16 px-4 sm:px-6">
 
-      <div className="container grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+      <div className="container grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 items-start">
 
         {/* Brand */}
         <div className="mb-6 sm:mb-0 px-2 sm:px-0">
@@ -82,7 +82,7 @@ function Footer() {
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-orange-800 mt-8 pt-5 text-center text-orange-200 text-sm sm:text-base">
+      <div className="border-t border-orange-800 mt-10 pt-6 text-center text-orange-200 text-sm sm:text-base">
         © 2026 SITA RAMA PUTHAREKULU. All Rights Reserved.
       </div>
 

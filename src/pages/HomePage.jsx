@@ -317,7 +317,8 @@ const proceedToPayment = async () => {
     <div className="min-h-screen bg-linear-to-b from-orange-50 to-yellow-50 text-gray-800">
 
       {/* Navbar */}
-      <header className="sticky top-0 z-50 bg-white/60 backdrop-blur-md shadow-md px-6 py-4">
+
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md px-6 py-4 sticky">
 
         <div className="container flex items-center justify-between">
 
@@ -366,7 +367,7 @@ const proceedToPayment = async () => {
 
           <div>
 
-            <h2 className="text-5xl font-extrabold text-orange-900 leading-tight">
+            <h2 className="text-5xl lg:hero-title font-extrabold text-orange-900 leading-tight">
               Handmade, Thin & Crispy
               <br />
 
@@ -384,7 +385,7 @@ const proceedToPayment = async () => {
 
           <div className="mx-auto">
 
-            <div className="relative w-105 h-75 md:w-130 md:h-90 rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative w-105 h-75 md:w-130 md:h-90 lg:w-[720px] lg:h-[420px] rounded-3xl overflow-hidden shadow-2xl">
 
               <img
                 src={hero}
@@ -412,19 +413,21 @@ const proceedToPayment = async () => {
             Our Products
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
 
             {products.map((product) => (
 
               <div
                 key={product.id}
-                className="relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition"
+                className="product-card relative bg-white rounded-3xl overflow-hidden shadow-lg transition"
+                style={{ minHeight: 340 }}
               >
 
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="h-56 w-full object-cover"
+                  className="w-full object-cover lg:h-64 h-56"
+                  loading="lazy"
                 />
 
                 <div className="p-6">

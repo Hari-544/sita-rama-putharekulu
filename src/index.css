@@ -101,3 +101,21 @@
 	details[open] summary svg { transform: rotate(180deg); }
 	details summary svg { transition: transform 200ms ease; }
 }
+
+/* Larger screen / laptop refinements */
+@media (min-width: 1024px) {
+	:root { --container-max: 1200px; }
+	.container { max-width: var(--container-max); padding-left: 2rem; padding-right: 2rem; }
+
+	/* Slightly larger product cards and hover lift */
+	.product-card {
+		transition: transform 180ms ease, box-shadow 180ms ease;
+	}
+	.product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12); }
+
+	/* Larger hero typography on laptop */
+	.hero-title { font-size: 3.25rem; line-height: 1.05; }
+
+	/* header adjustments */
+	header.sticky { padding-top: 1rem; padding-bottom: 1rem; }
+}
