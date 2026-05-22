@@ -319,7 +319,7 @@ const proceedToPayment = async () => {
       {/* Navbar */}
       <header className="sticky top-0 z-50 bg-white/60 backdrop-blur-md shadow-md px-6 py-4">
 
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="container flex items-center justify-between">
 
           <h1 className="text-2xl font-extrabold text-orange-900 tracking-tight">
             SITA RAMA
@@ -362,7 +362,7 @@ const proceedToPayment = async () => {
       {/* Hero */}
       <section className="relative py-16">
 
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div className="container px-0 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
 
           <div>
 
@@ -406,7 +406,7 @@ const proceedToPayment = async () => {
         className="py-16 px-6"
       >
 
-        <div className="max-w-7xl mx-auto">
+        <div className="container">
 
           <h2 className="text-4xl font-bold text-center text-orange-800 mb-12">
             Our Products
@@ -447,19 +447,19 @@ const proceedToPayment = async () => {
                       onClick={() =>
                         addToCart(product)
                       }
-                      className="bg-orange-700 hover:bg-orange-800 text-white px-5 py-2 rounded-2xl font-semibold"
+                      className="btn btn-primary px-5 py-2"
                     >
                       Add
                     </button>
 
                   </div>
 
-                  <a
-                    href={`/buy/${product.id}`}
-                    className="block w-full mt-4 bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-semibold text-center"
-                  >
-                    Buy Now
-                  </a>
+                    <a
+                      href={`/buy/${product.id}`}
+                      className="btn mt-4 w-full text-center btn-primary"
+                    >
+                      Buy Now
+                    </a>
 
                 </div>
 

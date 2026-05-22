@@ -6,7 +6,7 @@ function Footer() {
 
     <footer className="bg-orange-950 text-white py-10 sm:py-12 px-4 sm:px-6">
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+      <div className="container grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 
         {/* Brand */}
         <div className="mb-6 sm:mb-0 px-2 sm:px-0">
@@ -72,7 +72,7 @@ function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Chat on WhatsApp"
-            className="inline-block mt-3 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-2xl font-semibold shadow-lg transition w-full sm:w-auto text-center footer-cta"
+            className="btn btn-primary mt-3 w-full sm:w-auto text-center footer-cta"
           >
             Chat On WhatsApp
           </a>
