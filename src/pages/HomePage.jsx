@@ -179,75 +179,136 @@ function HomePage() {
     0
   );
 
-  const proceedToPayment = async () => {
+const proceedToPayment = async () => {
 
-    if (
-      !customer.name ||
-      !customer.phone ||
-      !customer.address ||
-      !customer.pincode
-    ) {
-      alert("Please fill all delivery details");
-      return;
-    }
+  if (
+    !customer.name ||
+    !customer.phone ||
+    !customer.address ||
+    !customer.pincode
+  ) {
+    alert("Please fill all delivery details");
+    return;
+  }
 
-    setProcessing(true);
+  setProcessing(true);
 
-    const orderDetails = cart
-      .map(
-        (item) =>
-          `${item.name} x ${item.quantity} = ₹${
-            item.price * item.quantity
-          }`
-      )
-      .join("\n");
+  try {
 
-    const formData = {
+    // Create Razorpay Order
+    const response = await fetch(
+      "http://localhost:5000/create-order",
+      {
+        method: "POST",
 
-      access_key:
-        "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-      name: customer.name,
-      phone: customer.phone,
-      address: customer.address,
-      pincode: customer.pincode,
+        body: JSON.stringify({
+          amount: totalAmount,
+        }),
+      }
+    );
 
-      order_details: orderDetails,
+    const order = await response.json();
 
-      total_amount: totalAmount,
+    // Razorpay Checkout
+    const options = {
+
+      key: "rzp_test_SqRtF41rL6Tybl",
+
+      amount: order.amount,
+
+      currency: order.currency,
+
+      name: "SITA RAMA PUTHAREKULU",
+
+      description: "Order Payment",
+
+      order_id: order.id,
+
+      handler: async function (response) {
+
+        // Save Order Details To Web3Forms
+
+        const orderDetails = cart
+          .map(
+            (item) =>
+              `${item.name} x ${item.quantity}`
+          )
+          .join("\n");
+
+        const formData = {
+
+          access_key:
+            "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
+
+          name: customer.name,
+
+          phone: customer.phone,
+
+          address: customer.address,
+
+          pincode: customer.pincode,
+
+          order_details: orderDetails,
+
+          total_amount: totalAmount,
+
+          payment_id:
+            response.razorpay_payment_id,
+        };
+
+        await fetch(
+          "https://api.web3forms.com/submit",
+          {
+            method: "POST",
+
+            headers: {
+              "Content-Type":
+                "application/json",
+
+              Accept: "application/json",
+            },
+
+            body: JSON.stringify(formData),
+          }
+        );
+
+        window.location.href = "/success";
+      },
+
+      prefill: {
+
+        name: customer.name,
+
+        contact: customer.phone,
+      },
+
+      theme: {
+        color: "#c2410c",
+      },
     };
 
-    try {
+    const razor = new window.Razorpay(
+      options
+    );
 
-      await fetch(
-        "https://api.web3forms.com/submit",
-        {
-          method: "POST",
+    razor.open();
 
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+    setProcessing(false);
 
-          body: JSON.stringify(formData),
-        }
-      );
+  } catch (error) {
 
-      setTimeout(() => {
-        window.open("https://razorpay.me/@sitaramaputharekulu","_blank");
-        setTimeout(() => {
-          window.location.href = "/success";
-        }, 900);
-      }, 300);
+    console.log(error);
 
-    } catch (error) {
+    alert("Payment Failed");
 
-      alert("Something went wrong!");
+    setProcessing(false);
 
-      setProcessing(false);
-
-    }
-  };
+  }
+};
 
   const handleBuyNow = async (product) => {
 

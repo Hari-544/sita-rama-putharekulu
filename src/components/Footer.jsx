@@ -19,6 +19,18 @@ function Footer() {
 
       <div className="bg-orange-800 text-white text-center py-3">
         <small>© {new Date().getFullYear()} Sita Rama Putharekulu — All rights reserved</small>
+        <a href="/privacy-policy" className="text-white hover:text-orange-300 ml-4">
+          Privacy Policy
+        </a>
+        <a href="/refund-policy" className="text-white hover:text-orange-300 ml-4">
+          Refund Policy
+        </a>
+        <a href="/shipping-policy" className="text-white hover:text-orange-300 ml-4">
+          Shipping Policy
+        </a>
+        <a href="/terms-and-conditions" className="text-white hover:text-orange-300 ml-4">
+          Terms & Conditions
+        </a>
       </div>
     </footer>
   );
