@@ -77,11 +77,9 @@ function BuyNowPage() {
     }, 200);
 
     } catch (error) {
-
+      console.error(error);
       alert("Something went wrong!");
-
       setProcessing(false);
-
     }
   };
 

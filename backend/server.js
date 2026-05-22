@@ -1,19 +1,18 @@
-require("dotenv").config();
+import dotenv from "dotenv";
+import express from "express";
+import cors from "cors";
+import Razorpay from "razorpay";
 
-const express = require("express");
-const cors = require("cors");
-const Razorpay = require("razorpay");
+dotenv.config();
 
 const app = express();
 
 app.use(cors());
-
 app.use(express.json());
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: globalThis.process?.env?.RAZORPAY_KEY_ID,
+  key_secret: globalThis.process?.env?.RAZORPAY_KEY_SECRET,
 });
 
 app.get("/", (req, res) => {
@@ -48,12 +47,8 @@ app.post("/create-order", async (req, res) => {
   }
 });
 
-const PORT = 5000;
+const PORT = globalThis.process?.env?.PORT || 5000;
 
 app.listen(PORT, () => {
-
-  console.log(
-    `Server running on port ${PORT}`
-  );
-
+  console.log(`Server running on port ${PORT}`);
 });

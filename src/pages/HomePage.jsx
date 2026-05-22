@@ -310,73 +310,7 @@ const proceedToPayment = async () => {
   }
 };
 
-  const handleBuyNow = async (product) => {
-
-    const name = prompt("Enter Your Name");
-
-    const phone = prompt(
-      "Enter Your Phone Number"
-    );
-
-    const address = prompt(
-      "Enter Your Delivery Address"
-    );
-
-    const pincode = prompt(
-      "Enter Your Pincode"
-    );
-
-    if (
-      !name ||
-      !phone ||
-      !address ||
-      !pincode
-    ) {
-      alert("Please fill all details");
-      return;
-    }
-
-    const formData = {
-
-      access_key:
-        "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
-
-      name,
-      phone,
-      address,
-      pincode,
-
-      order_details:
-        `${product.name} - ₹${product.price}`,
-
-      total_amount: product.price,
-    };
-
-    try {
-
-      await fetch(
-        "https://api.web3forms.com/submit",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-
-          body: JSON.stringify(formData),
-        }
-      );
-
-      window.location.href =
-        product.paymentLink;
-
-    } catch (error) {
-
-      alert("Something went wrong!");
-
-    }
-  };
+  // Removed unused handleBuyNow to clean up unused variable lint warnings
 
   return (
 

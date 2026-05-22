@@ -68,9 +68,8 @@ function ReviewsPage() {
       alert("Review submitted successfully!");
 
     } catch (error) {
-
+      console.error(error);
       alert("Something went wrong!");
-
     }
   };
 
