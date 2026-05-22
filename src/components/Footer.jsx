@@ -4,95 +4,54 @@ function Footer() {
 
   return (
 
-    <footer className="bg-orange-950 text-white py-14 px-6">
+    <footer className="bg-orange-950 text-white py-10 sm:py-12 px-4 sm:px-6">
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+      <div className="max-w-7xl mx-auto flex flex-col sm:grid sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-10">
 
         {/* Brand */}
-        <div>
+        <div className="mb-6 sm:mb-0 px-2 sm:px-0">
 
-          <h2 className="text-3xl font-extrabold text-yellow-400">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-yellow-400">
             SITA RAMA PUTHAREKULU
           </h2>
 
-          <p className="mt-5 text-orange-100 leading-8">
-
-            Authentic handmade Atreyapuram Putharekulu
-            prepared with traditional recipes and
-            premium ingredients.
-
+          <p className="mt-4 text-orange-100 leading-7 text-sm sm:text-base">
+            Authentic handmade Atreyapuram Putharekulu prepared with
+            traditional recipes and premium ingredients.
           </p>
 
         </div>
 
         {/* Quick Links */}
-        <div>
+        <nav aria-label="Quick links" className="mb-6 sm:mb-0 px-2 sm:px-0">
 
-          <h3 className="text-2xl font-bold mb-5">
-            Quick Links
-          </h3>
+          <h3 className="text-xl sm:text-2xl font-bold mb-5">Quick Links</h3>
 
-          <div className="flex flex-col gap-3">
-
-            <Link
-              to="/reviews"
-              className="hover:text-yellow-400 transition"
-            >
-              Reviews
-            </Link>
-
-            <Link
-              to="/privacy-policy"
-              className="hover:text-yellow-400 transition"
-            >
-              Privacy Policy
-            </Link>
-
-            <Link
-              to="/refund-policy"
-              className="hover:text-yellow-400 transition"
-            >
-              Refund Policy
-            </Link>
-
-            <Link
-              to="/shipping-policy"
-              className="hover:text-yellow-400 transition"
-            >
-              Shipping Policy
-            </Link>
-
-            <Link
-              to="/terms-and-conditions"
-              className="hover:text-yellow-400 transition"
-            >
-              Terms & Conditions
-            </Link>
-
+          <div className="flex flex-col gap-2">
+            <Link to="/reviews" className="footer-link hover:text-yellow-400 transition py-2 text-base sm:text-sm" aria-label="Reviews">Reviews</Link>
+            <Link to="/privacy-policy" className="footer-link hover:text-yellow-400 transition py-2 text-base sm:text-sm" aria-label="Privacy Policy">Privacy Policy</Link>
+            <Link to="/refund-policy" className="footer-link hover:text-yellow-400 transition py-2 text-base sm:text-sm" aria-label="Refund Policy">Refund Policy</Link>
+            <Link to="/shipping-policy" className="footer-link hover:text-yellow-400 transition py-2 text-base sm:text-sm" aria-label="Shipping Policy">Shipping Policy</Link>
+            <Link to="/terms-and-conditions" className="footer-link hover:text-yellow-400 transition py-2 text-base sm:text-sm" aria-label="Terms and Conditions">Terms & Conditions</Link>
           </div>
 
-        </div>
+        </nav>
 
         {/* Contact */}
-        <div>
+        <div className="px-2 sm:px-0">
 
-          <h3 className="text-2xl font-bold mb-5">
-            Contact Us
-          </h3>
+          <h3 className="text-xl sm:text-2xl font-bold mb-5">Contact Us</h3>
 
-          <p className="text-orange-100 mb-3">
-            📍 Andhra Pradesh, India
-          </p>
+          <p className="text-orange-100 mb-2 text-sm sm:text-base">📍 Andhra Pradesh, India</p>
 
-          <p className="text-orange-100 mb-3">
-            📞 +91 9652999544
-          </p>
+          <p className="text-orange-100 mb-3 text-sm sm:text-base">📞 +91 9652999544</p>
 
           <a
             href="https://wa.me/919652999544"
             target="_blank"
-            rel="noreferrer"
-            className="inline-block mt-4 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-2xl font-semibold shadow-lg transition"
+            rel="noopener noreferrer"
+            aria-label="Chat on WhatsApp"
+            className="inline-block mt-3 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-2xl font-semibold shadow-lg transition w-full sm:w-auto text-center footer-cta"
           >
             Chat On WhatsApp
           </a>
@@ -102,11 +61,8 @@ function Footer() {
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-orange-800 mt-10 pt-6 text-center text-orange-200">
-
-        © 2026 SITA RAMA PUTHAREKULU.
-        All Rights Reserved.
-
+      <div className="border-t border-orange-800 mt-8 pt-5 text-center text-orange-200 text-sm sm:text-base">
+        © 2026 SITA RAMA PUTHAREKULU. All Rights Reserved.
       </div>
 
     </footer>
