@@ -1,38 +1,116 @@
+import { Link } from "react-router-dom";
+
 function Footer() {
+
   return (
-    <footer className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t mt-16">
-      <div className="max-w-7xl mx-auto py-10 px-6 flex flex-col md:flex-row justify-between items-center gap-6">
+
+    <footer className="bg-orange-950 text-white py-14 px-6">
+
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
+
+        {/* Brand */}
         <div>
-          <h3 className="text-2xl font-extrabold text-orange-900">SITA RAMA PUTHAREKULU</h3>
-          <p className="text-gray-600 mt-2">Handmade traditional sweets from Atreyapuram — shipped with love.</p>
+
+          <h2 className="text-3xl font-extrabold text-yellow-400">
+            SITA RAMA PUTHAREKULU
+          </h2>
+
+          <p className="mt-5 text-orange-100 leading-8">
+
+            Authentic handmade Atreyapuram Putharekulu
+            prepared with traditional recipes and
+            premium ingredients.
+
+          </p>
+
         </div>
 
-        <div className="text-center md:text-right">
-          <p className="font-semibold text-gray-700">Follow us</p>
-          <div className="flex items-center justify-center md:justify-end gap-3 mt-2">
-            <a className="text-orange-700 hover:text-orange-900">Instagram</a>
-            <a className="text-orange-700 hover:text-orange-900">WhatsApp</a>
-            <a className="text-orange-700 hover:text-orange-900">Facebook</a>
+        {/* Quick Links */}
+        <div>
+
+          <h3 className="text-2xl font-bold mb-5">
+            Quick Links
+          </h3>
+
+          <div className="flex flex-col gap-3">
+
+            <Link
+              to="/reviews"
+              className="hover:text-yellow-400 transition"
+            >
+              Reviews
+            </Link>
+
+            <Link
+              to="/privacy-policy"
+              className="hover:text-yellow-400 transition"
+            >
+              Privacy Policy
+            </Link>
+
+            <Link
+              to="/refund-policy"
+              className="hover:text-yellow-400 transition"
+            >
+              Refund Policy
+            </Link>
+
+            <Link
+              to="/shipping-policy"
+              className="hover:text-yellow-400 transition"
+            >
+              Shipping Policy
+            </Link>
+
+            <Link
+              to="/terms-and-conditions"
+              className="hover:text-yellow-400 transition"
+            >
+              Terms & Conditions
+            </Link>
+
           </div>
+
         </div>
+
+        {/* Contact */}
+        <div>
+
+          <h3 className="text-2xl font-bold mb-5">
+            Contact Us
+          </h3>
+
+          <p className="text-orange-100 mb-3">
+            📍 Andhra Pradesh, India
+          </p>
+
+          <p className="text-orange-100 mb-3">
+            📞 +91 9652999544
+          </p>
+
+          <a
+            href="https://wa.me/919652999544"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-block mt-4 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-2xl font-semibold shadow-lg transition"
+          >
+            Chat On WhatsApp
+          </a>
+
+        </div>
+
       </div>
 
-      <div className="bg-orange-800 text-white text-center py-3">
-        <small>© {new Date().getFullYear()} Sita Rama Putharekulu — All rights reserved</small>
-        <a href="/privacy-policy" className="text-white hover:text-orange-300 ml-4">
-          Privacy Policy
-        </a>
-        <a href="/refund-policy" className="text-white hover:text-orange-300 ml-4">
-          Refund Policy
-        </a>
-        <a href="/shipping-policy" className="text-white hover:text-orange-300 ml-4">
-          Shipping Policy
-        </a>
-        <a href="/terms-and-conditions" className="text-white hover:text-orange-300 ml-4">
-          Terms & Conditions
-        </a>
+      {/* Bottom */}
+      <div className="border-t border-orange-800 mt-10 pt-6 text-center text-orange-200">
+
+        © 2026 SITA RAMA PUTHAREKULU.
+        All Rights Reserved.
+
       </div>
+
     </footer>
+
   );
 }
 
