@@ -10,3 +10,17 @@
 		@apply outline-none ring-2 ring-yellow-300;
 	}
 }
+
+/* details/summary polished styles for mobile accordion */
+@layer base {
+	details {
+		summary::-webkit-details-marker { display: none; }
+	}
+
+	details summary {
+		list-style: none;
+	}
+
+	details[open] summary svg { transform: rotate(180deg); }
+	details summary svg { transition: transform 200ms ease; }
+}
