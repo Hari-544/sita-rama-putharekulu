@@ -70,10 +70,11 @@ function BuyNowPage() {
 
       setTimeout(() => {
 
-        window.location.href =
-          product.paymentLink;
-
-      }, 700);
+        window.open(product.paymentLink, "_blank");
+        setTimeout(() => {
+          window.location.href = "/success";
+        }, 500);
+    }, 200);
 
     } catch (error) {
 

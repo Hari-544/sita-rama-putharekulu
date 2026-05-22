@@ -3,9 +3,12 @@ import { Routes, Route } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import ReviewsPage from "./pages/ReviewsPage";
 import BuyNowPage from "./pages/BuyNowPage";
+import SuccessPage from "./pages/SuccessPage";
 
 function App() {
+
   return (
+
     <Routes>
 
       <Route
@@ -23,7 +26,13 @@ function App() {
         element={<BuyNowPage />}
       />
 
+      <Route
+        path="/success"
+        element={<SuccessPage />}
+      />
+
     </Routes>
+
   );
 }
 

@@ -234,11 +234,11 @@ function HomePage() {
       );
 
       setTimeout(() => {
-
-        window.location.href =
-          "https://razorpay.me/@sitaramaputharekulu";
-
-      }, 700);
+        window.open("https://razorpay.me/@sitaramaputharekulu","_blank");
+        setTimeout(() => {
+          window.location.href = "/success";
+        }, 900);
+      }, 300);
 
     } catch (error) {
 
