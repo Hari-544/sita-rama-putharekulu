@@ -318,7 +318,7 @@ const proceedToPayment = async () => {
 
       {/* Navbar */}
 
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md px-6 py-4 sticky">
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md px-6 py-4">
 
         <div className="container flex items-center justify-between">
 

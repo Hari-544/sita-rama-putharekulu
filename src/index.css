@@ -11,6 +11,8 @@
 
 	html, body {
 		height: 100%;
+		/* Fluid base font sizing for better device scaling */
+		font-size: clamp(14px, 1.2vw + 12px, 18px);
 	}
 
 	body {
@@ -114,7 +116,7 @@
 	.product-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12); }
 
 	/* Larger hero typography on laptop */
-	.hero-title { font-size: 3.25rem; line-height: 1.05; }
+	.hero-title { font-size: clamp(2rem, 3.2vw + 1rem, 3.25rem); line-height: 1.05; }
 
 	/* header adjustments */
 	header.sticky { padding-top: 1rem; padding-bottom: 1rem; }

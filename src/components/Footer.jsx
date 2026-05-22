@@ -4,7 +4,7 @@ function Footer() {
 
   return (
 
-    <footer className="bg-gradient-to-t from-orange-900 to-orange-950 text-white py-12 sm:py-16 px-4 sm:px-6">
+    <footer className="bg-linear-to-t from-orange-900 to-orange-950 text-white py-12 sm:py-16 px-4 sm:px-6">
 
       <div className="container grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 items-start">
 
