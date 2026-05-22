@@ -4,7 +4,7 @@ function SuccessPage() {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-yellow-50 flex items-center justify-center px-6">
+    <div className="min-h-screen bg-linear-to-b from-orange-50 to-yellow-50 flex items-center justify-center px-6">
 
       <div className="max-w-2xl w-full bg-white rounded-3xl shadow-2xl p-10 text-center">
 

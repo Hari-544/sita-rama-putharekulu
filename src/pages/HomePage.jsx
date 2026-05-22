@@ -314,7 +314,7 @@ const proceedToPayment = async () => {
 
   return (
 
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 to-yellow-50 text-gray-800">
+    <div className="min-h-screen bg-linear-to-b from-orange-50 to-yellow-50 text-gray-800">
 
       {/* Navbar */}
       <header className="sticky top-0 z-50 bg-white/60 backdrop-blur-md shadow-md px-6 py-4">
@@ -384,7 +384,7 @@ const proceedToPayment = async () => {
 
           <div className="mx-auto">
 
-            <div className="relative w-[420px] h-[300px] md:w-[520px] md:h-[360px] rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative w-105 h-75 md:w-130 md:h-90 rounded-3xl overflow-hidden shadow-2xl">
 
               <img
                 src={hero}
@@ -476,7 +476,7 @@ const proceedToPayment = async () => {
       {/* Cart */}
       {showCart && (
 
-        <div className="fixed top-0 right-0 w-full md:w-[450px] h-screen bg-white shadow-2xl z-50 overflow-y-auto p-6">
+        <div className="fixed top-0 right-0 w-full md:w-112.5 h-screen bg-white shadow-2xl z-50 overflow-y-auto p-6">
 
           <div className="flex justify-between items-center mb-6">
 

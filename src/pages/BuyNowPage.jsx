@@ -104,7 +104,7 @@ function BuyNowPage() {
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-[400px] object-cover"
+              className="w-full h-100 object-cover"
             />
 
             <div className="p-6">
