@@ -1,26 +1,14 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import "../App.css";
 import Footer from "../components/Footer";
-
-import jaggery from "../assets/images/jaggery.jpg";
-import sugar from "../assets/images/sugar.jpg";
-import dryfruit from "../assets/images/Dryfruits.jpg";
-import dryfruitSugar from "../assets/images/dryfruitsugar.jpg";
-import kova from "../assets/images/kova.jpg";
-import karam from "../assets/images/karam.jpg";
-import samosaJaggery from "../assets/images/samosajaggery.jpg";
-import samosaSugar from "../assets/images/samosasugar.jpg";
-import chocolate from "../assets/images/chocolate.jpg";
 import hero from "../assets/hero.jpg";
+import { products } from "../data/products";
 
 function HomePage() {
-
   const [cart, setCart] = useState([]);
-
   const [processing, setProcessing] = useState(false);
-
   const [showCart, setShowCart] = useState(false);
-
   const [customer, setCustomer] = useState({
     name: "",
     phone: "",
@@ -28,635 +16,373 @@ function HomePage() {
     pincode: "",
   });
 
-  const products = [
-    {
-      id: 1,
-      name: "Plain Jaggery Putharekulu",
-      sizes: "Small & Big Size",
-      price: 150,
-      image: jaggery,
-      paymentLink: "https://rzp.io/rzp/S7EMv5Se",
-    },
-
-    {
-      id: 2,
-      name: "Plain Sugar Putharekulu",
-      sizes: "Small & Big Size",
-      price: 150,
-      image: sugar,
-      paymentLink: "https://rzp.io/rzp/YqVnJmPC",
-    },
-
-    {
-      id: 3,
-      name: "Dry Fruits Jaggery Putharekulu",
-      sizes: "Small - ₹200 | Big - ₹250",
-      price: 200,
-      image: dryfruit,
-      paymentLink: "https://rzp.io/rzp/7Pg1Mwa",
-    },
-
-    {
-      id: 4,
-      name: "Dry Fruits Sugar Putharekulu",
-      sizes: "Small - ₹200 | Big - ₹250",
-      price: 200,
-      image: dryfruitSugar,
-      paymentLink: "https://rzp.io/rzp/7Pg1Mwa",
-    },
-
-    {
-      id: 5,
-      name: "Plain Kova Putharekulu",
-      sizes: "Small - ₹200 | Big - ₹250",
-      price: 200,
-      image: kova,
-      paymentLink: "https://rzp.io/rzp/AZykm5U",
-    },
-
-    {
-      id: 6,
-      name: "Karam Putharekulu",
-      sizes: "Small - ₹120 | Big - ₹180",
-      price: 120,
-      image: karam,
-      paymentLink: "https://rzp.io/rzp/iIdB8raG",
-    },
-
-    {
-      id: 7,
-      name: "Samosa Shaped Jaggery Putharekulu",
-      sizes: "Special Shape",
-      price: 180,
-      image: samosaJaggery,
-      paymentLink: "https://rzp.io/rzp/T2Pf7R12",
-    },
-
-    {
-      id: 8,
-      name: "Samosa Shaped Sugar Putharekulu",
-      sizes: "Special Shape",
-      price: 180,
-      image: samosaSugar,
-      paymentLink: "https://rzp.io/rzp/T2Pf7R12",
-    },
-
-    {
-      id: 9,
-      name: "Chocolate Putharekulu",
-      sizes: "Small - ₹200 | Big - ₹250",
-      price: 200,
-      image: chocolate,
-      paymentLink: "https://rzp.io/rzp/CWGzDO2l",
-    },
-  ];
-
   const addToCart = (product) => {
-
-    const existingItem = cart.find(
-      (item) => item.id === product.id
-    );
+    const existingItem = cart.find((item) => item.id === product.id);
 
     if (existingItem) {
-
       setCart(
         cart.map((item) =>
           item.id === product.id
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
+            ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       );
-
-    } else {
-
-      setCart([
-        ...cart,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ]);
-
+      return;
     }
+
+    setCart([...cart, { ...product, quantity: 1 }]);
   };
 
   const increaseQty = (id) => {
-
     setCart(
       cart.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
       )
     );
   };
 
   const decreaseQty = (id) => {
-
     setCart(
       cart
         .map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                quantity: item.quantity - 1,
-              }
-            : item
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
         )
         .filter((item) => item.quantity > 0)
     );
   };
 
   const totalAmount = cart.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
+    (total, item) => total + item.price * item.quantity,
     0
   );
 
-const proceedToPayment = async () => {
+  const updateCustomer = (field, value) => {
+    setCustomer((current) => ({ ...current, [field]: value }));
+  };
 
-  if (
-    !customer.name ||
-    !customer.phone ||
-    !customer.address ||
-    !customer.pincode
-  ) {
-    alert("Please fill all delivery details");
-    return;
-  }
+  const proceedToPayment = async () => {
+    if (
+      !customer.name ||
+      !customer.phone ||
+      !customer.address ||
+      !customer.pincode
+    ) {
+      alert("Please fill all delivery details");
+      return;
+    }
 
-  setProcessing(true);
+    setProcessing(true);
 
-  try {
-
-    // Create Razorpay Order
-    const response = await fetch(
-      "http://localhost:5000/create-order",
-      {
+    try {
+      const response = await fetch("http://localhost:5000/create-order", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: totalAmount }),
+      });
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const order = await response.json();
 
-        body: JSON.stringify({
-          amount: totalAmount,
-        }),
-      }
-    );
+      const options = {
+        key: "rzp_test_SqRtF41rL6Tybl",
+        amount: order.amount,
+        currency: order.currency,
+        name: "SITA RAMA PUTHAREKULU",
+        description: "Order Payment",
+        order_id: order.id,
+        handler: async function (response) {
+          const orderDetails = cart
+            .map((item) => `${item.name} x ${item.quantity}`)
+            .join("\n");
 
-    const order = await response.json();
-
-    // Razorpay Checkout
-    const options = {
-
-      key: "rzp_test_SqRtF41rL6Tybl",
-
-      amount: order.amount,
-
-      currency: order.currency,
-
-      name: "SITA RAMA PUTHAREKULU",
-
-      description: "Order Payment",
-
-      order_id: order.id,
-
-      handler: async function (response) {
-
-        // Save Order Details To Web3Forms
-
-        const orderDetails = cart
-          .map(
-            (item) =>
-              `${item.name} x ${item.quantity}`
-          )
-          .join("\n");
-
-        const formData = {
-
-          access_key:
-            "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
-
-          name: customer.name,
-
-          phone: customer.phone,
-
-          address: customer.address,
-
-          pincode: customer.pincode,
-
-          order_details: orderDetails,
-
-          total_amount: totalAmount,
-
-          payment_id:
-            response.razorpay_payment_id,
-        };
-
-        await fetch(
-          "https://api.web3forms.com/submit",
-          {
+          await fetch("https://api.web3forms.com/submit", {
             method: "POST",
-
             headers: {
-              "Content-Type":
-                "application/json",
-
+              "Content-Type": "application/json",
               Accept: "application/json",
             },
+            body: JSON.stringify({
+              access_key: "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
+              name: customer.name,
+              phone: customer.phone,
+              address: customer.address,
+              pincode: customer.pincode,
+              order_details: orderDetails,
+              total_amount: totalAmount,
+              payment_id: response.razorpay_payment_id,
+            }),
+          });
 
-            body: JSON.stringify(formData),
-          }
-        );
+          window.location.href = "/success";
+        },
+        prefill: {
+          name: customer.name,
+          contact: customer.phone,
+        },
+        theme: { color: "#c2410c" },
+      };
 
-        window.location.href = "/success";
-      },
-
-      prefill: {
-
-        name: customer.name,
-
-        contact: customer.phone,
-      },
-
-      theme: {
-        color: "#c2410c",
-      },
-    };
-
-    const razor = new window.Razorpay(
-      options
-    );
-
-    razor.open();
-
-    setProcessing(false);
-
-  } catch (error) {
-
-    console.log(error);
-
-    alert("Payment Failed");
-
-    setProcessing(false);
-
-  }
-};
-
-  // Removed unused handleBuyNow to clean up unused variable lint warnings
+      const razor = new window.Razorpay(options);
+      razor.open();
+      setProcessing(false);
+    } catch (error) {
+      console.error(error);
+      alert("Payment failed. Please try again.");
+      setProcessing(false);
+    }
+  };
 
   return (
+    <div className="min-h-screen text-gray-800">
+      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl shadow-sm border-b border-orange-100">
+        <div className="container flex items-center justify-between py-4">
+          <Link to="/" className="brand-mark text-lg md:text-2xl font-extrabold">
+            SITA RAMA <span>PUTHAREKULU</span>
+          </Link>
 
-    <div className="min-h-screen bg-linear-to-b from-orange-50 to-yellow-50 text-gray-800">
-
-      {/* Navbar */}
-
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md shadow-md px-6 py-4">
-
-        <div className="container flex items-center justify-between">
-
-          <h1 className="text-2xl font-extrabold text-orange-900 tracking-tight">
-            SITA RAMA
-            <span className="text-yellow-600">
-              {" "}PUTHAREKULU
-            </span>
-          </h1>
-
-          <nav className="flex items-center gap-4">
-
+          <nav className="flex items-center gap-2 md:gap-5">
             <a
               href="#products"
-              className="text-gray-700 hover:text-orange-800 font-medium"
+              className="text-sm md:text-base font-medium hover:text-orange-700 transition"
             >
               Products
             </a>
 
-            <a
-              href="/reviews"
-              className="text-gray-700 hover:text-orange-800 font-medium"
+            <Link
+              to="/reviews"
+              className="text-sm md:text-base font-medium hover:text-orange-700 transition"
             >
               Reviews
-            </a>
+            </Link>
 
             <button
-              onClick={() =>
-                setShowCart(!showCart)
-              }
-              className="bg-orange-700 hover:bg-orange-800 text-white px-4 py-2 rounded-2xl font-semibold shadow"
+              onClick={() => setShowCart(true)}
+              className="btn btn-primary px-4 md:px-5 py-2 text-sm md:text-base"
             >
-              Cart ({cart.length})
+              Cart ({cart.reduce((count, item) => count + item.quantity, 0)})
             </button>
-
           </nav>
-
         </div>
-
       </header>
 
-      {/* Hero */}
-      <section className="relative py-16">
+      <section className="hero-section relative py-14 md:py-24 overflow-hidden">
+        <div className="hero-glow" />
 
-        <div className="container px-0 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div className="container grid grid-cols-2 gap-12 items-center">
+          <div className="relative z-10">
+            <p className="eyebrow">Fresh from Andhra Pradesh</p>
 
-          <div>
-
-            <h2 className="text-5xl lg:hero-title font-extrabold text-orange-900 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-orange-950 leading-tight">
               Handmade, Thin & Crispy
               <br />
+              <span className="text-yellow-700">Traditional Putharekulu</span>
+            </h1>
 
-              <span className="text-yellow-600">
-                Traditional Putharekulu
-              </span>
-
-            </h2>
-
-            <p className="mt-6 text-lg text-gray-700 max-w-2xl">
-              Crafted using time-honored recipes and premium ingredients.
+            <p className="mt-6 text-base md:text-lg text-gray-600 leading-8 max-w-2xl">
+              Crafted with authentic Atreyapuram methods, delicate rice paper,
+              premium ghee, and rich fillings prepared fresh for every order.
             </p>
 
+            <div className="mt-8 flex flex-wrap gap-4">
+              <a href="#products" className="btn btn-primary px-8 py-4">
+                Shop Now
+              </a>
+
+              <Link to="/reviews" className="btn btn-secondary px-8 py-4">
+                Customer Reviews
+              </Link>
+            </div>
           </div>
 
-          <div className="mx-auto">
-
-            <div className="relative w-105 h-75 md:w-130 md:h-90 lg:w-[720px] lg:h-[420px] rounded-3xl overflow-hidden shadow-2xl">
-
+          <div className="relative mx-auto w-full">
+            <div className="hero-image relative w-full max-w-[720px] h-[260px] md:h-[420px] rounded-[28px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.18)] border border-orange-100">
               <img
                 src={hero}
-                alt="Hero"
-                className="object-cover w-full h-full"
+                alt="Fresh handmade Putharekulu sweets"
+                className="w-full h-full object-cover"
               />
-
             </div>
-
           </div>
-
         </div>
-
       </section>
 
-      {/* Products */}
-      <section
-        id="products"
-        className="py-16 px-6"
-      >
-
+      <section id="products" className="py-16 px-4 md:px-6">
         <div className="container">
+          <div className="section-heading">
+            <p className="eyebrow">Our Menu</p>
+            <h2 className="text-3xl md:text-5xl font-extrabold text-orange-950">
+              Signature Putharekulu
+            </h2>
+          </div>
 
-          <h2 className="text-4xl font-bold text-center text-orange-800 mb-12">
-            Our Products
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
-
+          <div className="grid grid-cols-3 gap-8 mt-12">
             {products.map((product) => (
-
-              <div
-                key={product.id}
-                className="product-card relative bg-white rounded-3xl overflow-hidden shadow-lg transition"
-                style={{ minHeight: 340 }}
-              >
-
+              <article key={product.id} className="product-card rounded-[22px]">
                 <img
                   src={product.image}
                   alt={product.name}
-                  className="w-full object-cover lg:h-64 h-56"
-                  loading="lazy"
+                  className="w-full h-56 md:h-64 object-cover"
                 />
 
                 <div className="p-6">
-
-                  <h3 className="text-2xl font-bold text-orange-900">
+                  <h3 className="text-2xl font-bold text-orange-950">
                     {product.name}
                   </h3>
 
-                  <p className="mt-2 text-gray-600">
-                    {product.sizes}
-                  </p>
+                  <p className="mt-2 text-gray-600">{product.sizes}</p>
 
-                  <div className="mt-4 flex items-center justify-between">
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    <span className="badge badge-orange">Handmade</span>
+                    <span className="badge badge-yellow">Fresh</span>
+                    <span className="badge badge-green">Premium</span>
+                  </div>
 
+                  <div className="mt-6 flex items-center justify-between">
                     <p className="text-2xl font-extrabold text-green-700">
                       ₹{product.price}
                     </p>
 
                     <button
-                      onClick={() =>
-                        addToCart(product)
-                      }
+                      onClick={() => addToCart(product)}
                       className="btn btn-primary px-5 py-2"
                     >
                       Add
                     </button>
-
                   </div>
 
-                    <a
-                      href={`/buy/${product.id}`}
-                      className="btn mt-4 w-full text-center btn-primary"
-                    >
-                      Buy Now
-                    </a>
-
+                  <Link
+                    to={`/buy/${product.id}`}
+                    className="btn btn-secondary w-full mt-5 py-3"
+                  >
+                    Buy Now
+                  </Link>
                 </div>
-
-              </div>
-
+              </article>
             ))}
-
           </div>
-
         </div>
-
       </section>
 
-      {/* Cart */}
       {showCart && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/30 z-40"
+            onClick={() => setShowCart(false)}
+          />
 
-        <div className="fixed top-0 right-0 w-full md:w-112.5 h-screen bg-white shadow-2xl z-50 overflow-y-auto p-6">
+          <aside className="cart-drawer fixed top-0 right-0 w-full md:w-[450px] h-screen z-50 overflow-y-auto p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-bold text-orange-900">Your Cart</h2>
 
-          <div className="flex justify-between items-center mb-6">
+              <button
+                onClick={() => setShowCart(false)}
+                className="cart-close"
+                aria-label="Close cart"
+              >
+                ×
+              </button>
+            </div>
 
-            <h2 className="text-3xl font-bold text-orange-800">
-              Your Cart
-            </h2>
+            {cart.length === 0 ? (
+              <p className="empty-state">Your cart is empty.</p>
+            ) : (
+              <>
+                {cart.map((item) => (
+                  <div
+                    key={item.id}
+                    className="border-b border-orange-100 py-4 flex gap-4 items-center"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-20 h-20 rounded-2xl object-cover"
+                    />
 
-            <button
-              onClick={() =>
-                setShowCart(false)
-              }
-              className="text-red-600 text-2xl"
-            >
-              ✕
-            </button>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-orange-950">{item.name}</h3>
+                      <p className="text-green-700 font-semibold">
+                        ₹{item.price}
+                      </p>
 
-          </div>
-
-          {cart.length === 0 ? (
-
-            <p>Your cart is empty.</p>
-
-          ) : (
-
-            <>
-              {cart.map((item) => (
-
-                <div
-                  key={item.id}
-                  className="border-b py-4 flex gap-4 items-center"
-                >
-
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
-
-                  <div className="flex-1">
-
-                    <h3 className="font-bold">
-                      {item.name}
-                    </h3>
-
-                    <p>
-                      ₹{item.price}
-                    </p>
-
-                    <div className="flex items-center gap-3 mt-2">
-
-                      <button
-                        onClick={() =>
-                          decreaseQty(item.id)
-                        }
-                        className="bg-red-500 text-white px-3 rounded"
-                      >
-                        -
-                      </button>
-
-                      <span>
-                        {item.quantity}
-                      </span>
-
-                      <button
-                        onClick={() =>
-                          increaseQty(item.id)
-                        }
-                        className="bg-green-600 text-white px-3 rounded"
-                      >
-                        +
-                      </button>
-
+                      <div className="qty-control mt-3">
+                        <button onClick={() => decreaseQty(item.id)}>-</button>
+                        <span>{item.quantity}</span>
+                        <button onClick={() => increaseQty(item.id)}>+</button>
+                      </div>
                     </div>
+                  </div>
+                ))}
 
+                <div className="mt-8">
+                  <h3 className="text-3xl font-bold text-green-700 mb-6">
+                    Total: ₹{totalAmount}
+                  </h3>
+
+                  <div className="space-y-4">
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={customer.name}
+                      onChange={(e) => updateCustomer("name", e.target.value)}
+                    />
+
+                    <input
+                      type="tel"
+                      placeholder="Phone Number"
+                      value={customer.phone}
+                      onChange={(e) => updateCustomer("phone", e.target.value)}
+                    />
+
+                    <textarea
+                      rows="4"
+                      placeholder="Delivery Address"
+                      value={customer.address}
+                      onChange={(e) =>
+                        updateCustomer("address", e.target.value)
+                      }
+                    />
+
+                    <input
+                      type="text"
+                      placeholder="Pincode"
+                      value={customer.pincode}
+                      onChange={(e) =>
+                        updateCustomer("pincode", e.target.value)
+                      }
+                    />
                   </div>
 
+                  <button
+                    onClick={proceedToPayment}
+                    disabled={processing}
+                    className="btn btn-primary w-full py-4 mt-6 text-lg"
+                  >
+                    {processing ? "Processing..." : "Proceed To Payment"}
+                  </button>
                 </div>
-
-              ))}
-
-              <div className="mt-6">
-
-                <h3 className="text-2xl font-bold text-green-700 mb-4">
-                  Total: ₹{totalAmount}
-                </h3>
-
-                <div className="space-y-4">
-
-                  <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={customer.name}
-                    onChange={(e) =>
-                      setCustomer({
-                        ...customer,
-                        name: e.target.value,
-                      })
-                    }
-                    className="w-full border p-3 rounded-xl"
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Phone Number"
-                    value={customer.phone}
-                    onChange={(e) =>
-                      setCustomer({
-                        ...customer,
-                        phone: e.target.value,
-                      })
-                    }
-                    className="w-full border p-3 rounded-xl"
-                  />
-
-                  <textarea
-                    placeholder="Delivery Address"
-                    value={customer.address}
-                    onChange={(e) =>
-                      setCustomer({
-                        ...customer,
-                        address: e.target.value,
-                      })
-                    }
-                    className="w-full border p-3 rounded-xl"
-                    rows="4"
-                  />
-
-                  <input
-                    type="text"
-                    placeholder="Pincode"
-                    value={customer.pincode}
-                    onChange={(e) =>
-                      setCustomer({
-                        ...customer,
-                        pincode: e.target.value,
-                      })
-                    }
-                    className="w-full border p-3 rounded-xl"
-                  />
-
-                </div>
-
-                <button
-                  onClick={proceedToPayment}
-                  disabled={processing}
-                  className="w-full mt-6 bg-orange-700 hover:bg-orange-800 text-white py-4 rounded-2xl text-lg font-bold"
-                >
-                  {processing
-                    ? "Processing Order..."
-                    : "Proceed To Payment"}
-                </button>
-
-              </div>
-
-            </>
-
-          )}
-
-        </div>
-
+              </>
+            )}
+          </aside>
+        </>
       )}
 
-      {/* Contact */}
-      <section className="py-16 px-6 bg-orange-900 text-white text-center">
+      <section className="contact-band py-20 px-6 text-white text-center">
+        <p className="eyebrow text-yellow-200">Need help ordering?</p>
 
-        <h2 className="text-4xl font-bold mb-6">
-          Contact Us
-        </h2>
+        <h2 className="text-4xl font-bold mb-6">Contact Us</h2>
 
-        <p className="text-xl mb-4">
-          WhatsApp: +91 9652999544
-        </p>
+        <p className="text-xl mb-6">WhatsApp: +91 9652999544</p>
 
+        <a
+          href="https://wa.me/919652999544"
+          target="_blank"
+          rel="noreferrer"
+          className="btn btn-primary px-8 py-4"
+        >
+          Chat On WhatsApp
+        </a>
       </section>
 
       <Footer />
-
     </div>
   );
 }
