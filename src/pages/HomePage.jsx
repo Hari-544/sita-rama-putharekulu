@@ -139,24 +139,18 @@ function HomePage() {
             SITA RAMA <span>PUTHAREKULU</span>
           </Link>
 
-          <nav className="flex items-center gap-2 md:gap-5">
-            <a
-              href="#products"
-              className="text-sm md:text-base font-medium hover:text-orange-700 transition"
-            >
+          <nav className="flex items-center gap-4">
+            <a href="#products" className="nav-link">
               Products
             </a>
 
-            <Link
-              to="/reviews"
-              className="text-sm md:text-base font-medium hover:text-orange-700 transition"
-            >
+            <Link to="/reviews" className="nav-link">
               Reviews
             </Link>
 
             <button
               onClick={() => setShowCart(true)}
-              className="btn btn-primary px-4 md:px-5 py-2 text-sm md:text-base"
+              className="btn btn-primary px-5 py-2"
             >
               Cart ({cart.reduce((count, item) => count + item.quantity, 0)})
             </button>
@@ -223,39 +217,39 @@ function HomePage() {
                   className="w-full h-56 md:h-64 object-cover"
                 />
 
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-orange-950">
-                    {product.name}
-                  </h3>
+                    <div className="p-6">
+                      <h3 className="text-2xl font-bold text-orange-950">
+                        {product.name}
+                      </h3>
 
-                  <p className="mt-2 text-gray-600">{product.sizes}</p>
+                      <p className="mt-2 text-gray-600">{product.sizes}</p>
 
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    <span className="badge badge-orange">Handmade</span>
-                    <span className="badge badge-yellow">Fresh</span>
-                    <span className="badge badge-green">Premium</span>
-                  </div>
+                      <div className="flex flex-wrap gap-2 mt-4">
+                        <span className="badge badge-orange">Handmade</span>
+                        <span className="badge badge-yellow">Fresh</span>
+                        <span className="badge badge-green">Premium</span>
+                      </div>
 
-                  <div className="mt-6 flex items-center justify-between">
-                    <p className="text-2xl font-extrabold text-green-700">
-                      ₹{product.price}
-                    </p>
+                      <div className="mt-6 flex items-center justify-between card-footer">
+                        <div className="price-badge">₹{product.price}</div>
 
-                    <button
-                      onClick={() => addToCart(product)}
-                      className="btn btn-primary px-5 py-2"
-                    >
-                      Add
-                    </button>
-                  </div>
+                        <div className="actions flex gap-3">
+                          <button
+                            onClick={() => addToCart(product)}
+                            className="btn btn-outline px-4 py-2"
+                          >
+                            Add
+                          </button>
 
-                  <Link
-                    to={`/buy/${product.id}`}
-                    className="btn btn-secondary w-full mt-5 py-3"
-                  >
-                    Buy Now
-                  </Link>
-                </div>
+                          <Link
+                            to={`/buy/${product.id}`}
+                            className="btn btn-primary px-5 py-2"
+                          >
+                            Buy Now
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
               </article>
             ))}
           </div>
