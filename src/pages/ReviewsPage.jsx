@@ -1,50 +1,43 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 import {
-  collection,
   addDoc,
+  collection,
   onSnapshot,
-  query,
   orderBy,
+  query,
 } from "firebase/firestore";
-
 import { db } from "../firebase";
 
+const ratings = ["★★★★★", "★★★★", "★★★", "★★", "★"];
+
 function ReviewsPage() {
-
   const [reviews, setReviews] = useState([]);
-
   const [formData, setFormData] = useState({
     name: "",
-    rating: "⭐⭐⭐⭐⭐",
+    rating: "★★★★★",
     review: "",
   });
 
   useEffect(() => {
-
-    const q = query(
-      collection(db, "reviews"),
-      orderBy("createdAt", "desc")
-    );
-
+    const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-
       const reviewsData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
 
       setReviews(reviewsData);
-
     });
 
     return () => unsubscribe();
-
   }, []);
 
-  const submitReview = async (e) => {
+  const updateForm = (field, value) => {
+    setFormData((current) => ({ ...current, [field]: value }));
+  };
 
+  const submitReview = async (e) => {
     e.preventDefault();
 
     if (!formData.name || !formData.review) {
@@ -53,7 +46,6 @@ function ReviewsPage() {
     }
 
     try {
-
       await addDoc(collection(db, "reviews"), {
         ...formData,
         createdAt: new Date(),
@@ -61,12 +53,11 @@ function ReviewsPage() {
 
       setFormData({
         name: "",
-        rating: "⭐⭐⭐⭐⭐",
+        rating: "★★★★★",
         review: "",
       });
 
       alert("Review submitted successfully!");
-
     } catch (error) {
       console.error(error);
       alert("Something went wrong!");
@@ -74,140 +65,85 @@ function ReviewsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-orange-50">
-
-      {/* Header */}
-      <div className="bg-orange-900 text-white py-10 px-6 text-center">
-
-        <h1 className="text-5xl font-extrabold">
+    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white">
+      <section className="review-hero text-white py-20 px-6 text-center">
+        <p className="eyebrow text-yellow-200">Customer Feedback</p>
+        <h1 className="text-4xl md:text-6xl font-extrabold">
           Customer Reviews
         </h1>
-
-        <p className="mt-4 text-orange-200 text-lg">
-          Share your sweet experience 🍯
+        <p className="mt-5 text-orange-100 text-lg max-w-2xl mx-auto leading-8">
+          Real reviews from customers who enjoyed our authentic handmade
+          Putharekulu.
         </p>
+      </section>
 
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 py-12">
-
-        {/* Top */}
-        <div className="flex justify-between items-center flex-wrap gap-4 mb-12">
-
-          <h2 className="text-4xl font-bold text-orange-800">
-            Reviews ⭐
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-14">
+        <div className="flex flex-wrap justify-between items-center gap-5 mb-14">
+          <h2 className="text-3xl md:text-5xl font-extrabold text-orange-950">
+            Sweet Experiences
           </h2>
 
-          <Link
-            to="/"
-            className="bg-orange-700 hover:bg-orange-800 text-white px-6 py-3 rounded-2xl font-semibold"
-          >
+          <Link to="/" className="btn btn-primary px-7 py-3">
             Back To Home
           </Link>
-
         </div>
 
-        {/* Form */}
-        <div className="bg-white rounded-3xl shadow-lg p-8 mb-16">
-
-          <h2 className="text-3xl font-bold text-orange-800 mb-6">
+        <section className="checkout-panel bg-white rounded-[22px] border border-orange-100 p-6 md:p-10 mb-16">
+          <h2 className="text-3xl font-extrabold text-orange-950 mb-3">
             Write A Review
           </h2>
 
-          <form
-            onSubmit={submitReview}
-            className="space-y-5"
-          >
+          <p className="text-gray-500 mb-8">
+            Share your experience with our sweets.
+          </p>
 
+          <form onSubmit={submitReview} className="space-y-5">
             <input
               type="text"
               placeholder="Your Name"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  name: e.target.value,
-                })
-              }
-              className="w-full border p-4 rounded-2xl"
+              onChange={(e) => updateForm("name", e.target.value)}
             />
 
             <select
               value={formData.rating}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  rating: e.target.value,
-                })
-              }
-              className="w-full border p-4 rounded-2xl"
+              onChange={(e) => updateForm("rating", e.target.value)}
+              className="w-full border border-orange-200 p-4 rounded-2xl bg-white"
             >
-              <option>⭐⭐⭐⭐⭐</option>
-              <option>⭐⭐⭐⭐</option>
-              <option>⭐⭐⭐</option>
-              <option>⭐⭐</option>
-              <option>⭐</option>
+              {ratings.map((rating) => (
+                <option key={rating}>{rating}</option>
+              ))}
             </select>
 
             <textarea
               placeholder="Write your review..."
               rows="5"
               value={formData.review}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  review: e.target.value,
-                })
-              }
-              className="w-full border p-4 rounded-2xl"
+              onChange={(e) => updateForm("review", e.target.value)}
             />
 
-            <button
-              type="submit"
-              className="bg-orange-700 hover:bg-orange-800 text-white px-8 py-4 rounded-2xl font-semibold"
-            >
+            <button type="submit" className="btn btn-primary px-8 py-4">
               Submit Review
             </button>
-
           </form>
+        </section>
 
-        </div>
-
-        {/* Reviews */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {reviews.map((review) => (
-
-            <div
-              key={review.id}
-              className="bg-white rounded-3xl p-8 shadow-lg"
-            >
-
-              <div className="flex justify-between items-center mb-4">
-
-                <h3 className="text-2xl font-bold text-orange-800">
+            <article key={review.id} className="review-card">
+              <div className="flex items-center justify-between gap-4 mb-5">
+                <h3 className="text-2xl font-bold text-orange-950">
                   {review.name}
                 </h3>
-
-                <span className="text-sm text-gray-500">
-                  {review.rating}
-                </span>
-
+                <span className="text-yellow-600 shrink-0">{review.rating}</span>
               </div>
 
-              <p className="text-gray-700 leading-8">
-                {review.review}
-              </p>
-
-            </div>
-
+              <p className="text-gray-600 leading-8">{review.review}</p>
+            </article>
           ))}
-
-        </div>
-
+        </section>
       </div>
-
-    </div>
+    </main>
   );
 }
 
