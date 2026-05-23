@@ -18,13 +18,8 @@ function BuyNowPage() {
   };
 
   const handlePayment = async () => {
-    if (
-      !customer.name ||
-      !customer.phone ||
-      !customer.address ||
-      !customer.pincode
-    ) {
-      alert("Please fill all details");
+    if (!customer.name || !customer.phone || !customer.address || !customer.pincode) {
+      alert("Please enter all details to proceed with your order.");
       return;
     }
 
@@ -56,124 +51,136 @@ function BuyNowPage() {
       }, 200);
     } catch (error) {
       console.error(error);
-      alert("Something went wrong. Please try again.");
+      alert("An error occurred. Please verify your connection and try again.");
       setProcessing(false);
     }
   };
 
   if (!product) {
     return (
-      <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white py-16 px-4">
-        <div className="max-w-3xl mx-auto bg-white rounded-[22px] border border-orange-100 p-8 text-center shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
-          <h1 className="text-3xl font-extrabold text-orange-950">
-            Product not found
-          </h1>
-          <p className="mt-3 text-gray-600">
-            The item you are looking for is not available.
-          </p>
-          <Link to="/" className="btn btn-primary px-7 py-3 mt-6">
-            Back To Home
-          </Link>
+          <main className="min-h-screen bg-[#fffaf5] flex items-center justify-center px-6">
+            <div className="panel-shell max-w-md w-full p-8 text-center mx-auto">
+              <h1 className="text-3xl font-bold text-stone-900">Product Not Found</h1>
+          <p className="mt-2 text-stone-500">The sweet item selected is temporarily unavailable.</p>
+          <Link to="/" className="btn btn-primary mt-6 inline-flex">Return To Storefront</Link>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white py-10 px-4">
-      <div className="max-w-7xl mx-auto">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-orange-700 font-semibold hover:text-orange-950 transition"
-        >
-          ← Back To Home
+      <main className="min-h-screen bg-[#fffaf5] py-14 px-6">
+        <div className="container">
+        
+        {/* Navigation Breadcrumb */}
+        <Link to="/" className="inline-flex items-center gap-2 text-orange-700 font-medium hover:text-orange-950 transition-colors duration-200 mb-8 group">
+          <span className="transform group-hover:-translate-x-1 transition-transform duration-200">←</span> Back To Storefront
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-8">
-          <section className="product-card rounded-[22px] overflow-hidden">
-            <div className="overflow-hidden">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-[300px] md:h-[500px] object-cover hover:scale-105 transition duration-500"
-              />
+        {/* Checkout Container Split Grid */}
+        <div className="grid grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Product Context Preview Panel */}
+          <section className="col-span-5 panel-shell p-6">
+            <h2 className="text-xs uppercase tracking-widest text-orange-600 font-extrabold mb-4">Your Order</h2>
+            <div className="aspect-video w-full rounded-2xl overflow-hidden mb-4 bg-orange-50">
+              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
             </div>
-
-            <div className="p-8">
-              <div className="flex flex-wrap gap-2 mb-4">
-                <span className="badge badge-orange">Handmade</span>
-                <span className="badge badge-yellow">Fresh</span>
-                <span className="badge badge-green">Premium</span>
+            <h3 className="text-xl font-bold text-stone-900">{product.name}</h3>
+            <p className="text-sm text-stone-500 mt-1">{product.sizes}</p>
+            
+            <div className="border-t border-dashed border-orange-100 mt-6 pt-4 space-y-3">
+              <div className="flex justify-between text-sm text-stone-600">
+                <span>Fresh Preparation Base</span>
+                <span>Included</span>
               </div>
-
-              <h1 className="text-3xl md:text-5xl font-extrabold text-orange-950 leading-tight">
-                {product.name}
-              </h1>
-
-              <p className="mt-5 text-gray-600 text-lg leading-8">
-                {product.sizes}
-              </p>
-
-              <div className="mt-8">
-                <p className="text-sm text-gray-500">Starting Price</p>
-                <p className="text-4xl font-extrabold text-green-700">
-                  ₹{product.price}
-                </p>
+              <div className="flex justify-between text-sm text-stone-600">
+                <span>Secure Courier Packaging</span>
+                <span>Free</span>
+              </div>
+              <div className="flex justify-between items-baseline pt-2 border-t border-stone-100">
+                <span className="font-semibold text-stone-900">Total Amount Due</span>
+                <span className="text-2xl font-black text-orange-700">₹{product.price}</span>
               </div>
             </div>
           </section>
 
-          <section className="checkout-panel bg-white rounded-[22px] border border-orange-100 p-6 md:p-10 h-fit lg:sticky lg:top-28">
-            <h2 className="text-3xl md:text-4xl font-extrabold text-orange-950">
-              Delivery Details
-            </h2>
-
-            <p className="mt-3 text-gray-500 leading-7">
-              Please enter your shipping details carefully for smooth delivery.
+          {/* Right Column: High-End Delivery Form */}
+          <section className="col-span-7 panel-shell p-8">
+            <h2 className="text-2xl font-bold text-stone-900">Shipping & Verification Details</h2>
+            <p className="text-sm text-stone-500 mt-2 mb-6">
+              Orders are freshly curated upon real-time confirmation. Please ensure your WhatsApp phone number is precise.
             </p>
 
-            <div className="space-y-5 mt-8">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={customer.name}
-                onChange={(e) => updateCustomer("name", e.target.value)}
-              />
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Recipient Full Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Hari Prasad"
+                  value={customer.name}
+                  onChange={(e) => updateCustomer("name", e.target.value)}
+                />
+              </div>
 
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={customer.phone}
-                onChange={(e) => updateCustomer("phone", e.target.value)}
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">WhatsApp Contact Number</label>
+                <input
+                  type="tel"
+                  placeholder="e.g., 9652999544"
+                  value={customer.phone}
+                  onChange={(e) => updateCustomer("phone", e.target.value)}
+                />
+              </div>
 
-              <textarea
-                placeholder="Delivery Address"
-                rows="5"
-                value={customer.address}
-                onChange={(e) => updateCustomer("address", e.target.value)}
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Complete Delivery Address</label>
+                <textarea
+                  placeholder="Door Number, Street Name, Landmark, City/Village Name"
+                  rows="4"
+                  value={customer.address}
+                  onChange={(e) => updateCustomer("address", e.target.value)}
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="Pincode"
-                value={customer.pincode}
-                onChange={(e) => updateCustomer("pincode", e.target.value)}
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">6-Digit Pincode</label>
+                <input
+                  type="text"
+                  maxLength="6"
+                  placeholder="e.g., 533201"
+                  value={customer.pincode}
+                  onChange={(e) => updateCustomer("pincode", e.target.value)}
+                />
+              </div>
 
               <button
                 onClick={handlePayment}
                 disabled={processing}
-                className="btn btn-primary w-full py-4 text-lg"
+                className="btn btn-primary w-full py-4 mt-4 text-base font-bold"
               >
-                {processing ? "Processing Order..." : "Proceed To Payment"}
+                {processing ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Processing Secure Order...
+                  </span>
+                ) : (
+                  `Proceed To Payment • ₹${product.price}`
+                )}
               </button>
 
-              <p className="text-sm text-gray-500 text-center leading-6">
-                Secure payment powered by Razorpay.
-              </p>
+              <div className="flex items-center justify-center gap-2 mt-4 text-xs text-stone-400">
+                <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944a11.954 11.954 0 007.834 3.056 10.03 10.03 0 01-1.11 5.513c-.927 1.733-2.317 3.197-4.015 4.25a11.973 11.973 0 01-5.418 1.637A11.973 11.973 0 013.7 14.762c-1.698-1.053-3.088-2.517-4.015-4.25a10.03 10.03 0 01-1.11-5.513zm10.708 3.707a1 1 0 00-1.414-1.414L8 10.586 6.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Secure dynamic routing layer powered by Razorpay API gateway.
+              </div>
             </div>
           </section>
+
         </div>
       </div>
     </main>

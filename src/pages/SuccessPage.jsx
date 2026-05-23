@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 
 function SuccessPage() {
   return (
-    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center px-6 py-12">
-      <section className="checkout-panel max-w-2xl w-full bg-white rounded-[22px] p-8 md:p-10 text-center">
-        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center px-6 py-14">
+      <section className="panel-shell max-w-2xl w-full p-10 text-center">
+        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto shadow-inner">
           <span className="text-5xl text-green-700">✓</span>
         </div>
 
-        <h1 className="mt-8 text-4xl md:text-5xl font-extrabold text-orange-950">
+        <h1 className="mt-8 text-5xl font-extrabold text-orange-950">
           Order Placed Successfully!
         </h1>
 
