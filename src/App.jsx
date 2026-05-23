@@ -16,31 +16,26 @@ function App() {
 
     <Routes>
 
-      {/* Home Page */}
       <Route
         path="/"
         element={<HomePage />}
       />
 
-      {/* Reviews */}
       <Route
         path="/reviews"
         element={<ReviewsPage />}
       />
 
-      {/* Buy Now Page */}
       <Route
         path="/buy/:id"
         element={<BuyNowPage />}
       />
 
-      {/* Success Page */}
       <Route
         path="/success"
         element={<SuccessPage />}
       />
 
-      {/* Policy Pages */}
       <Route
         path="/privacy-policy"
         element={<PrivacyPolicy />}

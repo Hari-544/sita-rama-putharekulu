@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 function Footer() {
   return (
     <footer className="site-footer text-white py-16 px-6">
-      <div className="container grid grid-cols-3 gap-10">
+      <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
         <div>
           <h2 className="text-3xl font-extrabold text-yellow-300">
             SITA RAMA PUTHAREKULU

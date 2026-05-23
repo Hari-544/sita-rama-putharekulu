@@ -17,7 +17,6 @@ export const products = [
     image: jaggery,
     paymentLink: "https://rzp.io/rzp/S7EMv5Se",
   },
-
   {
     id: 2,
     name: "Plain Sugar Putharekulu",
@@ -26,7 +25,6 @@ export const products = [
     image: sugar,
     paymentLink: "https://rzp.io/rzp/YqVnJmPC",
   },
-
   {
     id: 3,
     name: "Dry Fruits Jaggery Putharekulu",
@@ -35,7 +33,6 @@ export const products = [
     image: dryfruit,
     paymentLink: "https://rzp.io/rzp/7Pg1Mwa",
   },
-
   {
     id: 4,
     name: "Dry Fruits Sugar Putharekulu",
@@ -44,7 +41,6 @@ export const products = [
     image: dryfruitSugar,
     paymentLink: "https://rzp.io/rzp/7Pg1Mwa",
   },
-
   {
     id: 5,
     name: "Plain Kova Putharekulu",
@@ -53,7 +49,6 @@ export const products = [
     image: kova,
     paymentLink: "https://rzp.io/rzp/AZykm5U",
   },
-
   {
     id: 6,
     name: "Karam Putharekulu",
@@ -62,7 +57,6 @@ export const products = [
     image: karam,
     paymentLink: "https://rzp.io/rzp/iIdB8raG",
   },
-
   {
     id: 7,
     name: "Samosa Shaped Jaggery Putharekulu",
@@ -71,7 +65,6 @@ export const products = [
     image: samosaJaggery,
     paymentLink: "https://rzp.io/rzp/T2Pf7R12",
   },
-
   {
     id: 8,
     name: "Samosa Shaped Sugar Putharekulu",
@@ -80,7 +73,6 @@ export const products = [
     image: samosaSugar,
     paymentLink: "https://rzp.io/rzp/T2Pf7R12",
   },
-
   {
     id: 9,
     name: "Chocolate Putharekulu",
