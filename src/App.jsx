@@ -4,7 +4,8 @@ import HomePage from "./pages/HomePage";
 import ReviewsPage from "./pages/ReviewsPage";
 import BuyNowPage from "./pages/BuyNowPage";
 import SuccessPage from "./pages/SuccessPage";
-
+import CheckoutPage from "./pages/CheckoutPage";
+import CartPage from "./pages/CartPage";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
@@ -31,6 +32,8 @@ function App() {
         element={<BuyNowPage />}
       />
 
+      <Route path="/cart" element={<CartPage />} />
+
       <Route
         path="/success"
         element={<SuccessPage />}
@@ -54,6 +57,11 @@ function App() {
       <Route
         path="/terms-and-conditions"
         element={<TermsPage />}
+      />
+
+      <Route
+        path="/checkout"
+        element={<CheckoutPage />}
       />
 
     </Routes>

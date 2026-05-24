@@ -17,44 +17,104 @@ function BuyNowPage() {
     setCustomer((current) => ({ ...current, [field]: value }));
   };
 
-  const handlePayment = async () => {
-    if (!customer.name || !customer.phone || !customer.address || !customer.pincode) {
-      alert("Please enter all details to proceed with your order.");
-      return;
-    }
+const handlePayment = async () => {
 
-    setProcessing(true);
+  if (
+    !customer.name ||
+    !customer.phone ||
+    !customer.address ||
+    !customer.pincode
+  ) {
+    alert("Please enter all details.");
+    return;
+  }
 
-    try {
-      await fetch("https://api.web3forms.com/submit", {
+  setProcessing(true);
+
+  try {
+
+    /* SEND ORDER DATA */
+
+    await fetch(
+      "https://api.web3forms.com/submit",
+      {
         method: "POST",
+
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
+
         body: JSON.stringify({
           access_key: "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
-          name: customer.name,
-          phone: customer.phone,
-          address: customer.address,
-          pincode: customer.pincode,
-          order_details: `${product.name} - ₹${product.price}`,
-          total_amount: product.price,
-        }),
-      });
 
-      setTimeout(() => {
-        window.open(product.paymentLink, "_blank");
-        setTimeout(() => {
-          window.location.href = "/success";
-        }, 500);
-      }, 200);
-    } catch (error) {
-      console.error(error);
-      alert("An error occurred. Please verify your connection and try again.");
-      setProcessing(false);
-    }
-  };
+          customer_name: customer.name,
+          customer_phone: customer.phone,
+          customer_address: customer.address,
+          customer_pincode: customer.pincode,
+
+          product_name: product.name,
+
+          amount: product.price,
+        }),
+      }
+    );
+
+    /* RAZORPAY */
+
+    const options = {
+
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+
+      amount: product.price * 100,
+
+      currency: "INR",
+
+      name: "SITA RAMA PUTHAREKULU",
+
+      description: product.name,
+
+      image: "/favicon.svg",
+
+      handler: function (response) {
+
+        console.log(response);
+
+        window.location.href = "/success";
+      },
+
+      prefill: {
+        name: customer.name,
+        contact: customer.phone,
+      },
+
+      notes: {
+        address: customer.address,
+        pincode: customer.pincode,
+      },
+
+      theme: {
+        color: "#ea580c",
+      },
+    };
+
+    const razorpay = new window.Razorpay(options);
+
+    razorpay.open();
+
+    setProcessing(false);
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Payment failed.");
+
+    setProcessing(false);
+
+  }
+
+};
 
   if (!product) {
     return (
