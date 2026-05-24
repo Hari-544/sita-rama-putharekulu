@@ -29,7 +29,7 @@ function CheckoutPage() {
 
   }, []);
 
-  /* QUANTITY INCREASE */
+  /* INCREASE */
 
   const increaseQty = (id) => {
 
@@ -49,9 +49,10 @@ function CheckoutPage() {
       "cart",
       JSON.stringify(updatedCart)
     );
+
   };
 
-  /* QUANTITY DECREASE */
+  /* DECREASE */
 
   const decreaseQty = (id) => {
 
@@ -72,6 +73,7 @@ function CheckoutPage() {
       "cart",
       JSON.stringify(updatedCart)
     );
+
   };
 
   /* TOTAL */
@@ -86,101 +88,225 @@ function CheckoutPage() {
 
   const handlePayment = async () => {
 
-    if (
-      !customer.name ||
-      !customer.phone ||
-      !customer.address ||
-      !customer.pincode
-    ) {
-      alert("Please fill all details");
-      return;
-    }
-
-    if (cart.length === 0) {
-      alert("Your cart is empty");
-      return;
-    }
-
-    setProcessing(true);
-
     try {
 
-      /* SAVE ORDER */
+      if (
+        !customer.name ||
+        !customer.phone ||
+        !customer.address ||
+        !customer.pincode
+      ) {
 
-      await fetch(
-        "https://api.web3forms.com/submit",
+        alert("Please fill all delivery details");
+
+        return;
+      }
+
+      if (cart.length === 0) {
+
+        alert("Your cart is empty");
+
+        return;
+      }
+
+      setProcessing(true);
+
+      /* CREATE ORDER */
+
+      const orderResponse = await fetch(
+        "http://localhost:5000/api/payment/create-order",
         {
           method: "POST",
 
           headers: {
-            "Content-Type":
-              "application/json",
-
-            Accept: "application/json",
+            "Content-Type": "application/json",
           },
 
           body: JSON.stringify({
-            access_key:
-              "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e",
-
-            customer_name:
-              customer.name,
-
-            customer_phone:
-              customer.phone,
-
-            customer_address:
-              customer.address,
-
-            customer_pincode:
-              customer.pincode,
-
-            order_items: cart
-              .map(
-                (item) =>
-                  `${item.name} x ${item.quantity}`
-              )
-              .join(", "),
-
-            total_amount:
-              totalAmount,
+            amount: totalAmount,
           }),
         }
       );
 
-      /* RAZORPAY */
+      const order =
+        await orderResponse.json();
+
+      console.log(order);
+
+      /* RAZORPAY OPTIONS */
 
       const options = {
 
         key:
           import.meta.env
-            .VITE_RAZORPAY_KEY_ID,
+            .VITE_RAZORPAY_KEY,
 
-        amount:
-          totalAmount * 100,
+        amount: order.amount,
 
         currency: "INR",
 
         name:
-          "SITA RAMA PUTHAREKULU",
+          "Sita Rama Putharekulu",
 
         description:
-          "Premium Sweet Order",
+          "Authentic Atreyapuram Sweets",
 
         image: "/favicon.svg",
 
-        handler: function (
+        order_id: order.id,
+
+        handler: async function (
           response
         ) {
 
-          console.log(response);
+          try {
 
-          localStorage.removeItem(
-            "cart"
-          );
+            /* VERIFY PAYMENT */
 
-          window.location.href =
-            "/success";
+            const verifyResponse =
+              await fetch(
+                "http://localhost:5000/api/payment/verify",
+                {
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json",
+                  },
+
+                  body: JSON.stringify({
+                    razorpay_order_id:
+                      response.razorpay_order_id,
+
+                    razorpay_payment_id:
+                      response.razorpay_payment_id,
+
+                    razorpay_signature:
+                      response.razorpay_signature,
+                  }),
+                }
+              );
+
+            const verifyData =
+              await verifyResponse.json();
+
+            console.log(
+              "VERIFY:",
+              verifyData
+            );
+
+            /* SUCCESS */
+
+            if (
+              verifyData.success
+            ) {
+
+              /* SEND TO WEB3FORMS */
+
+              const formData =
+                new FormData();
+
+              formData.append(
+                "access_key",
+                "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e"
+              );
+
+              formData.append(
+                "subject",
+                "🛒 New Sweet Order"
+              );
+
+              formData.append(
+                "from_name",
+                "Sita Rama Putharekulu"
+              );
+
+              formData.append(
+                "Customer Name",
+                customer.name
+              );
+
+              formData.append(
+                "Phone",
+                customer.phone
+              );
+
+              formData.append(
+                "Address",
+                customer.address
+              );
+
+              formData.append(
+                "Pincode",
+                customer.pincode
+              );
+
+              formData.append(
+                "Total Amount",
+                `₹${totalAmount}`
+              );
+
+              formData.append(
+                "Products",
+                cart
+                  .map(
+                    (item) =>
+                      `${item.name} × ${item.quantity}`
+                  )
+                  .join(", ")
+              );
+              formData.append(
+                "Payment Status",
+                "PAID ✅"
+              );
+              formData.append(
+                "Razorpay Payment ID",
+                response.razorpay_payment_id
+              );
+              formData.append(
+                "Razorpay Order ID",
+                response.razorpay_order_id
+              );
+
+              await fetch(
+                "https://api.web3forms.com/submit",
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+
+              alert(
+                "Payment Successful ✅"
+              );
+
+              localStorage.removeItem(
+                "cart"
+              );
+
+              setCart([]);
+
+              window.location.href =
+                "/";
+
+            } else {
+
+              alert(
+                "Payment Verification Failed"
+              );
+
+            }
+
+          } catch (error) {
+
+            console.log(error);
+
+            alert(
+              "Verification Error"
+            );
+
+          }
+
         },
 
         prefill: {
@@ -188,18 +314,29 @@ function CheckoutPage() {
           contact: customer.phone,
         },
 
-        notes: {
-          address:
-            customer.address,
-        },
-
         theme: {
           color: "#ea580c",
         },
+
       };
 
       const razorpay =
-        new window.Razorpay(options);
+        new window.Razorpay(
+          options
+        );
+
+      razorpay.on(
+        "payment.failed",
+        function (response) {
+
+          console.log(response);
+
+          alert(
+            "Payment Failed"
+          );
+
+        }
+      );
 
       razorpay.open();
 
@@ -207,14 +344,16 @@ function CheckoutPage() {
 
     } catch (error) {
 
-      console.error(error);
+      console.log(error);
 
       alert(
-        "Payment failed. Please try again."
+        "Something went wrong"
       );
 
       setProcessing(false);
+
     }
+
   };
 
   return (
@@ -295,8 +434,6 @@ function CheckoutPage() {
                         ₹{item.price}
                       </p>
 
-                      {/* QUANTITY */}
-
                       <div className="flex items-center gap-3 mt-4">
 
                         <button
@@ -332,8 +469,6 @@ function CheckoutPage() {
               )}
 
             </div>
-
-            {/* TOTAL */}
 
             {cart.length > 0 && (
 

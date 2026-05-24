@@ -27,7 +27,7 @@ export const products = [
     id: 3,
     name: "Dry Fruits Jaggery Putharekulu",
     sizes: "Small - ₹200 | Big - ₹250",
-    price: 200,
+    price: 2,
     image: dryfruit,
   },
   {
@@ -62,7 +62,7 @@ export const products = [
     id: 8,
     name: "Samosa Shaped Sugar Putharekulu",
     sizes: "Special Shape",
-    price: 180,
+    price: 1,
     image: samosaSugar,
   },
   {

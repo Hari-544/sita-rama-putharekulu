@@ -180,15 +180,15 @@ function CartPage() {
 
                   {/* IMAGE */}
 
-                  <div className="shrink-0 overflow-hidden rounded-[24px] bg-orange-50">
-
+                 <div className="relative overflow-hidden bg-linear-to-b from-orange-50 to-white p-4">
+                  <div className="overflow-hidden rounded-[24px] bg-white">
                     <img
-                      src={item.image}
-                      alt={item.name}
-                      className="h-36 w-full object-cover sm:w-36"
+                    src={item.image}
+                    alt={item.name}
+                    className="h-[26px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-
                   </div>
+                </div>
 
                   {/* CONTENT */}
 
