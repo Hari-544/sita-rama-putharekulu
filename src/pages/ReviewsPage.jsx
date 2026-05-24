@@ -166,7 +166,7 @@ function ReviewsPage() {
                           {item.rating}
                         </span>
                       </div>
-                      <p className="text-sm text-stone-600 leading-relaxed break-words whitespace-pre-line">
+                      <p className="text-sm text-stone-600 leading-relaxed wrap-break-word whitespace-pre-line">
                         "{item.review}"
                       </p>
                     </div>
