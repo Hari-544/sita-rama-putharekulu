@@ -1,16 +1,62 @@
-import { Navigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
-function ProtectedRoute({ children }) {
+import {
+  onAuthStateChanged,
+} from "firebase/auth";
 
-  const isAdmin =
-    localStorage.getItem(
-      "adminAuth"
-    );
+import {
+  Navigate,
+} from "react-router-dom";
 
-  if (!isAdmin) {
+import {
+  auth,
+} from "../firebase";
+
+function ProtectedRoute({
+  children,
+}) {
+
+  const [user, setUser] =
+    useState(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  useEffect(() => {
+
+    const unsubscribe =
+      onAuthStateChanged(
+        auth,
+        (currentUser) => {
+
+          setUser(currentUser);
+
+          setLoading(false);
+
+        }
+      );
+
+    return () =>
+      unsubscribe();
+
+  }, []);
+
+  if (loading) {
 
     return (
-      <Navigate to="/admin-login" />
+      <div className="min-h-screen flex items-center justify-center text-2xl font-bold">
+        Loading...
+      </div>
+    );
+
+  }
+
+  if (!user) {
+
+    return (
+      <Navigate
+        to="/sr-admin-portal-2026"
+      />
     );
 
   }
