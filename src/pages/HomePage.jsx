@@ -8,19 +8,14 @@ import { products } from "../data/products";
 
 function HomePage() {
 
-  const [cart, setCart] = useState([]);
-
-  /* LOAD CART */
-
-  useEffect(() => {
-
-    const savedCart = localStorage.getItem("cart");
-
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
+  const [cart, setCart] = useState(() => {
+    try {
+      const savedCart = localStorage.getItem("cart");
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch {
+      return [];
     }
-
-  }, []);
+  });
 
   /* SAVE CART */
 
@@ -72,21 +67,7 @@ function HomePage() {
   };
 
   /* INCREASE */
-
-  const increaseQty = (id) => {
-
-    setCart((currentCart) =>
-      currentCart.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item
-      )
-    );
-
-  };
+  // Not used in this page; quantity changes happen via addToCart/decreaseQty
 
   /* DECREASE */
 
@@ -118,12 +99,7 @@ function HomePage() {
   };
 
   /* TOTALS */
-
-  const totalAmount = cart.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
-    0
-  );
+  // totalAmount not used on this page; computed where needed in other pages
 
   const totalCartCount = cart.reduce(
     (count, item) =>

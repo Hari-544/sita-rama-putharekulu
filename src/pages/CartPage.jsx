@@ -3,19 +3,14 @@ import { Link } from "react-router-dom";
 
 function CartPage() {
 
-  const [cart, setCart] = useState([]);
-
-  /* LOAD CART */
-
-  useEffect(() => {
-
-    const saved = localStorage.getItem("cart");
-
-    if (saved) {
-      setCart(JSON.parse(saved));
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
-
-  }, []);
+  });
 
   /* SAVE CART */
 

@@ -1,9 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 
 function CheckoutPage() {
 
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem("cart");
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   const [processing, setProcessing] =
     useState(false);
@@ -16,18 +23,7 @@ function CheckoutPage() {
       pincode: "",
     });
 
-  /* LOAD CART */
-
-  useEffect(() => {
-
-    const savedCart =
-      localStorage.getItem("cart");
-
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-
-  }, []);
+  /* (Cart initialized from localStorage in state initializer) */
 
   /* INCREASE */
 
@@ -114,7 +110,7 @@ function CheckoutPage() {
       /* CREATE ORDER */
 
       const orderResponse = await fetch(
-        "http://localhost:5000/api/payment/create-order",
+        "https://sita-rama-backend.onrender.com/api/payment/create-order",
         {
           method: "POST",
 
@@ -165,7 +161,7 @@ function CheckoutPage() {
 
             const verifyResponse =
               await fetch(
-                "http://localhost:5000/api/payment/verify",
+                "https://sita-rama-backend.onrender.com/api/payment/verify",
                 {
                   method: "POST",
 

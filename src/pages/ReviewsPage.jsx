@@ -6,6 +6,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
 
@@ -28,15 +29,30 @@ function ReviewsPage() {
 
   useEffect(() => {
     const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const reviewsData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setReviews(reviewsData);
-    });
+    let unsubscribeFallback = null;
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const reviewsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setReviews(reviewsData);
+      },
+      (error) => {
+        console.error("Reviews snapshot error:", error);
+        // Fallback: listen without ordering if the ordered query fails (missing field/index)
+        unsubscribeFallback = onSnapshot(collection(db, "reviews"), (snap) => {
+          const reviewsData = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          setReviews(reviewsData);
+        });
+      }
+    );
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      if (unsubscribeFallback) unsubscribeFallback();
+    };
   }, []);
 
   const updateForm = (field, value) => {
@@ -58,7 +74,7 @@ function ReviewsPage() {
         name: formData.name.trim(),
         rating: formData.rating,
         review: formData.review.trim(),
-        createdAt: new Date(),
+          createdAt: serverTimestamp(),
       });
 
       setFormData({
