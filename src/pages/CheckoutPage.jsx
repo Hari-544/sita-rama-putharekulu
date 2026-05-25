@@ -41,6 +41,10 @@ function CheckoutPage() {
       pincode: "",
     });
 
+  const API_BASE =
+    import.meta.env.VITE_API_BASE ||
+    "https://sita-rama-backend.onrender.com";
+
   /* INCREASE */
 
   const increaseQty = (id) => {
@@ -111,6 +115,10 @@ function CheckoutPage() {
 
       try {
 
+        console.log(
+          "SAVING TO FIREBASE..."
+        );
+
         const docRef =
           await addDoc(
             collection(
@@ -155,7 +163,7 @@ function CheckoutPage() {
           docRef.id
         );
 
-        return docRef.id;
+        return true;
 
       } catch (firebaseError) {
 
@@ -164,14 +172,13 @@ function CheckoutPage() {
           firebaseError
         );
 
-        throw firebaseError;
+        return false;
 
       }
 
     };
 
   /* PAYMENT */
-  const API_BASE = import.meta.env.VITE_API_BASE || "https://sita-rama-backend.onrender.com";
 
   const handlePayment = async () => {
 
@@ -265,6 +272,11 @@ function CheckoutPage() {
 
             try {
 
+              console.log(
+                "PAYMENT RESPONSE:",
+                response
+              );
+
               /* VERIFY PAYMENT */
 
               const verifyResponse =
@@ -303,47 +315,169 @@ function CheckoutPage() {
 
               /* SUCCESS */
 
-              if (verifyData.success) {
+              if (
+                verifyData.success
+              ) {
+
+                /* SAVE TO FIREBASE */
+
+                const firebaseSaved =
+                  await saveOrderToFirebase(
+                    "PAID",
+                    response
+                  );
+
+                console.log(
+                  "FIREBASE SAVED:",
+                  firebaseSaved
+                );
+
+                /* WEB3FORMS */
+
                 try {
-                  const formData = new FormData();
-                  formData.append("access_key", "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e");
-                  formData.append("subject", "🛒 New Sweet Order");
-                  formData.append("from_name", "Sita Rama Putharekulu");
-                  formData.append("Customer Name", customer.name);
-                  formData.append("Phone", customer.phone);
-                  formData.append("Address", customer.address);
-                  formData.append("Pincode", customer.pincode);
-                  formData.append("Total Amount", `₹${totalAmount}`);
+
+                  const formData =
+                    new FormData();
+
+                  formData.append(
+                    "access_key",
+                    "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e"
+                  );
+
+                  formData.append(
+                    "subject",
+                    "🛒 New Sweet Order"
+                  );
+
+                  formData.append(
+                    "from_name",
+                    "Sita Rama Putharekulu"
+                  );
+
+                  formData.append(
+                    "Customer Name",
+                    customer.name
+                  );
+
+                  formData.append(
+                    "Phone",
+                    customer.phone
+                  );
+
+                  formData.append(
+                    "Address",
+                    customer.address
+                  );
+
+                  formData.append(
+                    "Pincode",
+                    customer.pincode
+                  );
+
+                  formData.append(
+                    "Total Amount",
+                    `₹${totalAmount}`
+                  );
+
                   formData.append(
                     "Products",
-                    cart.map((item) => `${item.name} × ${item.quantity}`).join(", ")
+                    cart
+                      .map(
+                        (
+                          item
+                        ) =>
+                          `${item.name} × ${item.quantity}`
+                      )
+                      .join(", ")
                   );
-                  formData.append("Payment Status", "PAID ✅");
-                  formData.append("Razorpay Payment ID", response.razorpay_payment_id);
-                  formData.append("Razorpay Order ID", response.razorpay_order_id);
 
-                  const web3formsRequest = fetch("https://api.web3forms.com/submit", {
-                    method: "POST",
-                    body: formData,
-                  });
-
-                  await saveOrderToFirebase("PAID", response);
-
-                  web3formsRequest.catch((e) =>
-                    console.error("WEB3FORMS ERROR:", e)
+                  formData.append(
+                    "Payment Status",
+                    "PAID ✅"
                   );
-                } catch (sideEffectError) {
-                  console.error("SIDE EFFECTS ERROR:", sideEffectError);
+
+                  formData.append(
+                    "Razorpay Payment ID",
+                    response.razorpay_payment_id
+                  );
+
+                  formData.append(
+                    "Razorpay Order ID",
+                    response.razorpay_order_id
+                  );
+
+                  await fetch(
+                    "https://api.web3forms.com/submit",
+                    {
+                      method:
+                        "POST",
+
+                      body:
+                        formData,
+                    }
+                  );
+
+                  console.log(
+                    "WEB3FORM SENT"
+                  );
+
+                } catch (web3Error) {
+
+                  console.log(
+                    "WEB3FORM ERROR:",
+                    web3Error
+                  );
+
                 }
 
-                alert("Payment Successful ✅");
+                alert(
+                  "Payment Successful ✅"
+                );
 
-                localStorage.removeItem("cart");
+                /* CLEAR CART */
+
+                localStorage.removeItem(
+                  "cart"
+                );
+
                 setCart([]);
-                setCustomer({ name: "", phone: "", address: "", pincode: "" });
-                setProcessing(false);
-                window.location.href = "/";
+
+                setCustomer({
+                  name: "",
+                  phone: "",
+                  address: "",
+                  pincode: "",
+                });
+
+                setProcessing(
+                  false
+                );
+
+                /* WAIT BEFORE REDIRECT */
+
+                setTimeout(() => {
+
+                  window.location.href =
+                    "/";
+
+                }, 5000);
+
                 return;
+
+              } else {
+
+                await saveOrderToFirebase(
+                  "FAILED"
+                );
+
+                alert(
+                  "Payment Verification Failed ❌"
+                );
+
+                setProcessing(
+                  false
+                );
+
               }
 
             } catch (error) {
@@ -440,8 +574,6 @@ function CheckoutPage() {
 
       <div className="container mx-auto max-w-7xl">
 
-        {/* TOP */}
-
         <div className="flex items-center justify-between mb-10">
 
           <Link
@@ -511,38 +643,6 @@ function CheckoutPage() {
                       <p className="text-xl font-black text-orange-700 mt-2">
                         ₹{item.price}
                       </p>
-
-                      <div className="flex items-center gap-3 mt-4">
-
-                        <button
-                          onClick={() =>
-                            decreaseQty(
-                              item.id
-                            )
-                          }
-                          className="w-8 h-8 rounded-full bg-white border border-orange-200 text-orange-700 font-black"
-                        >
-                          -
-                        </button>
-
-                        <span className="font-black text-lg">
-                          {
-                            item.quantity
-                          }
-                        </span>
-
-                        <button
-                          onClick={() =>
-                            increaseQty(
-                              item.id
-                            )
-                          }
-                          className="w-8 h-8 rounded-full bg-white border border-orange-200 text-orange-700 font-black"
-                        >
-                          +
-                        </button>
-
-                      </div>
 
                     </div>
 
