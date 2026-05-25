@@ -93,7 +93,7 @@ function ReviewsPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#fffaf5] py-14 px-6">
+    <main className="min-h-screen bg-[#fffaf5] py-8 px-4 sm:py-14 sm:px-6">
       <div className="container">
         
         {/* Navigation Header */}
@@ -102,12 +102,12 @@ function ReviewsPage() {
         </Link>
 
         {/* Split Grid Layout */}
-        <div className="grid grid-cols-12 gap-12 items-start">
+        <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
           
           {/* Left Column: Form Section */}
-          <section className="col-span-5 panel-shell p-8 sticky top-24">
+          <section className="panel-shell p-5 sm:p-8 xl:sticky xl:top-24">
             <span className="text-xs font-extrabold uppercase tracking-widest text-orange-600 block mb-2">Guestbook</span>
-            <h1 className="page-title text-4xl font-black tracking-tight">Share Your Experience</h1>
+            <h1 className="page-title fluid-heading font-black tracking-tight">Share Your Experience</h1>
             <p className="muted-copy text-sm mt-2 mb-6 leading-relaxed">
               Tell others how much you enjoyed our authentic Atreyapuram recipes. Your real experience helps our traditional kitchen grow.
             </p>
@@ -158,21 +158,21 @@ function ReviewsPage() {
           </section>
 
           {/* Right Column: Display Live Feed Section */}
-          <section className="col-span-7 space-y-6">
+          <section className="space-y-6">
             <div className="flex items-baseline justify-between border-b border-orange-100 pb-4">
-              <h2 className="text-2xl font-bold text-stone-900">Community Reviews</h2>
+              <h2 className="fluid-heading font-bold text-stone-900">Community Reviews</h2>
               <span className="text-sm font-medium text-stone-500">{reviews.length} Stories Shared</span>
             </div>
 
             {reviews.length === 0 ? (
-              <div className="panel-shell p-12 text-center">
+              <div className="panel-shell p-8 text-center sm:p-12">
                 <span className="text-3xl block mb-2">✨</span>
                 <p className="text-stone-500 font-medium">Be the first to share an authentic review!</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
                 {reviews.map((item) => (
-                  <article key={item.id} className="review-card rounded-2xl p-6 flex flex-col justify-between">
+                  <article key={item.id} className="review-card flex flex-col justify-between rounded-2xl p-5 sm:p-6">
                     <div>
                       <div className="flex items-start justify-between gap-4 mb-3">
                         <h3 className="text-base font-bold text-stone-900 truncate">

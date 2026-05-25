@@ -87,13 +87,13 @@ function CartPage() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] py-10 px-4">
+    <div className="min-h-screen bg-[#fffaf5] py-8 px-4 sm:py-10">
 
       <div className="container mx-auto max-w-6xl">
 
         {/* HEADER */}
 
-        <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
 
           <div>
 
@@ -101,7 +101,7 @@ function CartPage() {
               Shopping Cart
             </p>
 
-            <h1 className="mt-2 text-4xl font-black text-stone-900">
+            <h1 className="mt-2 fluid-heading font-black text-stone-900">
               Your Basket
             </h1>
 
@@ -135,13 +135,13 @@ function CartPage() {
 
         {cart.length === 0 ? (
 
-          <div className="rounded-[36px] border border-orange-100 bg-white p-16 text-center shadow-sm">
+          <div className="rounded-[36px] border border-orange-100 bg-white p-8 text-center shadow-sm sm:p-16">
 
-            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-orange-50 text-6xl">
+            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-orange-50 text-5xl sm:h-28 sm:w-28 sm:text-6xl">
               🛒
             </div>
 
-            <h2 className="mt-8 text-3xl font-black text-stone-900">
+            <h2 className="mt-8 fluid-heading font-black text-stone-900">
               Your cart is empty
             </h2>
 
@@ -160,7 +160,7 @@ function CartPage() {
 
         ) : (
 
-          <div className="grid gap-8 lg:grid-cols-[1fr_370px]">
+          <div className="grid gap-8 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.9fr)]">
 
             {/* CART ITEMS */}
 
@@ -170,17 +170,17 @@ function CartPage() {
 
                 <div
                   key={item.id}
-                  className="flex flex-col gap-5 rounded-[32px] border border-orange-100 bg-white p-5 shadow-[0_10px_35px_rgba(249,115,22,0.06)] transition-all duration-300 hover:shadow-[0_20px_45px_rgba(249,115,22,0.12)] sm:flex-row"
+                  className="flex flex-col gap-5 rounded-[32px] border border-orange-100 bg-white p-4 shadow-[0_10px_35px_rgba(249,115,22,0.06)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_45px_rgba(249,115,22,0.12)] sm:flex-row sm:p-5"
                 >
 
                   {/* IMAGE */}
 
-                 <div className="relative overflow-hidden bg-linear-to-b from-orange-50 to-white p-4">
+                 <div className="relative overflow-hidden bg-gradient-to-b from-orange-50 to-white p-3 sm:p-4">
                   <div className="overflow-hidden rounded-[24px] bg-white">
                     <img
                     src={item.image}
                     alt={item.name}
-                    className="h-[26px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:aspect-[4/3] lg:aspect-square"
                     />
                   </div>
                 </div>
@@ -366,7 +366,7 @@ function CartPage() {
 
               {/* FEATURES */}
 
-              <div className="mt-8 grid grid-cols-3 gap-3">
+              <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
 
                 <div className="rounded-2xl border border-orange-100 bg-orange-50 p-3 text-center">
 

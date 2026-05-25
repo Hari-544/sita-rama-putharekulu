@@ -4,13 +4,13 @@ function Footer() {
 
   return (
 
-    <footer className="site-footer relative overflow-hidden bg-[#2a1208] text-white py-20 px-6">
+    <footer className="site-footer relative overflow-hidden bg-[#2a1208] text-white py-16 px-4 sm:px-6 sm:py-20">
 
-      <div className="container grid grid-cols-3 gap-10">
+      <div className="container grid gap-10 sm:grid-cols-2 xl:grid-cols-3">
 
         <div>
 
-          <h2 className="text-3xl font-black text-yellow-300">
+          <h2 className="fluid-heading font-black text-yellow-300">
             SITA RAMA PUTHAREKULU
           </h2>
 

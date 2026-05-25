@@ -2,17 +2,17 @@ import { Link } from "react-router-dom";
 
 function SuccessPage() {
   return (
-    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center px-6 py-14">
-      <section className="panel-shell max-w-2xl w-full p-10 text-center">
-        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto shadow-inner">
+    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
+      <section className="panel-shell mx-auto w-full max-w-2xl p-6 text-center sm:p-10">
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 shadow-inner sm:h-24 sm:w-24">
           <span className="text-5xl text-green-700">✓</span>
         </div>
 
-        <h1 className="mt-8 text-5xl font-extrabold text-orange-950">
+        <h1 className="mt-8 fluid-heading font-extrabold text-orange-950">
           Order Placed Successfully!
         </h1>
 
-        <p className="mt-6 text-lg text-gray-700 leading-8">
+        <p className="fluid-body mt-6 text-gray-700">
           Thank you for ordering from{" "}
           <span className="font-bold text-orange-800">
             SITA RAMA PUTHAREKULU
@@ -22,8 +22,8 @@ function SuccessPage() {
           Your order will be freshly prepared and dispatched soon.
         </p>
 
-        <div className="mt-8 bg-orange-50 border border-orange-200 rounded-2xl p-6">
-          <h2 className="text-2xl font-bold text-orange-900">
+        <div className="mt-8 rounded-2xl border border-orange-200 bg-orange-50 p-5 sm:p-6">
+          <h2 className="fluid-heading font-bold text-orange-900">
             Delivery Information
           </h2>
 
@@ -40,12 +40,12 @@ function SuccessPage() {
           href="https://wa.me/919652999544"
           target="_blank"
           rel="noreferrer"
-          className="btn btn-primary w-full py-4 mt-8 text-lg"
+          className="btn btn-primary w-full py-4 mt-8 text-base sm:text-lg"
         >
           Send Payment Screenshot On WhatsApp
         </a>
 
-        <Link to="/" className="btn btn-secondary w-full py-4 mt-5 text-lg">
+        <Link to="/" className="btn btn-secondary w-full py-4 mt-5 text-base sm:text-lg">
           Continue Shopping
         </Link>
       </section>

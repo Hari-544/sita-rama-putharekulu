@@ -118,9 +118,9 @@ const handlePayment = async () => {
 
   if (!product) {
     return (
-          <main className="min-h-screen bg-[#fffaf5] flex items-center justify-center px-6">
-            <div className="panel-shell max-w-md w-full p-8 text-center mx-auto">
-              <h1 className="text-3xl font-bold text-stone-900">Product Not Found</h1>
+          <main className="min-h-screen bg-[#fffaf5] flex items-center justify-center px-4 sm:px-6">
+            <div className="panel-shell mx-auto w-full max-w-md p-6 text-center sm:p-8">
+              <h1 className="fluid-heading font-bold text-stone-900">Product Not Found</h1>
           <p className="mt-2 text-stone-500">The sweet item selected is temporarily unavailable.</p>
           <Link to="/" className="btn btn-primary mt-6 inline-flex">Return To Storefront</Link>
         </div>
@@ -129,7 +129,7 @@ const handlePayment = async () => {
   }
 
   return (
-      <main className="min-h-screen bg-[#fffaf5] py-14 px-6">
+      <main className="min-h-screen bg-[#fffaf5] py-8 px-4 sm:py-14 sm:px-6">
         <div className="container">
         
         {/* Navigation Breadcrumb */}
@@ -138,15 +138,15 @@ const handlePayment = async () => {
         </Link>
 
         {/* Checkout Container Split Grid */}
-        <div className="grid grid-cols-12 gap-8 items-start">
+        <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)]">
           
           {/* Left Column: Product Context Preview Panel */}
-          <section className="col-span-5 panel-shell p-6">
+          <section className="panel-shell p-5 sm:p-6">
             <h2 className="text-xs uppercase tracking-widest text-orange-600 font-extrabold mb-4">Your Order</h2>
-            <div className="aspect-video w-full rounded-2xl overflow-hidden mb-4 bg-orange-50">
-              <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+            <div className="mb-4 overflow-hidden rounded-2xl bg-orange-50">
+              <img src={product.image} alt={product.name} className="aspect-[4/3] w-full object-cover sm:aspect-video" />
             </div>
-            <h3 className="text-xl font-bold text-stone-900">{product.name}</h3>
+            <h3 className="fluid-heading font-bold text-stone-900">{product.name}</h3>
             <p className="text-sm text-stone-500 mt-1">{product.sizes}</p>
             
             <div className="border-t border-dashed border-orange-100 mt-6 pt-4 space-y-3">
@@ -166,8 +166,8 @@ const handlePayment = async () => {
           </section>
 
           {/* Right Column: High-End Delivery Form */}
-          <section className="col-span-7 panel-shell p-8">
-            <h2 className="text-2xl font-bold text-stone-900">Shipping & Verification Details</h2>
+          <section className="panel-shell p-5 sm:p-8">
+            <h2 className="fluid-heading font-bold text-stone-900">Shipping & Verification Details</h2>
             <p className="text-sm text-stone-500 mt-2 mb-6">
               Orders are freshly curated upon real-time confirmation. Please ensure your WhatsApp phone number is precise.
             </p>

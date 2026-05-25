@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 function PrivacyPolicy() {
   return (
-    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white px-6 py-16">
-      <article className="panel-shell max-w-5xl mx-auto p-10">
+    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white px-4 py-10 sm:px-6 sm:py-16">
+      <article className="panel-shell mx-auto max-w-5xl p-6 sm:p-10">
         <Link
           to="/"
           className="inline-flex text-orange-700 font-semibold hover:text-orange-950 transition mb-8"
@@ -11,15 +11,15 @@ function PrivacyPolicy() {
           ← Back To Home
         </Link>
 
-        <h1 className="page-title text-5xl font-extrabold mb-4">
+        <h1 className="page-title fluid-heading font-extrabold mb-4">
           Privacy Policy
         </h1>
 
         <p className="text-gray-600 mb-8">Last Updated: May 2026</p>
 
-        <div className="space-y-8 text-gray-700 leading-8">
+        <div className="space-y-8 text-gray-700 leading-7 sm:leading-8">
           <section>
-            <h2 className="text-2xl font-bold text-orange-900 mb-3">
+              <h2 className="fluid-heading font-bold text-orange-900 mb-3">
               Introduction
             </h2>
             <p>
@@ -31,7 +31,7 @@ function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-orange-900 mb-3">
+              <h2 className="fluid-heading font-bold text-orange-900 mb-3">
               Information We Collect
             </h2>
             <p>We may collect the following customer information:</p>
@@ -46,7 +46,7 @@ function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-orange-900 mb-3">
+              <h2 className="fluid-heading font-bold text-orange-900 mb-3">
               How We Use Customer Information
             </h2>
             <p>Customer information is used only for:</p>
@@ -60,7 +60,7 @@ function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-orange-900 mb-3">
+              <h2 className="fluid-heading font-bold text-orange-900 mb-3">
               Payment Security
             </h2>
             <p>
@@ -71,7 +71,7 @@ function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-orange-900 mb-3">
+              <h2 className="fluid-heading font-bold text-orange-900 mb-3">
               Third-Party Services
             </h2>
             <p>Our website may use trusted third-party services such as:</p>

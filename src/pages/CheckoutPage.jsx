@@ -521,11 +521,11 @@ function CheckoutPage() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] py-10 px-4">
+    <div className="min-h-screen bg-[#fffaf5] py-8 px-4 sm:py-10">
 
       <div className="container mx-auto max-w-7xl">
 
-        <div className="flex items-center justify-between mb-10">
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
           <Link
             to="/"
@@ -534,17 +534,17 @@ function CheckoutPage() {
             ← Back To Store
           </Link>
 
-          <h1 className="text-3xl lg:text-4xl font-black text-stone-900">
+          <h1 className="fluid-heading font-black text-stone-900">
             Checkout
           </h1>
 
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
 
           {/* LEFT */}
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-100 sm:p-6">
 
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Order Summary
@@ -625,7 +625,7 @@ function CheckoutPage() {
 
           {/* RIGHT */}
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-100 sm:p-6">
 
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Delivery Details

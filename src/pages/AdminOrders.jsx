@@ -127,17 +127,17 @@ function AdminOrders() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] p-6">
+    <div className="min-h-screen bg-[#fffaf5] p-4 sm:p-6">
 
       <div className="max-w-7xl mx-auto">
 
-        <h1 className="text-4xl font-black text-orange-700 mb-8">
+        <h1 className="fluid-heading font-black text-orange-700 mb-8">
           Admin Orders Dashboard
         </h1>
 
         {/* STATS */}
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
 
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
             <h2 className="text-stone-500">
@@ -183,7 +183,7 @@ function AdminOrders() {
 
         {/* SEARCH */}
 
-        <div className="mb-8">
+        <div className="mb-8 max-w-2xl">
 
           <input
             type="text"
@@ -215,7 +215,7 @@ function AdminOrders() {
 
         ) : (
 
-          <div className="space-y-6">
+          <div className="grid gap-6 2xl:grid-cols-2">
 
             {filteredOrders.map(
               (order) => (

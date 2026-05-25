@@ -20,6 +20,11 @@
   }
 
   html {
+    text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  html {
     scroll-behavior: smooth;
   }
 
@@ -37,6 +42,8 @@
   img {
     display: block;
     width: 100%;
+    max-width: 100%;
+    height: auto;
   }
 
   a {
@@ -49,6 +56,8 @@
   textarea,
   select {
     font: inherit;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   input,
@@ -76,9 +85,53 @@
 
 .container {
   width: 100%;
-  max-width: 1260px;
+  max-width: min(100%, 1440px);
   margin-inline: auto;
-  padding-inline: 2rem;
+  padding-inline: clamp(1rem, 2vw, 2rem);
+}
+
+.responsive-container {
+  width: 100%;
+  max-width: min(100%, 1440px);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 2vw, 2rem);
+}
+
+.responsive-section {
+  padding-block: clamp(3rem, 6vw, 6rem);
+}
+
+.fluid-title {
+  font-size: clamp(2rem, 4vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.fluid-heading {
+  font-size: clamp(1.5rem, 2vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.03em;
+}
+
+.fluid-body {
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.8;
+}
+
+.adaptive-grid {
+  display: grid;
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.responsive-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .brand-mark {

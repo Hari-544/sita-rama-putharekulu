@@ -257,7 +257,7 @@ function HomePage() {
               ✨ Authentic Atreyapuram Craftsmanship
             </span>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-none text-stone-900">
+            <h1 className="fluid-title font-black leading-none text-stone-900">
 
               Handmade
 
@@ -273,7 +273,7 @@ function HomePage() {
 
             </h1>
 
-            <p className="text-stone-600 text-lg leading-8 max-w-xl mx-auto lg:mx-0">
+            <p className="fluid-body text-stone-600 max-w-xl mx-auto lg:mx-0">
               Authentic Andhra sweets handcrafted with pure ghee, premium dry fruits and traditional methods.
             </p>
 
@@ -286,7 +286,7 @@ function HomePage() {
               <img
                 src={hero}
                 alt="Premium Putharekulu"
-                className="w-full h-full object-cover"
+                className="responsive-image aspect-[16/10] sm:aspect-[4/3] lg:aspect-[5/4]"
               />
 
             </div>
@@ -312,7 +312,7 @@ function HomePage() {
               Freshly Prepared
             </span>
 
-            <h2 className="text-4xl lg:text-5xl font-black text-stone-900 mt-4">
+            <h2 className="fluid-heading font-black text-stone-900 mt-4">
               Our Signature Collection
             </h2>
 
@@ -322,7 +322,7 @@ function HomePage() {
 
             {/* PRODUCT GRID */}
 
-    <div className="grid grid-cols-3 sm:grid-cols-2 xl:grid-cols-3 gap-7">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6 xl:gap-7">
 
   {products.map((product) => {
 
@@ -367,7 +367,7 @@ function HomePage() {
             <img
               src={product.image}
               alt={product.name}
-              className="h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
 
           </div>
@@ -847,6 +847,29 @@ function HomePage() {
         </div>
 
       </section>
+
+      {/* Mobile quick navigation */}
+
+      <nav className="sm:hidden fixed bottom-4 left-4 right-4 z-50 rounded-full border border-orange-100 bg-white/95 px-3 py-2 shadow-[0_18px_50px_rgba(249,115,22,0.18)] backdrop-blur">
+        <div className="grid grid-cols-4 gap-2 text-center text-[11px] font-bold text-stone-600">
+          <Link to="/" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
+            <span className="text-base">🏠</span>
+            Home
+          </Link>
+          <a href="#products" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
+            <span className="text-base">🛍️</span>
+            Shop
+          </a>
+          <a href="#track-order" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
+            <span className="text-base">📦</span>
+            Track
+          </a>
+          <Link to="/cart" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
+            <span className="text-base">🛒</span>
+            Cart
+          </Link>
+        </div>
+      </nav>
 
       {/* Cart is now a separate page at /cart */}
 

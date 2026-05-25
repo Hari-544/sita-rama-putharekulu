@@ -58,11 +58,11 @@ function AdminLogin() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-[#fffaf5] p-6">
+    <div className="min-h-screen flex items-center justify-center bg-[#fffaf5] p-4 sm:p-6">
 
-      <div className="bg-white p-10 rounded-3xl shadow-sm border border-orange-100 w-full max-w-md text-center">
+      <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-sm border border-orange-100 w-full max-w-md text-center">
 
-        <h1 className="text-4xl font-black text-orange-700 mb-4">
+        <h1 className="fluid-heading font-black text-orange-700 mb-4">
           Admin Login
         </h1>
 
