@@ -10,6 +10,10 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsPage from "./pages/TermsPage";
+import AdminLogin from "./pages/AdminLogin";
+import AdminOrders from "./pages/AdminOrders";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 
@@ -62,6 +66,20 @@ function App() {
       <Route
         path="/checkout"
         element={<CheckoutPage />}
+      />
+
+      <Route
+        path="/sr-admin-portal-2026"
+        element={<AdminLogin />}
+      />
+
+      <Route
+        path="/admin-orders"
+        element={
+          <ProtectedRoute>
+            <AdminOrders />
+          </ProtectedRoute>
+        }
       />
 
     </Routes>
