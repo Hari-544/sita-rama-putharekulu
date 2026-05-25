@@ -67,60 +67,77 @@ app.post(
 
 /* VERIFY PAYMENT */
 
-app.post(
-  "/api/payment/verify",
-  async (req, res) => {
+app.post("/api/payment/verify", async (req, res) => {
 
-    try {
+  try {
 
-      const {
-        razorpay_order_id,
-        razorpay_payment_id,
-        razorpay_signature,
-      } = req.body;
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+    } = req.body;
 
-      const generated_signature =
-        crypto
-          .createHmac(
-            "sha256",
-            process.env.RAZORPAY_KEY_SECRET
-          )
-          .update(
-            razorpay_order_id +
-              "|" +
-              razorpay_payment_id
-          )
-          .digest("hex");
+    console.log("VERIFY BODY:", req.body);
 
-      if (
-        generated_signature ===
-        razorpay_signature
-      ) {
+    const body =
+      razorpay_order_id +
+      "|" +
+      razorpay_payment_id;
 
-        return res.json({
-          success: true,
-        });
+    const expectedSignature =
+      crypto
+        .createHmac(
+          "sha256",
+          process.env.RAZORPAY_KEY_SECRET
+        )
+        .update(body.toString())
+        .digest("hex");
 
-      } else {
+    console.log(
+      "EXPECTED:",
+      expectedSignature
+    );
 
-        return res.status(400).json({
-          success: false,
-        });
+    console.log(
+      "RECEIVED:",
+      razorpay_signature
+    );
 
-      }
+    const isAuthentic =
+      expectedSignature ===
+      razorpay_signature;
 
-    } catch (error) {
+    if (isAuthentic) {
 
-      console.log(error);
+      return res.json({
+        success: true,
+      });
 
-      res.status(500).json({
+    } else {
+
+      return res.status(400).json({
         success: false,
+        message:
+          "Invalid Signature",
       });
 
     }
 
+  } catch (error) {
+
+    console.log(
+      "VERIFY ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+
   }
-);
+
+});
 
 /* SERVER */
 
