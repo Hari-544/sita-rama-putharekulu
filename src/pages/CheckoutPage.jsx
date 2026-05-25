@@ -167,6 +167,7 @@ function CheckoutPage() {
     };
 
   /* PAYMENT */
+  const API_BASE = import.meta.env.VITE_API_BASE || "https://sita-rama-backend.onrender.com";
 
   const handlePayment = async () => {
 
@@ -203,7 +204,7 @@ function CheckoutPage() {
 
       const orderResponse =
         await fetch(
-          "https://sita-rama-backend.onrender.com/api/payment/create-order",
+          `${API_BASE}/api/payment/create-order`,
           {
             method: "POST",
 
@@ -264,7 +265,7 @@ function CheckoutPage() {
 
               const verifyResponse =
                 await fetch(
-                  "https://sita-rama-backend.onrender.com/api/payment/verify",
+                  `${API_BASE}/api/payment/verify`,
                   {
                     method:
                       "POST",
@@ -298,140 +299,52 @@ function CheckoutPage() {
 
               /* SUCCESS */
 
-              if (
-                verifyData.success
-              ) {
+              if (verifyData.success) {
+                // Try non-critical side-effects but ensure cart is cleared and user is redirected
+                try {
+                  const formData = new FormData();
+                  formData.append("access_key", "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e");
+                  formData.append("subject", "🛒 New Sweet Order");
+                  formData.append("from_name", "Sita Rama Putharekulu");
+                  formData.append("Customer Name", customer.name);
+                  formData.append("Phone", customer.phone);
+                  formData.append("Address", customer.address);
+                  formData.append("Pincode", customer.pincode);
+                  formData.append("Total Amount", `₹${totalAmount}`);
+                  formData.append(
+                    "Products",
+                    cart.map((item) => `${item.name} × ${item.quantity}`).join(", ")
+                  );
+                  formData.append("Payment Status", "PAID ✅");
+                  formData.append("Razorpay Payment ID", response.razorpay_payment_id);
+                  formData.append("Razorpay Order ID", response.razorpay_order_id);
 
-                /* WEB3FORMS */
+                  // Fire-and-forget web3forms (non-blocking)
+                  fetch("https://api.web3forms.com/submit", { method: "POST", body: formData }).catch((e) =>
+                    console.error("WEB3FORMS ERROR:", e)
+                  );
 
-                const formData =
-                  new FormData();
+                  // Save order to Firebase, but don't block user flow if it fails
+                  saveOrderToFirebase("PAID", response).catch((e) =>
+                    console.error("FIREBASE SAVE ERROR:", e)
+                  );
+                } catch (sideEffectError) {
+                  console.error("SIDE EFFECTS ERROR:", sideEffectError);
+                }
 
-                formData.append(
-                  "access_key",
-                  "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e"
-                );
+                // Notify user and clear cart in all cases
+                try {
+                  alert("Payment Successful ✅");
+                } catch (e) {
+                  console.log("ALERT FAILED", e);
+                }
 
-                formData.append(
-                  "subject",
-                  "🛒 New Sweet Order"
-                );
-
-                formData.append(
-                  "from_name",
-                  "Sita Rama Putharekulu"
-                );
-
-                formData.append(
-                  "Customer Name",
-                  customer.name
-                );
-
-                formData.append(
-                  "Phone",
-                  customer.phone
-                );
-
-                formData.append(
-                  "Address",
-                  customer.address
-                );
-
-                formData.append(
-                  "Pincode",
-                  customer.pincode
-                );
-
-                formData.append(
-                  "Total Amount",
-                  `₹${totalAmount}`
-                );
-
-                formData.append(
-                  "Products",
-                  cart
-                    .map(
-                      (
-                        item
-                      ) =>
-                        `${item.name} × ${item.quantity}`
-                    )
-                    .join(", ")
-                );
-
-                formData.append(
-                  "Payment Status",
-                  "PAID ✅"
-                );
-
-                formData.append(
-                  "Razorpay Payment ID",
-                  response.razorpay_payment_id
-                );
-
-                formData.append(
-                  "Razorpay Order ID",
-                  response.razorpay_order_id
-                );
-
-                await fetch(
-                  "https://api.web3forms.com/submit",
-                  {
-                    method:
-                      "POST",
-
-                    body:
-                      formData,
-                  }
-                );
-
-                /* SAVE TO FIREBASE */
-
-                await saveOrderToFirebase(
-                  "PAID",
-                  response
-                );
-
-                alert(
-                  "Payment Successful ✅"
-                );
-
-                /* CLEAR */
-
-                localStorage.removeItem(
-                  "cart"
-                );
-
+                localStorage.removeItem("cart");
                 setCart([]);
-
-                setCustomer({
-                  name: "",
-                  phone: "",
-                  address: "",
-                  pincode: "",
-                });
-
-                setProcessing(
-                  false
-                );
-
-                window.location.href =
-                  "/";
-
-              } else {
-
-                await saveOrderToFirebase(
-                  "FAILED"
-                );
-
-                alert(
-                  "Payment Verification Failed ❌"
-                );
-
-                setProcessing(
-                  false
-                );
-
+                setCustomer({ name: "", phone: "", address: "", pincode: "" });
+                setProcessing(false);
+                window.location.href = "/";
+                return;
               }
 
             } catch (error) {
