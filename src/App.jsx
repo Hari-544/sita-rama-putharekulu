@@ -12,6 +12,7 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsPage from "./pages/TermsPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminOrders from "./pages/AdminOrders";
+import TrackOrder from "./pages/TrackOrder";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -81,6 +82,12 @@ function App() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/track-order"
+        element={<TrackOrder />}
+      />
+      
 
     </Routes>
 

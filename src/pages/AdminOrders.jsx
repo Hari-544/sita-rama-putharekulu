@@ -62,7 +62,7 @@ function AdminOrders() {
       await updateDoc(
         doc(db, "orders", id),
         {
-          deliveryStatus: status,
+          status: status,
         }
       );
 
@@ -368,7 +368,7 @@ function AdminOrders() {
 
                       <select
                         value={
-                          order.deliveryStatus ||
+                          order.status ||
                           "Preparing"
                         }
                         onChange={(e) =>
