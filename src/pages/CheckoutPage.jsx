@@ -155,12 +155,16 @@ function CheckoutPage() {
           docRef.id
         );
 
+        return docRef.id;
+
       } catch (firebaseError) {
 
-        console.log(
+        console.error(
           "FIREBASE ERROR:",
           firebaseError
         );
+
+        throw firebaseError;
 
       }
 
@@ -300,7 +304,6 @@ function CheckoutPage() {
               /* SUCCESS */
 
               if (verifyData.success) {
-                // Try non-critical side-effects but ensure cart is cleared and user is redirected
                 try {
                   const formData = new FormData();
                   formData.append("access_key", "89f7cf9c-6157-425e-b2b2-6de9be3b3e0e");
@@ -319,25 +322,21 @@ function CheckoutPage() {
                   formData.append("Razorpay Payment ID", response.razorpay_payment_id);
                   formData.append("Razorpay Order ID", response.razorpay_order_id);
 
-                  // Fire-and-forget web3forms (non-blocking)
-                  fetch("https://api.web3forms.com/submit", { method: "POST", body: formData }).catch((e) =>
-                    console.error("WEB3FORMS ERROR:", e)
-                  );
+                  const web3formsRequest = fetch("https://api.web3forms.com/submit", {
+                    method: "POST",
+                    body: formData,
+                  });
 
-                  // Save order to Firebase, but don't block user flow if it fails
-                  saveOrderToFirebase("PAID", response).catch((e) =>
-                    console.error("FIREBASE SAVE ERROR:", e)
+                  await saveOrderToFirebase("PAID", response);
+
+                  web3formsRequest.catch((e) =>
+                    console.error("WEB3FORMS ERROR:", e)
                   );
                 } catch (sideEffectError) {
                   console.error("SIDE EFFECTS ERROR:", sideEffectError);
                 }
 
-                // Notify user and clear cart in all cases
-                try {
-                  alert("Payment Successful ✅");
-                } catch (e) {
-                  console.log("ALERT FAILED", e);
-                }
+                alert("Payment Successful ✅");
 
                 localStorage.removeItem("cart");
                 setCart([]);

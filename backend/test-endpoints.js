@@ -1,3 +1,5 @@
+/* global process */
+
 import fs from 'fs/promises';
 import crypto from 'crypto';
 
@@ -12,7 +14,7 @@ async function loadSecret() {
     const env = await fs.readFile(new URL('./.env', import.meta.url));
     const match = env.toString().match(/^RAZORPAY_KEY_SECRET=(.+)$/m);
     if (match) return match[1].trim();
-  } catch (e) {
+  } catch {
     // ignore
   }
 
