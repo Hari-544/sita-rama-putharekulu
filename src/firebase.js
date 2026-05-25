@@ -16,3 +16,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const db = getFirestore(app);
+console.log(import.meta.env.VITE_FIREBASE_API_KEY);
+console.log(import.meta.env.VITE_FIREBASE_PROJECT_ID);
