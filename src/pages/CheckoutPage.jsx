@@ -145,6 +145,8 @@ function CheckoutPage() {
 
               paymentStatus,
 
+              status: "Pending",
+
               razorpayPaymentId:
                 response.razorpay_payment_id ||
                 "",
