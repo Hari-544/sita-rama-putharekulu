@@ -45,57 +45,6 @@ function CheckoutPage() {
     import.meta.env.VITE_API_BASE ||
     "https://sita-rama-backend.onrender.com";
 
-  /* INCREASE */
-
-  const increaseQty = (id) => {
-
-    const updatedCart = cart.map(
-      (item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity:
-                item.quantity + 1,
-            }
-          : item
-    );
-
-    setCart(updatedCart);
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
-
-  };
-
-  /* DECREASE */
-
-  const decreaseQty = (id) => {
-
-    const updatedCart = cart
-      .map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity:
-                item.quantity - 1,
-            }
-          : item
-      )
-      .filter(
-        (item) => item.quantity > 0
-      );
-
-    setCart(updatedCart);
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(updatedCart)
-    );
-
-  };
-
   /* TOTAL */
 
   const totalAmount = cart.reduce(

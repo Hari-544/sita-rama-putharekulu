@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { collection, getDocs } from "firebase/firestore";
 import "../App.css";
 
 import Footer from "../components/Footer";
 import hero from "../assets/premiumHero.jpg";
 import { products } from "../data/products";
+import { db } from "../firebase";
 
 function HomePage() {
 
@@ -16,6 +18,12 @@ function HomePage() {
       return [];
     }
   });
+
+  const [trackPhone, setTrackPhone] = useState("");
+  const [trackOrderId, setTrackOrderId] = useState("");
+  const [tracking, setTracking] = useState(false);
+  const [trackedOrder, setTrackedOrder] = useState(null);
+  const [trackError, setTrackError] = useState("");
 
   /* SAVE CART */
 
@@ -107,6 +115,75 @@ function HomePage() {
     0
   );
 
+  const deliverySteps = [
+    "Preparing",
+    "Packed",
+    "Shipped",
+    "Delivered",
+  ];
+
+  const formatDate = (value) => {
+    if (!value) return "Not available";
+
+    const date = value?.toDate
+      ? value.toDate()
+      : value instanceof Date
+        ? value
+        : new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return "Not available";
+    }
+
+    return new Intl.DateTimeFormat("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(date);
+  };
+
+  const getCurrentStepIndex = (status) => {
+    const currentStatus = status || "Preparing";
+    const index = deliverySteps.indexOf(currentStatus);
+    return index === -1 ? 0 : index;
+  };
+
+  const paymentBadgeClass = trackedOrder?.paymentStatus === "PAID"
+    ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+    : trackedOrder?.paymentStatus === "FAILED"
+      ? "bg-red-100 text-red-700 border-red-200"
+      : "bg-amber-100 text-amber-700 border-amber-200";
+
+  const searchTrackedOrder = async () => {
+    try {
+      setTracking(true);
+      setTrackError("");
+      setTrackedOrder(null);
+
+      const snapshot = await getDocs(collection(db, "orders"));
+      const orders = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      const foundOrder = orders.find(
+        (item) =>
+          item.phone === trackPhone &&
+          item.razorpayOrderId === trackOrderId
+      );
+
+      if (foundOrder) {
+        setTrackedOrder(foundOrder);
+      } else {
+        setTrackError("Order not found");
+      }
+    } catch (error) {
+      console.log(error);
+      setTrackError("Something went wrong");
+    } finally {
+      setTracking(false);
+    }
+  };
+
   return (
 
     <div className="min-h-screen bg-[#fffaf5] overflow-x-hidden">
@@ -154,6 +231,13 @@ function HomePage() {
                 {totalCartCount}
               </span>
             </Link>
+
+            <a
+              href="#track-order"
+              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-bold text-orange-700 transition hover:border-orange-400 hover:bg-orange-50"
+            >
+              📦 Track Order
+            </a>
 
           </nav>
 
@@ -421,7 +505,363 @@ function HomePage() {
 
       </section>
 
+      {/* TRACK ORDER */}
+
+      <section
+        id="track-order"
+        className="relative overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50 py-16 sm:py-24"
+      >
+
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
+
+        <div className="container mx-auto px-4">
+
+          <div className="mx-auto mb-12 max-w-3xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-orange-600 shadow-sm">
+              Live Tracking
+            </span>
+            <h2 className="mt-4 text-4xl font-black tracking-tight text-stone-900 sm:text-5xl">
+              Track Your Order
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-stone-600 sm:text-base">
+              Check your order status, payment details, and product list right from the homepage.
+            </p>
+          </div>
+
+          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.45fr]">
+
+            <aside className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_20px_60px_rgba(249,115,22,0.08)] sm:p-8">
+
+              <div className="mb-6 flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
+                    Track Order
+                  </p>
+                  <h3 className="mt-2 text-2xl font-black text-stone-900">
+                    Find your parcel
+                  </h3>
+                </div>
+
+                <div className="rounded-2xl bg-orange-50 px-4 py-3 text-right">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-stone-400">
+                    Secure lookup
+                  </p>
+                  <p className="mt-1 text-sm font-black text-orange-700">
+                    Mobile friendly
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-700">
+                    Phone Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Phone number used at checkout"
+                    value={trackPhone}
+                    onChange={(e) => setTrackPhone(e.target.value)}
+                    className="w-full rounded-2xl border border-orange-100 bg-white px-5 py-4 outline-none transition focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-700">
+                    Razorpay Order ID
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Order ID from payment"
+                    value={trackOrderId}
+                    onChange={(e) => setTrackOrderId(e.target.value)}
+                    className="w-full rounded-2xl border border-orange-100 bg-white px-5 py-4 outline-none transition focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                  />
+                </div>
+
+                <button
+                  onClick={searchTrackedOrder}
+                  disabled={tracking}
+                  className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-4 text-lg font-black text-white shadow-lg shadow-orange-200 transition duration-200 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {tracking ? (
+                    <>
+                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      Searching...
+                    </>
+                  ) : (
+                    "📦 Track Order"
+                  )}
+                </button>
+
+                <p className="text-xs leading-6 text-stone-500">
+                  Enter the same phone number and Razorpay order ID used during checkout.
+                </p>
+              </div>
+
+              {trackError && (
+                <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+                  {trackError}
+                </div>
+              )}
+
+              {tracking && (
+                <div className="mt-6 space-y-3 rounded-[1.5rem] border border-orange-100 bg-orange-50/60 p-4">
+                  <div className="h-5 w-1/2 animate-pulse rounded-full bg-orange-200" />
+                  <div className="h-4 w-full animate-pulse rounded-full bg-orange-100" />
+                  <div className="h-4 w-5/6 animate-pulse rounded-full bg-orange-100" />
+                  <div className="h-32 rounded-[1.25rem] bg-white/80" />
+                </div>
+              )}
+
+              {!tracking && !trackedOrder && !trackError && (
+                <div className="mt-6 rounded-[1.5rem] border border-dashed border-orange-200 bg-orange-50/60 p-6 text-center">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-3xl shadow-sm">
+                    🧡
+                  </div>
+                  <h4 className="mt-4 text-lg font-black text-stone-900">
+                    Ready to track
+                  </h4>
+                  <p className="mt-2 text-sm leading-6 text-stone-500">
+                    Your order timeline will appear here once a valid order is found.
+                  </p>
+                </div>
+              )}
+
+            </aside>
+
+            <article className="rounded-[2rem] border border-orange-100 bg-white p-5 shadow-[0_20px_60px_rgba(249,115,22,0.08)] sm:p-6 lg:p-8">
+
+              {!trackedOrder ? (
+                <div className="flex min-h-[420px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-orange-200 bg-gradient-to-b from-orange-50 to-white p-8 text-center">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-sm">
+                    📍
+                  </div>
+                  <h3 className="mt-5 text-2xl font-black text-stone-900">
+                    No Order Found
+                  </h3>
+                  <p className="mt-3 max-w-md text-sm leading-7 text-stone-500">
+                    Search with your phone number and Razorpay order ID to see the live delivery progress, order details, and products.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  <div className="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-5 shadow-sm sm:p-6">
+                    <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="space-y-4">
+                        <div>
+                          <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
+                            Order Overview
+                          </p>
+                          <h3 className="mt-2 text-3xl font-black tracking-tight text-stone-900">
+                            {trackedOrder.customerName}
+                          </h3>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                              Phone Number
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-stone-900">
+                              {trackedOrder.phone || "Not available"}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                              Created Date
+                            </p>
+                            <p className="mt-1 text-sm font-semibold text-stone-900">
+                              {formatDate(trackedOrder.createdAt)}
+                            </p>
+                          </div>
+
+                          <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100 sm:col-span-2">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                              Delivery Address
+                            </p>
+                            <p className="mt-1 text-sm font-semibold leading-6 text-stone-900">
+                              {trackedOrder.address || "Not available"}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[260px] xl:grid-cols-1">
+                        <div className="rounded-2xl bg-white/95 px-4 py-4 shadow-sm ring-1 ring-orange-100">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                            Order ID
+                          </p>
+                          <p className="mt-1 break-all text-sm font-black text-stone-900">
+                            {trackedOrder.razorpayOrderId || trackedOrder.id}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-white/95 px-4 py-4 shadow-sm ring-1 ring-orange-100">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                            Order Amount
+                          </p>
+                          <p className="mt-1 text-3xl font-black tracking-tight text-orange-700">
+                            ₹{trackedOrder.totalAmount}
+                          </p>
+                        </div>
+
+                        <div className={`rounded-2xl border px-4 py-4 shadow-sm ${paymentBadgeClass}`}>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] opacity-70">
+                            Payment Status
+                          </p>
+                          <p className="mt-1 text-sm font-black">
+                            {trackedOrder.paymentStatus || "PENDING"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.75rem] border border-orange-100 bg-white p-5 shadow-sm sm:p-6">
+                    <div className="mb-6 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
+                          Delivery Progress
+                        </p>
+                        <h4 className="mt-2 text-2xl font-black text-stone-900">
+                          Live Status
+                        </h4>
+                      </div>
+                      <div className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
+                        Current: {trackedOrder.status || "Preparing"}
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <div className="absolute left-4 right-4 top-4 hidden h-0.5 bg-stone-200 sm:block" />
+
+                      <div className="grid gap-4 sm:grid-cols-4 sm:gap-2">
+                        {deliverySteps.map((step, index) => {
+                          const currentStep = getCurrentStepIndex(trackedOrder.status);
+                          const isCompleted = index < currentStep;
+                          const isActive = index === currentStep;
+                          const isFuture = index > currentStep;
+
+                          return (
+                            <div key={step} className="relative z-10 flex flex-col items-start gap-3 sm:items-center sm:text-center">
+                              <div
+                                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-black transition ${
+                                  isCompleted
+                                    ? "border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-200"
+                                    : isActive
+                                      ? "border-orange-600 bg-orange-600 text-white shadow-lg shadow-orange-200"
+                                      : "border-stone-300 bg-white text-stone-400"
+                                }`}
+                              >
+                                {isCompleted ? "✓" : index + 1}
+                              </div>
+
+                              <div className="space-y-1 sm:max-w-[110px]">
+                                <p className={`text-sm font-black ${isActive ? "text-stone-900" : isCompleted ? "text-emerald-700" : "text-stone-500"}`}>
+                                  {step}
+                                </p>
+                                <p className={`text-xs leading-5 ${isFuture ? "text-stone-400" : "text-stone-500"}`}>
+                                  {isCompleted
+                                    ? "Completed"
+                                    : isActive
+                                      ? "In progress"
+                                      : "Pending"}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-[1.75rem] border border-orange-100 bg-white p-5 shadow-sm sm:p-6">
+                    <div className="mb-5 flex items-center justify-between gap-4">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
+                          Products
+                        </p>
+                        <h4 className="mt-2 text-2xl font-black text-stone-900">
+                          Ordered Items
+                        </h4>
+                      </div>
+
+                      <div className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
+                        {trackedOrder.products?.length || 0} item(s)
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+                      {trackedOrder.products?.map((product, index) => (
+                        <article
+                          key={`${product.name}-${index}`}
+                          className="group overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-white to-orange-50/60 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(249,115,22,0.12)]"
+                        >
+                          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+                            <div className="relative h-28 w-full overflow-hidden rounded-2xl bg-orange-100 sm:h-24 sm:w-24 sm:flex-shrink-0">
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                              />
+                            </div>
+
+                            <div className="min-w-0 flex-1 space-y-2">
+                              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                  <h5 className="text-lg font-black text-stone-900">
+                                    {product.name}
+                                  </h5>
+                                  <p className="mt-1 text-sm text-stone-500">
+                                    Quantity and item price
+                                  </p>
+                                </div>
+
+                                <div className="rounded-full bg-orange-100 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-orange-700">
+                                  Qty {product.quantity}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between gap-3 border-t border-dashed border-orange-100 pt-3">
+                                <p className="text-sm font-semibold text-stone-500">
+                                  Unit Price
+                                </p>
+                                <p className="text-xl font-black text-orange-700">
+                                  ₹{product.price}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </article>
+
+          </div>
+        </div>
+
+      </section>
+
       {/* Cart is now a separate page at /cart */}
+
+      <button
+        type="button"
+        onClick={() =>
+          document.getElementById("track-order")?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+        }
+        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-600 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.35)] transition duration-200 hover:-translate-y-1 hover:from-orange-500 hover:to-amber-400 sm:bottom-6 sm:right-6"
+      >
+        📦 Track Order
+      </button>
 
       <Footer />
 

@@ -6,11 +6,7 @@ import {
 } from "../firebase";
 
 
-import { useNavigate } from "react-router-dom";
-
 function AdminLogin() {
-
-  const navigate = useNavigate();
 
   const handleLogin = async () => {
 
