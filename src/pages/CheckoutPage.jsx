@@ -101,6 +101,71 @@ function CheckoutPage() {
     0
   );
 
+  /* SAVE ORDER TO FIREBASE */
+
+  const saveOrderToFirebase =
+    async (
+      paymentStatus,
+      response = {}
+    ) => {
+
+      try {
+
+        const docRef =
+          await addDoc(
+            collection(
+              db,
+              "orders"
+            ),
+            {
+              customerName:
+                customer.name,
+
+              phone:
+                customer.phone,
+
+              address:
+                customer.address,
+
+              pincode:
+                customer.pincode,
+
+              products:
+                cart,
+
+              totalAmount,
+
+              paymentStatus,
+
+              razorpayPaymentId:
+                response.razorpay_payment_id ||
+                "",
+
+              razorpayOrderId:
+                response.razorpay_order_id ||
+                "",
+
+              createdAt:
+                serverTimestamp(),
+            }
+          );
+
+        console.log(
+          "ORDER SAVED:",
+          docRef.id
+        );
+
+      } catch (firebaseError) {
+
+        console.log(
+          "FIREBASE ERROR:",
+          firebaseError
+        );
+
+      }
+
+    };
+
   /* PAYMENT */
 
   const handlePayment = async () => {
@@ -157,7 +222,10 @@ function CheckoutPage() {
       const order =
         await orderResponse.json();
 
-      console.log(order);
+      console.log(
+        "ORDER:",
+        order
+      );
 
       /* RAZORPAY */
 
@@ -224,6 +292,7 @@ function CheckoutPage() {
                 await verifyResponse.json();
 
               console.log(
+                "VERIFY:",
                 verifyData
               );
 
@@ -316,43 +385,11 @@ function CheckoutPage() {
                   }
                 );
 
-                /* SAVE SUCCESS ORDER */
+                /* SAVE TO FIREBASE */
 
-                await addDoc(
-                  collection(
-                    db,
-                    "orders"
-                  ),
-                  {
-                    customerName:
-                      customer.name,
-
-                    phone:
-                      customer.phone,
-
-                    address:
-                      customer.address,
-
-                    pincode:
-                      customer.pincode,
-
-                    products:
-                      cart,
-
-                    totalAmount,
-
-                    paymentStatus:
-                      "PAID",
-
-                    razorpayPaymentId:
-                      response.razorpay_payment_id,
-
-                    razorpayOrderId:
-                      response.razorpay_order_id,
-
-                    createdAt:
-                      serverTimestamp(),
-                  }
+                await saveOrderToFirebase(
+                  "PAID",
+                  response
                 );
 
                 alert(
@@ -383,37 +420,8 @@ function CheckoutPage() {
 
               } else {
 
-                /* SAVE FAILED */
-
-                await addDoc(
-                  collection(
-                    db,
-                    "orders"
-                  ),
-                  {
-                    customerName:
-                      customer.name,
-
-                    phone:
-                      customer.phone,
-
-                    address:
-                      customer.address,
-
-                    pincode:
-                      customer.pincode,
-
-                    products:
-                      cart,
-
-                    totalAmount,
-
-                    paymentStatus:
-                      "FAILED",
-
-                    createdAt:
-                      serverTimestamp(),
-                  }
+                await saveOrderToFirebase(
+                  "FAILED"
                 );
 
                 alert(
@@ -429,7 +437,12 @@ function CheckoutPage() {
             } catch (error) {
 
               console.log(
+                "VERIFY ERROR:",
                 error
+              );
+
+              await saveOrderToFirebase(
+                "FAILED"
               );
 
               alert(
@@ -471,40 +484,12 @@ function CheckoutPage() {
         ) {
 
           console.log(
+            "PAYMENT FAILED:",
             response
           );
 
-          /* SAVE FAILED */
-
-          await addDoc(
-            collection(
-              db,
-              "orders"
-            ),
-            {
-              customerName:
-                customer.name,
-
-              phone:
-                customer.phone,
-
-              address:
-                customer.address,
-
-              pincode:
-                customer.pincode,
-
-              products:
-                cart,
-
-              totalAmount,
-
-              paymentStatus:
-                "FAILED",
-
-              createdAt:
-                serverTimestamp(),
-            }
+          await saveOrderToFirebase(
+            "FAILED"
           );
 
           alert(
@@ -522,7 +507,10 @@ function CheckoutPage() {
 
     } catch (error) {
 
-      console.log(error);
+      console.log(
+        "MAIN ERROR:",
+        error
+      );
 
       alert(
         "Something went wrong"
@@ -746,7 +734,7 @@ function CheckoutPage() {
                 disabled={
                   processing
                 }
-                className="w-full cursor-not-allowed bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-black text-lg transition disabled:opacity-70"
+                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-black text-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
               >
 
                 {processing
