@@ -13,50 +13,51 @@ function AdminLogin() {
 
   const handleLogin = async () => {
 
-    try {
+  try {
 
-      const provider =
-        new GoogleAuthProvider();
+    const result =
+      await signInWithPopup(
+        auth,
+        googleProvider
+      );
 
-      const result =
-        await signInWithPopup(
-          auth,
-          provider
-        );
+    const email =
+      result.user.email;
 
-      const user = result.user;
+    console.log(email);
 
-      /* ALLOW ONLY YOUR EMAIL */
+    /* YOUR ADMIN EMAIL */
 
-      if (
-        user.email ===
-        "YOUR_GMAIL@gmail.com"
-      ) {
+    if (
+      email !==
+      "patnalaharikrishna9544@gmail.com"
+    ) {
 
-        localStorage.setItem(
-          "adminAuth",
-          "true"
-        );
+      alert(
+        "Access Denied ❌"
+      );
 
-        navigate("/admin-orders");
-
-      } else {
-
-        alert(
-          "Unauthorized Access ❌"
-        );
-
-      }
-
-    } catch (error) {
-
-      console.log(error);
-
-      alert("Login Failed");
+      return;
 
     }
 
-  };
+    localStorage.setItem(
+      "adminLoggedIn",
+      "true"
+    );
+
+    window.location.href =
+      "/admin-orders";
+
+  } catch (error) {
+
+    console.log(error);
+
+    alert(error.message);
+
+  }
+
+};
 
   return (
 
