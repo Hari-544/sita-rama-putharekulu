@@ -159,7 +159,7 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
 
   return (
     <article
-      className={`group relative overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)] ${compact ? "min-w-[18rem] sm:min-w-[20rem] lg:min-w-0" : ""}`}
+      className={`group relative w-full overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)]`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/50" />
       <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-orange-200/30 blur-3xl transition duration-500 group-hover:scale-110" />
@@ -194,16 +194,16 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
           ❤
         </button>
 
-        <div className="relative overflow-hidden bg-linear-to-b from-orange-50 to-white p-4">
-          <div className="overflow-hidden rounded-[24px] bg-white">
-          <img
-            src={imageSrc}
-            alt={product.name || "Premium product"}
-            loading="lazy"
-            decoding="async"
-            draggable="false"
-              className={`aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105 ${inStock ? "" : "grayscale"}`}
-          />
+        <div className="relative bg-linear-to-b from-orange-50 to-white p-4">
+          <div className="fluid-image-frame overflow-hidden rounded-[24px] bg-white">
+            <img
+              src={imageSrc}
+              alt={product.name || "Premium product"}
+              loading="lazy"
+              decoding="async"
+              draggable="false"
+              className={`h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${inStock ? "" : "grayscale"}`}
+            />
           </div>
         </div>
 
@@ -223,8 +223,6 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
               <p className="text-xs font-black text-green-700">
                 {inStock ? "● In Stock" : "● Out of Stock"}
               </p>
-
-              
             </div>
           </div>
 
@@ -253,7 +251,7 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
                 Freshly Prepared
               </p>
             </div>
-        </div>
+          </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
             <span className="text-sm font-bold text-stone-700">
@@ -429,9 +427,9 @@ function FeaturedSection({ products, loading, cartMap, onAdd, onDecrease }) {
             description="High-conviction picks from the current catalog, surfaced in a premium carousel-style layout."
           />
 
-          <div className="mt-8 flex gap-5 overflow-x-auto pb-3 snap-x snap-mandatory lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] lg:overflow-visible">
+          <div className="mt-8 -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory scrollbar-hide overscroll-x-contain sm:-mx-6 sm:gap-5 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] lg:overflow-visible lg:px-0">
             {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="snap-start shrink-0 lg:shrink">
+              <div key={index} className="w-[min(82vw,18rem)] snap-start shrink-0 sm:w-[min(20rem,100%)] lg:w-full lg:shrink">
                 <ProductSkeletonCard />
               </div>
             ))}
@@ -462,12 +460,12 @@ function FeaturedSection({ products, loading, cartMap, onAdd, onDecrease }) {
           }
         />
 
-        <div className="mt-8 flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] lg:overflow-visible">
+        <div className="mt-8 -mx-4 flex gap-4 overflow-x-auto px-4 pb-4 snap-x snap-mandatory scrollbar-hide overscroll-x-contain sm:-mx-6 sm:gap-5 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] lg:overflow-visible lg:px-0">
           {products.map((product) => {
             const quantity = cartMap.get(product.id) || 0;
 
             return (
-              <div key={product.id} className="snap-start shrink-0 lg:shrink">
+              <div key={product.id} className="w-[min(82vw,18rem)] snap-start shrink-0 sm:w-[min(20rem,100%)] lg:w-full lg:shrink">
                 <ProductCard
                   product={product}
                   quantity={quantity}
