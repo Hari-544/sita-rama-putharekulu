@@ -144,7 +144,9 @@ const handlePayment = async () => {
           <section className="panel-shell p-5 sm:p-6">
             <h2 className="text-xs uppercase tracking-widest text-orange-600 font-extrabold mb-4">Your Order</h2>
             <div className="mb-4 overflow-hidden rounded-2xl bg-orange-50">
-              <img src={product.image} alt={product.name} className="aspect-[4/3] w-full object-cover sm:aspect-video" />
+              <div className="fluid-image-frame overflow-hidden rounded-2xl bg-orange-50">
+                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+              </div>
             </div>
             <h3 className="fluid-heading font-bold text-stone-900">{product.name}</h3>
             <p className="text-sm text-stone-500 mt-1">{product.sizes}</p>

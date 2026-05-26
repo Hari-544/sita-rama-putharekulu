@@ -122,7 +122,9 @@ function CheckoutPage() {
           "FIREBASE ERROR:",
           firebaseError
         );
-
+                          <div className="fluid-image-frame overflow-hidden rounded-2xl bg-orange-50">
+                            <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                          </div>
         return false;
 
       }
@@ -521,7 +523,7 @@ function CheckoutPage() {
 
   return (
 
-    <div className="adaptive-section safe-bottom min-h-screen bg-[#fffaf5] px-4 py-8 sm:py-10">
+    <div className="adaptive-section safe-bottom min-h-screen bg-[#fffaf5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
       <div className="responsive-shell mx-auto">
 
@@ -540,12 +542,12 @@ function CheckoutPage() {
 
         </div>
 
-        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:gap-8">
 
           {/* LEFT */}
 
           {/* LEFT */}
-          <div className="panel-shell adaptive-card p-5 sm:p-8">
+          <div className="panel-shell adaptive-card p-5 sm:p-6 lg:p-8">
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Order Summary
             </h2>
@@ -598,7 +600,7 @@ function CheckoutPage() {
           </div>
 
           {/* RIGHT */}
-          <div className="panel-shell adaptive-card p-5 sm:p-8">
+          <div className="panel-shell adaptive-card p-5 sm:p-6 lg:p-8">
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Delivery Details
             </h2>

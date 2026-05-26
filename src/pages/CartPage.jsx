@@ -87,9 +87,9 @@ function CartPage() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] py-8 px-4 sm:py-10">
+    <div className="adaptive-section safe-bottom min-h-screen bg-[#fffaf5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
-      <div className="container mx-auto max-w-6xl">
+      <div className="responsive-shell mx-auto">
 
         {/* HEADER */}
 
@@ -135,9 +135,9 @@ function CartPage() {
 
         {cart.length === 0 ? (
 
-          <div className="rounded-[36px] border border-orange-100 bg-white p-8 text-center shadow-sm sm:p-16">
+          <div className="rounded-[36px] border border-orange-100 bg-white p-6 text-center shadow-sm sm:p-10 lg:p-14">
 
-            <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-orange-50 text-5xl sm:h-28 sm:w-28 sm:text-6xl">
+            <div className="mx-auto flex aspect-square h-20 w-20 items-center justify-center rounded-full bg-orange-50 text-4xl sm:h-24 sm:w-24 sm:text-5xl lg:h-28 lg:w-28 lg:text-6xl">
               🛒
             </div>
 
@@ -177,11 +177,13 @@ function CartPage() {
 
                  <div className="relative overflow-hidden bg-gradient-to-b from-orange-50 to-white p-3 sm:p-4">
                   <div className="overflow-hidden rounded-[24px] bg-white">
-                    <img
-                    src={item.image}
-                    alt={item.name}
-                    className="aspect-square w-full object-cover transition-transform duration-700 group-hover:scale-105 sm:aspect-[4/3] lg:aspect-square"
-                    />
+                    <div className="fluid-image-frame w-full overflow-hidden rounded-[24px] bg-white">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
                   </div>
                 </div>
 

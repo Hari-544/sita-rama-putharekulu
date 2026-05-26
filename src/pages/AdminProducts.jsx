@@ -44,15 +44,15 @@ function AdminProducts({ embedded = false }) {
 
     const pageShellClass = embedded
       ? "w-full"
-      : "min-h-screen bg-[#fffaf5] p-6";
+      : "min-h-screen bg-[#fffaf5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8";
 
     const pageInnerClass = embedded
       ? "w-full"
-      : "max-w-7xl mx-auto";
+      : "mx-auto w-full max-w-screen-2xl";
 
     const pageTitleClass = embedded
       ? "hidden"
-      : "text-4xl font-black text-orange-700 mb-8";
+      : "mb-8 text-[clamp(2rem,4vw,3.5rem)] font-black text-orange-700";
 
   /* FETCH PRODUCTS */
 
@@ -326,7 +326,7 @@ function AdminProducts({ embedded = false }) {
 
         <div className="panel-shell p-6 mb-10">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
 
             <input
               type="text"
@@ -432,7 +432,7 @@ function AdminProducts({ embedded = false }) {
 
         {/* PRODUCTS */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
 
           {products.map(
             (item) => (
@@ -443,13 +443,9 @@ function AdminProducts({ embedded = false }) {
               >
 
                 <img
-                  src={
-                    item.image
-                  }
-                  alt={
-                    item.name
-                  }
-                  className="w-full h-60 object-cover"
+                  src={item.image}
+                  alt={item.name}
+                  className="aspect-[4/3] w-full object-cover"
                 />
 
                 <div className="p-5">

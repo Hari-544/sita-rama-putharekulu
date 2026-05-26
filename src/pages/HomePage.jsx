@@ -15,7 +15,7 @@ const currencyFormatter = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
-const pageShell = "mx-auto w-full max-w-[1480px] px-4 sm:px-6 lg:px-8";
+const pageShell = "responsive-shell";
 
 const formatPrice = (value) => {
   const amount = Number(value);
@@ -123,7 +123,7 @@ function ProductSkeletonCard() {
           <div className="h-6 w-16 animate-pulse rounded-full bg-orange-50" />
         </div>
 
-        <div className="mt-4 aspect-[4/5] w-full animate-pulse rounded-[24px] bg-gradient-to-br from-orange-100 via-orange-50 to-amber-100" />
+        <div className="mt-4 fluid-image-frame animate-pulse rounded-[24px] bg-gradient-to-br from-orange-100 via-orange-50 to-amber-100" />
 
         <div className="mt-5 space-y-3">
           <div className="h-6 w-3/4 animate-pulse rounded-full bg-stone-100" />
@@ -159,15 +159,15 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
 
   return (
     <article
-      className={`group relative w-full overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)]`}
+      className={`group relative w-full overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)] ${compact ? "h-full" : ""}`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/50" />
       <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-orange-200/30 blur-3xl transition duration-500 group-hover:scale-110" />
 
-      <div className="relative p-4 sm:p-5">
-        <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2">
+      <div className={`relative ${compact ? "p-4 sm:p-5" : "p-4 sm:p-5"}`}>
+        <div className={`absolute left-4 top-4 z-20 flex flex-wrap gap-2 ${compact ? "right-4" : ""}`}>
           {isFeatured ? (
-            <span className="rounded-full bg-linear-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200">
+            <span className="rounded-full bg-linear-to-r from-orange-500 to-amber-500 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200 sm:px-4 sm:text-[11px]">
               Featured
             </span>
           ) : null}
@@ -194,33 +194,33 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
           ❤
         </button>
 
-        <div className="relative bg-linear-to-b from-orange-50 to-white p-4">
-          <div className="fluid-image-frame overflow-hidden rounded-[24px] bg-white">
+        <div className={`relative bg-linear-to-b from-orange-50 to-white ${compact ? "p-4" : "p-4"}`}>
+          <div className="aspect-square overflow-hidden rounded-[24px] bg-white">
             <img
               src={imageSrc}
               alt={product.name || "Premium product"}
               loading="lazy"
               decoding="async"
               draggable="false"
-              className={`h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-105 ${inStock ? "" : "grayscale"}`}
+              className={`h-full w-full object-cover transition-transform duration-700' ${compact ? "group-hover:scale-105" : "group-hover:scale-110"}` }
             />
           </div>
         </div>
 
-        <div className="space-y-5 p-5">
+        <div className={`${compact ? "space-y-4 p-5" : "space-y-5 p-5"}`}>
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <h3 className="text-[1.25rem] font-black leading-tight text-stone-900 transition-colors duration-300 group-hover:text-orange-600">
+              <h3 className={`font-black leading-tight text-stone-900 transition-colors duration-300 group-hover:text-orange-600 ${compact ? "text-[1.08rem] sm:text-[1.18rem]" : "text-[1.25rem]"}`}>
                 {product.name || "Premium Putharekulu"}
               </h3>
 
-              <p className="mt-2 text-sm leading-6 text-stone-500">
+              <p className={`mt-2 leading-6 text-stone-500 ${compact ? "text-[0.82rem] sm:text-[0.95rem]" : "text-sm"}`}>
                 {sizeText}
               </p>
             </div>
 
             <div className="rounded-2xl bg-green-50 px-3 py-2 text-right border border-green-100">
-              <p className="text-xs font-black text-green-700">
+              <p className={`font-black text-green-700 ${compact ? "text-[0.75rem]" : "text-xs"}`}>
                 {inStock ? "● In Stock" : "● Out of Stock"}
               </p>
             </div>
@@ -241,9 +241,9 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
             ))}
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-3xl font-black text-orange-700">
+              <p className={`font-black text-orange-700 ${compact ? "text-[2rem] sm:text-[2.15rem]" : "text-3xl"}`}>
                 ₹{formatPrice(product.price)}
               </p>
 
@@ -253,23 +253,23 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
+          <div className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-orange-50 ${compact ? "px-4 py-3" : "px-4 py-3"}`}>
             <span className="text-sm font-bold text-stone-700">
               Quantity
             </span>
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               <button
                 type="button"
                 onClick={() => onDecrease(product.id)}
                 disabled={quantity <= 0}
                 aria-label={`Decrease ${product.name}`}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className={`flex items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40 ${compact ? "h-11 w-11" : "h-11 w-11"}`}
               >
                 −
               </button>
 
-              <span className="w-6 text-center text-lg font-black text-stone-900">
+              <span className={`w-6 text-center font-black text-stone-900 ${compact ? "text-base" : "text-lg"}`}>
                 {quantity}
               </span>
 
@@ -278,7 +278,7 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
                 onClick={() => onAdd(product)}
                 disabled={!inStock}
                 aria-label={`Increase ${product.name}`}
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40"
+                className={`flex items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40 ${compact ? "h-11 w-11" : "h-11 w-11"}`}
               >
                 +
               </button>
@@ -404,7 +404,7 @@ function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCou
                 alt="Premium Putharekulu"
                 loading="eager"
                 decoding="async"
-                className="aspect-[16/10] w-full object-cover sm:aspect-[4/3] lg:aspect-[5/4]"
+                className="fluid-image-frame w-full rounded-[28px] object-cover"
               />
 
               
@@ -488,29 +488,52 @@ function CategorySection({ category, products, cartMap, onAdd, onDecrease }) {
   }
 
   return (
-    <section id={`category-${slugify(category)}`} className="bg-white rounded-t-[50px] py-16">
-      <div className={pageShell}>
-        <SectionHeading
-          eyebrow="Shop by category"
-          title={category}
-          description={`Browse ${products.length} premium item${products.length === 1 ? "" : "s"} in this collection.`}
-        />
+    <section className="h-full rounded-[38px] border border-orange-100 bg-white/95 p-4 shadow-[0_20px_60px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-5 lg:p-6">
+      
+      {/* HEADER */}
+      <div className="mb-5 flex items-start justify-between gap-4 border-b border-orange-100 pb-4">
+        <div className="min-w-0">
+          <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-orange-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.22em] text-orange-700">
+            Shop by category
+          </span>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6 xl:gap-7">
-          {products.map((product) => {
-            const quantity = cartMap.get(product.id) || 0;
+          <h2 className="mt-3 text-[clamp(1.3rem,2vw,2rem)] font-black leading-tight tracking-tight text-stone-950">
+            {category}
+          </h2>
 
-            return (
+          <p className="mt-1 text-sm leading-6 text-stone-500">
+            Browse premium products in this collection.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 text-center shadow-sm">
+          <p className="text-[10px] font-black uppercase tracking-[0.22em] text-stone-400">
+            Products
+          </p>
+
+          <p className="mt-1 text-xl font-black text-orange-700">
+            {products.length}
+          </p>
+        </div>
+      </div>
+
+      {/* PRODUCTS GRID */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        {products.map((product) => {
+          const quantity = cartMap.get(product.id) || 0;
+
+          return (
+            <div key={product.id} className="h-full">
               <ProductCard
-                key={product.id}
                 product={product}
                 quantity={quantity}
                 onAdd={onAdd}
                 onDecrease={onDecrease}
+                compact
               />
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
@@ -833,7 +856,7 @@ function TrackOrderSection({
                         className="group overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-white to-orange-50/60 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(249,115,22,0.12)]"
                       >
                         <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                          <div className="relative h-28 w-full overflow-hidden rounded-2xl bg-orange-100 sm:h-24 sm:w-24 sm:flex-shrink-0">
+                          <div className="fluid-image-frame w-full overflow-hidden rounded-2xl bg-orange-100 sm:w-24 sm:flex-shrink-0">
                             <img
                               src={product.image || hero}
                               alt={product.name || "Order item"}
@@ -1159,16 +1182,28 @@ function HomePage() {
             </div>
           </section>
         ) : categorySections.length ? (
-          categorySections.map((section) => (
-            <CategorySection
-              key={section.category}
-              category={section.category}
-              products={section.items}
-              cartMap={cartMap}
-              onAdd={addToCart}
-              onDecrease={decreaseQty}
-            />
-          ))
+          <section className="py-6 sm:py-8">
+            <div className={pageShell}>
+              <SectionHeading
+                eyebrow="Shop by category"
+                title="Signature Collection"
+                description="Browse products grouped by category in a side-by-side responsive grid for faster scanning and less scrolling."
+              />
+
+              <div className="mt-8 grid grid-cols-1 gap-8 2xl:grid-cols-2">
+                {categorySections.map((section) => (
+                    <CategorySection
+                    key={section.category}
+                    category={section.category}
+                    products={section.items}
+                    cartMap={cartMap}
+                    onAdd={addToCart}
+                    onDecrease={decreaseQty}
+                    />
+                ))}
+            </div>
+            </div>
+          </section>
         ) : (
           <section className="py-10 sm:py-16">
             <div className={pageShell}>
