@@ -15,6 +15,7 @@ import AdminOrders from "./pages/AdminOrders";
 import AdminProducts from "./pages/AdminProducts";
 
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 function App() {
 
@@ -77,18 +78,18 @@ function App() {
       <Route
         path="/admin-orders"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <AdminOrders />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
 
       <Route
         path="/admin-products"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <AdminProducts />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
 
