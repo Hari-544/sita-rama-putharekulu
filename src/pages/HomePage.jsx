@@ -224,9 +224,7 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
                 {inStock ? "● In Stock" : "● Out of Stock"}
               </p>
 
-              <p className="text-[10px] text-green-600">
-                {inStock ? "Fast Delivery" : "Check back soon"}
-              </p>
+              
             </div>
           </div>
 
