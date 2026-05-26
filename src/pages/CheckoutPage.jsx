@@ -544,170 +544,144 @@ function CheckoutPage() {
 
           {/* LEFT */}
 
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-100 sm:p-6">
-
+          {/* LEFT */}
+          <div className="panel-shell p-5 sm:p-8">
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Order Summary
             </h2>
-
             <div className="space-y-5">
-
               {cart.length === 0 ? (
-
                 <div className="text-center py-16">
-
                   <span className="text-6xl">
                     🛒
                   </span>
-
                   <p className="mt-4 text-stone-500">
                     Your cart is empty
                   </p>
-
                 </div>
-
               ) : (
-
                 cart.map((item) => (
-
                   <div
                     key={item.id}
-                    className="flex gap-4 border border-orange-100 rounded-2xl p-4 bg-orange-50"
+                    className="flex gap-4 border border-orange-100 rounded-2xl p-4 bg-orange-50/70 backdrop-blur-md"
                   >
-
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-24 h-24 rounded-2xl object-cover"
+                      className="w-24 h-24 rounded-2xl object-cover shadow-sm"
                     />
-
                     <div className="grow">
-
                       <h3 className="font-bold text-stone-900">
                         {item.name}
                       </h3>
-
                       <p className="text-sm text-stone-500 mt-1">
                         {item.sizes}
                       </p>
-
                       <p className="text-xl font-black text-orange-700 mt-2">
                         ₹{item.price}
                       </p>
-
                     </div>
-
                   </div>
-
                 ))
-
               )}
-
             </div>
-
             {cart.length > 0 && (
-
               <div className="border-t border-orange-100 mt-8 pt-6 flex items-center justify-between">
-
                 <span className="text-lg font-semibold text-stone-600">
                   Total Amount
                 </span>
-
                 <span className="text-4xl font-black text-orange-700">
                   ₹{totalAmount}
                 </span>
-
               </div>
-
             )}
-
           </div>
 
           {/* RIGHT */}
-
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-100 sm:p-6">
-
+          <div className="panel-shell p-5 sm:p-8">
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Delivery Details
             </h2>
-
             <div className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Full Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Hari Prasad"
+                  value={customer.name}
+                  onChange={(e) =>
+                    setCustomer({
+                      ...customer,
+                      name: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={customer.name}
-                onChange={(e) =>
-                  setCustomer({
-                    ...customer,
-                    name:
-                      e.target.value,
-                  })
-                }
-                className="w-full border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Phone Number</label>
+                <input
+                  type="tel"
+                  placeholder="e.g., 9652999544"
+                  value={customer.phone}
+                  onChange={(e) =>
+                    setCustomer({
+                      ...customer,
+                      phone: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-              <input
-                type="tel"
-                placeholder="Phone Number"
-                value={customer.phone}
-                onChange={(e) =>
-                  setCustomer({
-                    ...customer,
-                    phone:
-                      e.target.value,
-                  })
-                }
-                className="w-full border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Complete Delivery Address</label>
+                <textarea
+                  rows="4"
+                  placeholder="Door Number, Street Name, Landmark, City/Village"
+                  value={customer.address}
+                  onChange={(e) =>
+                    setCustomer({
+                      ...customer,
+                      address: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
-              <textarea
-                rows="5"
-                placeholder="Complete Delivery Address"
-                value={customer.address}
-                onChange={(e) =>
-                  setCustomer({
-                    ...customer,
-                    address:
-                      e.target.value,
-                  })
-                }
-                className="w-full border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
-              />
-
-              <input
-                type="text"
-                maxLength="6"
-                placeholder="Pincode"
-                value={customer.pincode}
-                onChange={(e) =>
-                  setCustomer({
-                    ...customer,
-                    pincode:
-                      e.target.value,
-                  })
-                }
-                className="w-full border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
-              />
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">6-Digit Pincode</label>
+                <input
+                  type="text"
+                  maxLength="6"
+                  placeholder="e.g., 533201"
+                  value={customer.pincode}
+                  onChange={(e) =>
+                    setCustomer({
+                      ...customer,
+                      pincode: e.target.value,
+                    })
+                  }
+                />
+              </div>
 
               <button
-                onClick={
-                  handlePayment
-                }
-                disabled={
-                  processing
-                }
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-black text-lg transition disabled:opacity-70 disabled:cursor-not-allowed"
+                onClick={handlePayment}
+                disabled={processing}
+                className="btn btn-primary w-full py-4 mt-6 text-base font-bold"
               >
-
-                {processing
-                  ? "Processing Payment..."
-                  : `Pay ₹${totalAmount}`}
-
+                {processing ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Processing Secure Order...
+                  </span>
+                ) : (
+                  `Pay ₹${totalAmount}`
+                )}
               </button>
-
             </div>
-
           </div>
 
         </div>

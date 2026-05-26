@@ -255,46 +255,20 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
                 Freshly Prepared
               </p>
             </div>
+        </div>
 
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => onDecrease(product.id)}
-                disabled={quantity <= 0}
-                aria-label={`Decrease ${product.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                −
-              </button>
-
-              <span className="w-6 text-center text-lg font-black text-stone-900">
-                {quantity}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => onAdd(product)}
-                disabled={!inStock}
-                aria-label={`Increase ${product.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                +
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
             <span className="text-sm font-bold text-stone-700">
               Quantity
             </span>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => onDecrease(product.id)}
                 disabled={quantity <= 0}
                 aria-label={`Decrease ${product.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 −
               </button>
@@ -308,26 +282,26 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
                 onClick={() => onAdd(product)}
                 disabled={!inStock}
                 aria-label={`Increase ${product.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 +
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <button
               type="button"
               onClick={() => onAdd(product)}
               disabled={!inStock}
-              className="rounded-2xl border border-orange-200 bg-white py-3.5 text-sm font-black text-orange-700 transition-all duration-300 hover:border-orange-500 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn btn-secondary w-full text-sm font-black"
             >
               Add To Cart
             </button>
 
             <Link
               to="/checkout"
-              className="rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 py-3.5 text-center text-sm font-black text-white shadow-lg transition-all duration-300 hover:scale-[1.02]"
+              className="btn btn-primary w-full text-sm font-black"
             >
               Buy Now
             </Link>
@@ -361,7 +335,7 @@ function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCou
           <div className="space-y-4">
             <h1 className="max-w-4xl text-[clamp(2.75rem,8vw,6.3rem)] font-black leading-[0.9] tracking-tight text-stone-950">
               Handmade
-              <span className="block bg-linear-to-r from-orange-700 via-orange-600 to-amber-500 bg-clip-text text-transparent">
+              <span className="block bg-linear-to-r from-orange-700 via-orange-600 to-amber-500 bg-clip-text text-stone-950">
                 Premium Pure
               </span>
               Putharekulu
@@ -375,7 +349,7 @@ function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCou
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
             <a
               href="#featured-products"
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-2.5 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-2.5 text-sm font-black text-stone-950 shadow-[0_18px_35px_rgba(249,115,22,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400"
             >
               Shop Now
               <span aria-hidden="true">→</span>
@@ -383,7 +357,7 @@ function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCou
 
             <a
               href="#track-order"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-orange-200 bg-white/85 px-5 py-2.5 text-sm font-black text-orange-700 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-50"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-orange-500 bg-orange-500/85 px-5 py-2.5 text-sm font-black text-white-700 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-50"
             >
               Track Order
             </a>
@@ -1280,7 +1254,7 @@ function HomePage() {
             block: "start",
           })
         }
-        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.35)] transition duration-300 hover:-translate-y-1 hover:from-orange-500 hover:to-amber-400 sm:bottom-6 sm:right-6"
+        className="fixed bottom-24 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.35)] transition duration-300 hover:-translate-y-1 hover:from-orange-500 hover:to-amber-400 sm:bottom-6 sm:right-6"
       >
         Track Order
       </button>

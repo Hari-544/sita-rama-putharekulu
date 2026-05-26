@@ -102,25 +102,25 @@ function AdminDashboard() {
             </p>
           </div>
 
-          <nav className="grid grid-cols-3 gap-2 lg:grid-cols-1">
+          <nav className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-cols-1">
             <button
               type="button"
               onClick={() => setActiveTab("products")}
-              className={`rounded-2xl px-4 py-3 text-left text-sm font-black transition ${activeTab === "products" ? "bg-orange-600 text-white shadow-lg shadow-orange-200" : "bg-orange-50 text-orange-700 hover:bg-orange-100"}`}
+              className={`w-full rounded-2xl px-4 py-3 text-center text-sm font-black transition lg:text-left ${activeTab === "products" ? "bg-orange-600 text-white shadow-lg shadow-orange-200" : "bg-orange-50 text-orange-700 hover:bg-orange-100"}`}
             >
               Products
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("orders")}
-              className={`rounded-2xl px-4 py-3 text-left text-sm font-black transition ${activeTab === "orders" ? "bg-orange-600 text-white shadow-lg shadow-orange-200" : "bg-orange-50 text-orange-700 hover:bg-orange-100"}`}
+              className={`w-full rounded-2xl px-4 py-3 text-center text-sm font-black transition lg:text-left ${activeTab === "orders" ? "bg-orange-600 text-white shadow-lg shadow-orange-200" : "bg-orange-50 text-orange-700 hover:bg-orange-100"}`}
             >
               Orders
             </button>
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-2xl bg-stone-900 px-4 py-3 text-left text-sm font-black text-white transition hover:bg-stone-800"
+              className="w-full rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-black text-white transition hover:bg-stone-800 lg:text-left"
             >
               Logout
             </button>

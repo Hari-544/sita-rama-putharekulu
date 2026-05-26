@@ -72,7 +72,7 @@ function AdminLogin() {
 
         <button
           onClick={handleLogin}
-          className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-2xl font-black text-lg"
+          className="btn btn-primary w-full text-lg"
         >
           Continue With Google
         </button>

@@ -158,18 +158,18 @@ function AdminOrders({ embedded = false }) {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
-            <h2 className="text-stone-500">
+          <div className="panel-shell p-6">
+            <h2 className="text-stone-500 font-semibold">
               Total Orders
             </h2>
 
-            <p className="text-4xl font-black mt-2">
+            <p className="text-4xl font-black mt-2 text-stone-950">
               {orders.length}
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
-            <h2 className="text-stone-500">
+          <div className="panel-shell p-6">
+            <h2 className="text-stone-500 font-semibold">
               Paid Orders
             </h2>
 
@@ -178,8 +178,8 @@ function AdminOrders({ embedded = false }) {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
-            <h2 className="text-stone-500">
+          <div className="panel-shell p-6">
+            <h2 className="text-stone-500 font-semibold">
               Failed Orders
             </h2>
 
@@ -188,8 +188,8 @@ function AdminOrders({ embedded = false }) {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl p-6 shadow-sm border border-orange-100">
-            <h2 className="text-stone-500">
+          <div className="panel-shell p-6">
+            <h2 className="text-stone-500 font-semibold">
               Revenue
             </h2>
 
@@ -213,7 +213,6 @@ function AdminOrders({ embedded = false }) {
                 e.target.value
               )
             }
-            className="w-full bg-white border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
           />
 
         </div>
@@ -396,7 +395,7 @@ function AdminOrders({ embedded = false }) {
                             e.target.value
                           )
                         }
-                        className="border border-orange-200 rounded-xl px-4 py-3 outline-none"
+                        className="!w-fit !py-2 !px-4 mt-2"
                       >
 
                         <option>

@@ -322,7 +322,9 @@ function AdminProducts({ embedded = false }) {
 
         {/* FORM */}
 
-        <div className="bg-white rounded-3xl p-6 border border-orange-100 shadow-sm mb-10">
+        {/* FORM */}
+
+        <div className="panel-shell p-6 mb-10">
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
@@ -333,7 +335,6 @@ function AdminProducts({ embedded = false }) {
               onChange={(e) =>
                 setProduct({ ...product, name: e.target.value })
               }
-              className="border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
             />
 
             <input
@@ -343,7 +344,6 @@ function AdminProducts({ embedded = false }) {
               onChange={(e) =>
                 setProduct({ ...product, price: e.target.value })
               }
-              className="border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
             />
 
             <input
@@ -353,13 +353,12 @@ function AdminProducts({ embedded = false }) {
               onChange={(e) =>
                 setProduct({ ...product, category: e.target.value })
               }
-              className="border border-orange-100 rounded-2xl px-5 py-4 outline-none focus:border-orange-500"
             />
 
             <input
               type="file"
               onChange={(e) => setImageUpload(e.target.files[0])}
-              className="border border-orange-100 rounded-2xl px-5 py-4"
+              className="!padding-0 border border-orange-200/50 bg-white"
             />
 
           </div>
@@ -368,7 +367,7 @@ function AdminProducts({ embedded = false }) {
             placeholder="Description"
             value={product.description}
             onChange={(e) => setProduct({ ...product, description: e.target.value })}
-            className="w-full border border-orange-100 rounded-2xl px-5 py-4 mt-5 outline-none focus:border-orange-500"
+            className="mt-5"
             rows="4"
           />
 
@@ -389,6 +388,7 @@ function AdminProducts({ embedded = false }) {
                       e.target.checked,
                   })
                 }
+                className="!w-5 !h-5"
               />
 
               Featured Product
@@ -409,6 +409,7 @@ function AdminProducts({ embedded = false }) {
                       e.target.checked,
                   })
                 }
+                className="!w-5 !h-5"
               />
 
               In Stock
@@ -420,7 +421,7 @@ function AdminProducts({ embedded = false }) {
           <button
             onClick={ editingId ? updateProduct : addProduct }
             disabled={ loading }
-            className="mt-6 bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-2xl font-black transition-transform active:scale-95"
+            className="btn btn-primary mt-6 w-full sm:w-fit py-4 text-base font-bold"
           >
             {loading
               ? (editingId ? "Updating..." : "Uploading...")
@@ -498,17 +499,17 @@ function AdminProducts({ embedded = false }) {
 
                   </div>
 
-                  <div className="mt-5 grid gap-3">
+                  <div className="mt-5 btn-group">
                     <button
                       onClick={() => startEdit(item)}
-                      className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-2xl font-bold transition-shadow shadow-sm"
+                      className="btn btn-secondary w-full sm:flex-1"
                     >
                       Edit Product
                     </button>
 
                     <button
                       onClick={() => deleteProduct(item.id)}
-                      className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-2xl font-bold"
+                      className="btn btn-danger w-full sm:flex-1"
                     >
                       Delete Product
                     </button>

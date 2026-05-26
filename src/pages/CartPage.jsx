@@ -107,11 +107,11 @@ function CartPage() {
 
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
 
             <Link
               to="/"
-              className="rounded-full border border-orange-200 bg-white px-5 py-3 text-sm font-bold text-orange-700 transition hover:bg-orange-50"
+              className="btn btn-secondary w-full sm:w-auto text-sm"
             >
               ← Continue Shopping
             </Link>
@@ -120,7 +120,7 @@ function CartPage() {
 
               <button
                 onClick={clearCart}
-                className="rounded-full bg-stone-100 px-5 py-3 text-sm font-bold text-stone-700 transition hover:bg-stone-200"
+                className="btn btn-danger w-full sm:w-auto text-sm"
               >
                 Clear Cart
               </button>
@@ -151,7 +151,7 @@ function CartPage() {
 
             <Link
               to="/"
-              className="mt-8 inline-block rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-8 py-4 font-black text-white shadow-lg transition hover:scale-[1.02]"
+              className="btn btn-primary mt-8 w-full sm:w-auto"
             >
               Explore Products
             </Link>
@@ -209,7 +209,7 @@ function CartPage() {
 
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="w-fit rounded-full border border-red-100 bg-red-50 px-4 py-2 text-sm font-bold text-red-500 transition hover:bg-red-100"
+                          className="btn btn-danger w-full sm:w-auto text-sm"
                         >
                           Remove
                         </button>
@@ -256,11 +256,11 @@ function CartPage() {
 
                       {/* QTY */}
 
-                      <div className="flex items-center gap-4 rounded-full border border-orange-100 bg-orange-50 px-4 py-3">
+                      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 sm:flex-nowrap sm:rounded-full">
 
                         <button
                           onClick={() => decreaseQty(item.id)}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-2xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100"
+                          className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-2xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100"
                         >
                           −
                         </button>
@@ -271,7 +271,7 @@ function CartPage() {
 
                         <button
                           onClick={() => increaseQty(item.id)}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-600 text-2xl font-black text-white shadow-md transition hover:bg-orange-700"
+                          className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-600 text-2xl font-black text-white shadow-md transition hover:bg-orange-700"
                         >
                           +
                         </button>
