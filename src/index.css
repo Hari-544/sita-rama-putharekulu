@@ -119,7 +119,7 @@
   line-height: 1.15;
   letter-spacing: -0.03em;
   font-weight: 700;
-  color: inherit;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
 }
 
 .fluid-body {

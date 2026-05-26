@@ -10,7 +10,7 @@ function Footer() {
 
         <div>
 
-          <h2 className="fluid-heading font-black tracking-tight leading-tight text-orange-100 inline-block rounded-2xl px-4 py-2 backdrop-blur-md shadow-2xl">
+          <h2 className="fluid-heading font-black tracking-tight leading-tight text-yellow-400 inline-block rounded-2xl px-4 py-2 backdrop-blur-md shadow-2xl">
           SITA RAMA PUTHAREKULU
           </h2>
 
