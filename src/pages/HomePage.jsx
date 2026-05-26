@@ -411,25 +411,7 @@ function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCou
                 className="aspect-[16/10] w-full object-cover sm:aspect-[4/3] lg:aspect-[5/4]"
               />
 
-              <div className="absolute inset-x-4 bottom-4 rounded-[24px] border border-white/70 bg-white/85 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                      Premium sweets
-                    </p>
-                    <p className="mt-1 text-sm font-black text-stone-950 sm:text-base">
-                      Handmade batches with pure ghee and premium dry fruits.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 px-3 py-2 text-right text-white shadow-lg shadow-orange-200">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/80">
-                      Trust score
-                    </p>
-                    <p className="mt-1 text-lg font-black">5.0</p>
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
@@ -475,7 +457,7 @@ function FeaturedSection({ products, loading, cartMap, onAdd, onDecrease }) {
           action={
             <a
               href="#track-order"
-              className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/85 px-5 py-3 text-sm font-black text-orange-700 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-50"
+              className="inline-flex items-center gap-2 rounded-full border border-orange-500 bg-white/85 px-5 py-3 text-sm font-black text-orange-700 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-50"
             >
               Track an order
             </a>
@@ -629,7 +611,7 @@ function TrackOrderSection({
                 type="button"
                 onClick={onSearch}
                 disabled={tracking}
-                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 px-6 py-4 text-lg font-black text-white shadow-lg shadow-orange-200 transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 px-6 py-4 text-lg font-black text-black shadow-lg shadow-orange-200 transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {tracking ? (
                   <>
@@ -1137,7 +1119,7 @@ function HomePage() {
 
             <Link
               to="/cart"
-              className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-orange-200 transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 sm:px-5"
+              className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-4 py-2.5 text-sm font-black text-stone-950 shadow-lg shadow-orange-200 transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 sm:px-5"
             >
               Cart
               <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-orange-700">
@@ -1246,18 +1228,7 @@ function HomePage() {
         </div>
       </nav>
 
-      <button
-        type="button"
-        onClick={() =>
-          document.getElementById("track-order")?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          })
-        }
-        className="fixed bottom-24 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.35)] transition duration-300 hover:-translate-y-1 hover:from-orange-500 hover:to-amber-400 sm:bottom-6 sm:right-6"
-      >
-        Track Order
-      </button>
+      
 
       <Footer />
     </div>

@@ -350,7 +350,7 @@ function CartPage() {
 
                 <Link
                   to="/checkout"
-                  className="block rounded-full bg-linear-to-r from-orange-600 to-amber-500 py-4 text-center text-lg font-black text-white shadow-lg transition hover:scale-[1.02]"
+                  className="block rounded-full bg-linear-to-r from-orange-600 to-amber-500 py-4 text-center text-lg font-black text-stone-950 shadow-lg transition hover:scale-[1.02]"
                 >
                   Proceed To Checkout
                 </Link>
