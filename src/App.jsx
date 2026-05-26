@@ -12,6 +12,7 @@ import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsPage from "./pages/TermsPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminOrders from "./pages/AdminOrders";
+import AdminProducts from "./pages/AdminProducts";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -78,6 +79,15 @@ function App() {
         element={
           <ProtectedRoute>
             <AdminOrders />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/admin-products"
+        element={
+          <ProtectedRoute>
+            <AdminProducts />
           </ProtectedRoute>
         }
       />

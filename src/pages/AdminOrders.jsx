@@ -31,22 +31,29 @@ function AdminOrders() {
       orderBy("createdAt", "desc")
     );
 
-    const unsubscribe =
-      onSnapshot(q, (snapshot) => {
+    try {
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const ordersData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          setOrders(ordersData);
+          setLoading(false);
+        },
+        (err) => {
+          console.error("Orders snapshot error:", err);
+          // If permissions are denied, surface an empty list and stop loading
+          setOrders([]);
+          setLoading(false);
+        }
+      );
 
-        const ordersData =
-          snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-
-        setOrders(ordersData);
-
-        setLoading(false);
-
-      });
-
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Failed to initialize orders listener:", err);
+      setOrders([]);
+      setLoading(false);
+      return () => {};
+    }
 
   }, []);
 

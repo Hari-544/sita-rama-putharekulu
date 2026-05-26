@@ -1,14 +1,938 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { collection, getDocs } from "firebase/firestore";
-import "../App.css";
+import { collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
 
 import Footer from "../components/Footer";
 import hero from "../assets/premiumHero.jpg";
-import { products } from "../data/products";
 import { db } from "../firebase";
+import { products as fallbackProducts } from "../data/products";
+
+const DELIVERY_STEPS = ["Preparing", "Packed", "Shipped", "Delivered"];
+
+const PRODUCT_CARD_BADGES = ["Handmade", "Pure Ghee"];
+
+const currencyFormatter = new Intl.NumberFormat("en-IN", {
+  maximumFractionDigits: 0,
+});
+
+const pageShell = "mx-auto w-full max-w-[1480px] px-4 sm:px-6 lg:px-8";
+
+const formatPrice = (value) => {
+  const amount = Number(value);
+  return currencyFormatter.format(Number.isFinite(amount) ? amount : 0);
+};
+
+const normalizeCategory = (value) => {
+  if (!value) return "Uncategorized";
+  return String(value).trim() || "Uncategorized";
+};
+
+const slugify = (value) =>
+  normalizeCategory(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const toMillis = (value) => {
+  if (!value) return 0;
+
+  if (typeof value?.toMillis === "function") {
+    return value.toMillis();
+  }
+
+  if (typeof value?.seconds === "number") {
+    return value.seconds * 1000;
+  }
+
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const sortProducts = (items) =>
+  [...items].sort((left, right) => {
+    const featuredDelta = Number(Boolean(right.featured)) - Number(Boolean(left.featured));
+
+    if (featuredDelta !== 0) {
+      return featuredDelta;
+    }
+
+    const dateDelta = toMillis(right.createdAt) - toMillis(left.createdAt);
+
+    if (dateDelta !== 0) {
+      return dateDelta;
+    }
+
+    return String(left.name || "").localeCompare(String(right.name || ""));
+  });
+
+const getCurrentStepIndex = (status) => {
+  const currentStatus = status || "Preparing";
+  const index = DELIVERY_STEPS.indexOf(currentStatus);
+  return index === -1 ? 0 : index;
+};
+
+const formatDate = (value) => {
+  if (!value) return "Not available";
+
+  const date = value?.toDate
+    ? value.toDate()
+    : value instanceof Date
+      ? value
+      : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Not available";
+  }
+
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
+};
+
+function SectionHeading({ eyebrow, title, description, action }) {
+  return (
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+      <div className="max-w-3xl">
+        <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/80 px-4 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-orange-600 shadow-sm backdrop-blur-xl">
+          {eyebrow}
+        </span>
+
+        <h2 className="mt-4 text-[clamp(1.95rem,4vw,3.8rem)] font-black leading-[0.95] tracking-tight text-stone-950">
+          {title}
+        </h2>
+
+        {description ? (
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-600 sm:text-base">
+            {description}
+          </p>
+        ) : null}
+      </div>
+
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </div>
+  );
+}
+
+function ProductSkeletonCard() {
+  return (
+    <article className="overflow-hidden rounded-[28px] border border-white/70 bg-white/80 shadow-[0_18px_60px_rgba(249,115,22,0.08)] backdrop-blur-xl">
+      <div className="p-4">
+        <div className="flex gap-2">
+          <div className="h-6 w-20 animate-pulse rounded-full bg-orange-100" />
+          <div className="h-6 w-16 animate-pulse rounded-full bg-orange-50" />
+        </div>
+
+        <div className="mt-4 aspect-[4/5] w-full animate-pulse rounded-[24px] bg-gradient-to-br from-orange-100 via-orange-50 to-amber-100" />
+
+        <div className="mt-5 space-y-3">
+          <div className="h-6 w-3/4 animate-pulse rounded-full bg-stone-100" />
+          <div className="h-4 w-full animate-pulse rounded-full bg-stone-100" />
+          <div className="h-4 w-5/6 animate-pulse rounded-full bg-stone-100" />
+
+          <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-3">
+            <div className="h-4 w-16 animate-pulse rounded-full bg-orange-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 animate-pulse rounded-full bg-white" />
+              <div className="h-5 w-5 animate-pulse rounded-full bg-orange-100" />
+              <div className="h-10 w-10 animate-pulse rounded-full bg-orange-100" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="h-12 animate-pulse rounded-2xl bg-orange-100" />
+            <div className="h-12 animate-pulse rounded-2xl bg-orange-50" />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) {
+  const inStock = product.stock !== false;
+  const isFeatured = Boolean(product.featured);
+  const category = normalizeCategory(product.category);
+  const imageSrc = product.image || hero;
+  const description = product.description || product.sizes || "Freshly prepared in small batches.";
+  const sizeText = product.sizes || product.description || "Small & Big Size";
+
+  return (
+    <article
+      className={`group relative overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)] ${compact ? "min-w-[18rem] sm:min-w-[20rem] lg:min-w-0" : ""}`}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/50" />
+      <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-orange-200/30 blur-3xl transition duration-500 group-hover:scale-110" />
+
+      <div className="relative p-4 sm:p-5">
+        <div className="absolute left-4 top-4 z-20 flex flex-wrap gap-2">
+          {isFeatured ? (
+            <span className="rounded-full bg-linear-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-lg shadow-orange-200">
+              Featured
+            </span>
+          ) : null}
+
+          <span className="rounded-full border border-orange-100 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-orange-700 shadow-sm backdrop-blur-xl">
+            Handmade
+          </span>
+
+          <span className="rounded-full border border-orange-100 bg-white/90 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-orange-700 shadow-sm backdrop-blur-xl">
+            Pure Ghee
+          </span>
+
+          {!inStock ? (
+            <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-red-700 shadow-sm">
+              Out of Stock
+            </span>
+          ) : null}
+        </div>
+
+        <button
+          type="button"
+          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-orange-500 shadow-lg backdrop-blur-md transition hover:scale-110"
+        >
+          ❤
+        </button>
+
+        <div className="relative overflow-hidden bg-linear-to-b from-orange-50 to-white p-4">
+          <div className="overflow-hidden rounded-[24px] bg-white">
+          <img
+            src={imageSrc}
+            alt={product.name || "Premium product"}
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+              className={`aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105 ${inStock ? "" : "grayscale"}`}
+          />
+          </div>
+        </div>
+
+        <div className="space-y-5 p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <h3 className="text-[1.25rem] font-black leading-tight text-stone-900 transition-colors duration-300 group-hover:text-orange-600">
+                {product.name || "Premium Putharekulu"}
+              </h3>
+
+              <p className="mt-2 text-sm leading-6 text-stone-500">
+                {sizeText}
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-green-50 px-3 py-2 text-right border border-green-100">
+              <p className="text-xs font-black text-green-700">
+                {inStock ? "● In Stock" : "● Out of Stock"}
+              </p>
+
+              <p className="text-[10px] text-green-600">
+                {inStock ? "Fast Delivery" : "Check back soon"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full border border-orange-100 bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700">
+              {category}
+            </span>
+
+            {PRODUCT_CARD_BADGES.map((badge) => (
+              <span
+                key={badge}
+                className="rounded-full border border-orange-100 bg-white/80 px-3 py-1 text-xs font-bold text-orange-700"
+              >
+                {badge}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-3xl font-black text-orange-700">
+                ₹{formatPrice(product.price)}
+              </p>
+
+              <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-stone-400">
+                Freshly Prepared
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => onDecrease(product.id)}
+                disabled={quantity <= 0}
+                aria-label={`Decrease ${product.name}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                −
+              </button>
+
+              <span className="w-6 text-center text-lg font-black text-stone-900">
+                {quantity}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => onAdd(product)}
+                disabled={!inStock}
+                aria-label={`Increase ${product.name}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
+            <span className="text-sm font-bold text-stone-700">
+              Quantity
+            </span>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => onDecrease(product.id)}
+                disabled={quantity <= 0}
+                aria-label={`Decrease ${product.name}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                −
+              </button>
+
+              <span className="w-6 text-center text-lg font-black text-stone-900">
+                {quantity}
+              </span>
+
+              <button
+                type="button"
+                onClick={() => onAdd(product)}
+                disabled={!inStock}
+                aria-label={`Increase ${product.name}`}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => onAdd(product)}
+              disabled={!inStock}
+              className="rounded-2xl border border-orange-200 bg-white py-3.5 text-sm font-black text-orange-700 transition-all duration-300 hover:border-orange-500 hover:bg-orange-50 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              Add To Cart
+            </button>
+
+            <Link
+              to="/checkout"
+              className="rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 py-3.5 text-center text-sm font-black text-white shadow-lg transition-all duration-300 hover:scale-[1.02]"
+            >
+              Buy Now
+            </Link>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCount }) {
+  const heroStats = [
+    { value: totalProducts, label: "Live products" },
+    { value: featuredCount, label: "Featured picks" },
+    { value: categoryCount, label: "Auto categories" },
+    { value: totalCartCount, label: "Items in cart" },
+  ];
+
+  return (
+    <section className="relative isolate overflow-hidden py-10 lg:py-20">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,rgba(249,115,22,0.16),transparent_30%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.14),transparent_24%),linear-gradient(180deg,#fffaf5_0%,#fff7ef_55%,#fffdfb_100%)]" />
+      <div className="absolute left-[-6rem] top-24 -z-10 h-56 w-56 rounded-full bg-orange-200/35 blur-3xl" />
+      <div className="absolute right-[-5rem] top-10 -z-10 h-64 w-64 rounded-full bg-amber-200/30 blur-3xl" />
+
+      <div className="mx-auto grid w-full max-w-[1480px] gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8 xl:gap-14">
+        <div className="space-y-7 text-center lg:text-left">
+          <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/85 px-4 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-orange-700 shadow-sm backdrop-blur-xl">
+            Authentic Atreyapuram Craftsmanship
+          </span>
+
+          <div className="space-y-4">
+            <h1 className="max-w-4xl text-[clamp(2.75rem,8vw,6.3rem)] font-black leading-[0.9] tracking-tight text-stone-950">
+              Handmade
+              <span className="block bg-linear-to-r from-orange-700 via-orange-600 to-amber-500 bg-clip-text text-transparent">
+                Premium Pure
+              </span>
+              Putharekulu
+            </h1>
+
+            <p className="mx-auto max-w-2xl text-[clamp(1rem,1.5vw,1.2rem)] leading-8 text-stone-600 lg:mx-0">
+              A premium realtime ecommerce homepage for handcrafted Andhra sweets, built for conversion, trust, and a polished startup-grade shopping experience.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center lg:justify-start">
+            <a
+              href="#featured-products"
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-2.5 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.28)] transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400"
+            >
+              Shop Now
+              <span aria-hidden="true">→</span>
+            </a>
+
+            <a
+              href="#track-order"
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-orange-200 bg-white/85 px-5 py-2.5 text-sm font-black text-orange-700 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-50"
+            >
+              Track Order
+            </a>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {heroStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="rounded-[22px] border border-white/70 bg-white/80 p-4 text-left shadow-[0_18px_50px_rgba(249,115,22,0.08)] backdrop-blur-xl transition duration-300 hover:-translate-y-1"
+              >
+                <p className="text-2xl font-black tracking-tight text-stone-950">
+                  {stat.value}
+                </p>
+                <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.22em] text-stone-500">
+                  {stat.label}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative">
+          <div className="absolute -left-4 top-10 hidden rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-[0_16px_40px_rgba(249,115,22,0.1)] backdrop-blur-xl lg:block">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-stone-400">
+              Realtime sync
+            </p>
+            <p className="mt-1 text-sm font-black text-orange-700">
+              Firestore live updates
+            </p>
+          </div>
+
+          <div className="absolute -right-3 bottom-8 hidden rounded-2xl border border-white/70 bg-white/90 px-4 py-3 shadow-[0_16px_40px_rgba(249,115,22,0.1)] backdrop-blur-xl lg:block">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-stone-400">
+              Fast delivery
+            </p>
+            <p className="mt-1 text-sm font-black text-orange-700">
+              Built for trust
+            </p>
+          </div>
+
+          <div className="relative overflow-hidden rounded-[32px] border border-white/70 bg-white/80 p-3 shadow-[0_28px_90px_rgba(249,115,22,0.16)] backdrop-blur-xl">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_28%),radial-gradient(circle_at_bottom_left,rgba(249,115,22,0.12),transparent_26%)]" />
+
+            <div className="relative overflow-hidden rounded-[28px] border border-orange-100 bg-white">
+              <img
+                src={hero}
+                alt="Premium Putharekulu"
+                loading="eager"
+                decoding="async"
+                className="aspect-[16/10] w-full object-cover sm:aspect-[4/3] lg:aspect-[5/4]"
+              />
+
+              <div className="absolute inset-x-4 bottom-4 rounded-[24px] border border-white/70 bg-white/85 p-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                      Premium sweets
+                    </p>
+                    <p className="mt-1 text-sm font-black text-stone-950 sm:text-base">
+                      Handmade batches with pure ghee and premium dry fruits.
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 px-3 py-2 text-right text-white shadow-lg shadow-orange-200">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/80">
+                      Trust score
+                    </p>
+                    <p className="mt-1 text-lg font-black">5.0</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturedSection({ products, loading, cartMap, onAdd, onDecrease }) {
+  if (loading) {
+    return (
+      <section id="featured-products" className="bg-white rounded-t-[50px] py-16">
+        <div className={pageShell}>
+          <SectionHeading
+            eyebrow="Featured drops"
+            title="Featured Products"
+            description="High-conviction picks from the current catalog, surfaced in a premium carousel-style layout."
+          />
+
+          <div className="mt-8 flex gap-5 overflow-x-auto pb-3 snap-x snap-mandatory lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] lg:overflow-visible">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="snap-start shrink-0 lg:shrink">
+                <ProductSkeletonCard />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!products.length) {
+    return null;
+  }
+
+  return (
+    <section id="featured-products" className="py-4 sm:py-6">
+      <div className={pageShell}>
+        <SectionHeading
+          eyebrow="Featured drops"
+          title="Featured Products"
+          description="Premium spotlight products selected directly from Firestore using the featured flag."
+          action={
+            <a
+              href="#track-order"
+              className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/85 px-5 py-3 text-sm font-black text-orange-700 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-orange-400 hover:bg-orange-50"
+            >
+              Track an order
+            </a>
+          }
+        />
+
+        <div className="mt-8 flex gap-5 overflow-x-auto pb-4 snap-x snap-mandatory lg:grid lg:grid-cols-[repeat(auto-fit,minmax(min(100%,20rem),1fr))] lg:overflow-visible">
+          {products.map((product) => {
+            const quantity = cartMap.get(product.id) || 0;
+
+            return (
+              <div key={product.id} className="snap-start shrink-0 lg:shrink">
+                <ProductCard
+                  product={product}
+                  quantity={quantity}
+                  onAdd={onAdd}
+                  onDecrease={onDecrease}
+                  compact
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CategorySection({ category, products, cartMap, onAdd, onDecrease }) {
+  if (!products.length) {
+    return null;
+  }
+
+  return (
+    <section id={`category-${slugify(category)}`} className="bg-white rounded-t-[50px] py-16">
+      <div className={pageShell}>
+        <SectionHeading
+          eyebrow="Shop by category"
+          title={category}
+          description={`Browse ${products.length} premium item${products.length === 1 ? "" : "s"} in this collection.`}
+        />
+
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6 xl:gap-7">
+          {products.map((product) => {
+            const quantity = cartMap.get(product.id) || 0;
+
+            return (
+              <ProductCard
+                key={product.id}
+                product={product}
+                quantity={quantity}
+                onAdd={onAdd}
+                onDecrease={onDecrease}
+              />
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrackOrderSection({
+  trackPhone,
+  setTrackPhone,
+  trackOrderId,
+  setTrackOrderId,
+  tracking,
+  trackedOrder,
+  trackError,
+  hasSearched,
+  onSearch,
+}) {
+  const currentStep = getCurrentStepIndex(trackedOrder?.status);
+  const paymentBadgeClass = trackedOrder?.paymentStatus === "PAID"
+    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+    : trackedOrder?.paymentStatus === "FAILED"
+      ? "border-red-200 bg-red-50 text-red-700"
+      : "border-amber-200 bg-amber-50 text-amber-700";
+
+  return (
+    <section id="track-order" className="relative overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50 py-16 sm:py-24">
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,#fffaf5_0%,#fffdfb_18%,#fff7ef_100%)]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
+
+      <div className={pageShell}>
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/85 px-4 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-orange-600 shadow-sm backdrop-blur-xl">
+            Live tracking
+          </span>
+
+          <h2 className="mt-4 text-[clamp(2.2rem,5vw,4.4rem)] font-black leading-[0.92] tracking-tight text-stone-950">
+            Track your order in real time
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-3xl text-sm leading-7 text-stone-600 sm:text-base">
+            Check payment status, delivery progress, and order details from the same premium homepage experience.
+          </p>
+        </div>
+
+        <div className="grid gap-8 lg:grid-cols-[0.95fr_1.45fr]">
+          <aside className="rounded-[2rem] border border-white/80 bg-white/85 p-6 shadow-[0_24px_70px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-8">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-600">
+                  Secure lookup
+                </p>
+                <h3 className="mt-2 text-[clamp(1.5rem,2.4vw,2.2rem)] font-black tracking-tight text-stone-950">
+                  Find your parcel
+                </h3>
+              </div>
+
+              <div className="rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3 text-right">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-stone-400">
+                  Mobile friendly
+                </p>
+                <p className="mt-1 text-sm font-black text-orange-700">
+                  Fast lookup
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-[0.22em] text-stone-700">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  placeholder="Phone number used at checkout"
+                  value={trackPhone}
+                  onChange={(event) => setTrackPhone(event.target.value)}
+                  className="w-full rounded-2xl border border-orange-100 bg-white px-5 py-4 outline-none transition focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-black uppercase tracking-[0.22em] text-stone-700">
+                  Razorpay Order ID
+                </label>
+                <input
+                  type="text"
+                  placeholder="Order ID from payment"
+                  value={trackOrderId}
+                  onChange={(event) => setTrackOrderId(event.target.value)}
+                  className="w-full rounded-2xl border border-orange-100 bg-white px-5 py-4 outline-none transition focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={onSearch}
+                disabled={tracking}
+                className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 px-6 py-4 text-lg font-black text-white shadow-lg shadow-orange-200 transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {tracking ? (
+                  <>
+                    <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    Searching...
+                  </>
+                ) : (
+                  "Track Order"
+                )}
+              </button>
+
+              <p className="text-xs leading-6 text-stone-500">
+                Enter the same phone number and Razorpay order ID used during checkout.
+              </p>
+            </div>
+
+            {trackError ? (
+              <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
+                {trackError}
+              </div>
+            ) : null}
+
+            {tracking ? (
+              <div className="mt-6 space-y-3 rounded-[1.5rem] border border-orange-100 bg-orange-50/60 p-4">
+                <div className="h-5 w-1/2 animate-pulse rounded-full bg-orange-200" />
+                <div className="h-4 w-full animate-pulse rounded-full bg-orange-100" />
+                <div className="h-4 w-5/6 animate-pulse rounded-full bg-orange-100" />
+                <div className="h-32 rounded-[1.25rem] bg-white/80" />
+              </div>
+            ) : null}
+
+            {!tracking && !trackedOrder && !trackError ? (
+              <div className="mt-6 rounded-[1.5rem] border border-dashed border-orange-200 bg-orange-50/60 p-6 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-3xl shadow-sm">
+                  🧡
+                </div>
+                <h4 className="mt-4 text-lg font-black text-stone-950">
+                  Ready to track
+                </h4>
+                <p className="mt-2 text-sm leading-6 text-stone-500">
+                  Your order timeline will appear here once a valid order is found.
+                </p>
+              </div>
+            ) : null}
+          </aside>
+
+          <article className="rounded-[2rem] border border-white/80 bg-white/90 p-5 shadow-[0_24px_70px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-6 lg:p-8">
+            {tracking ? (
+              <div className="space-y-5 rounded-[1.75rem] border border-orange-100 bg-gradient-to-b from-orange-50 to-white p-6">
+                <div className="h-8 w-2/5 animate-pulse rounded-full bg-orange-100" />
+                <div className="h-5 w-1/4 animate-pulse rounded-full bg-orange-100" />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="h-20 animate-pulse rounded-2xl bg-white" />
+                  <div className="h-20 animate-pulse rounded-2xl bg-white" />
+                </div>
+                <div className="h-44 animate-pulse rounded-[1.5rem] bg-white" />
+              </div>
+            ) : !trackedOrder ? (
+              <div className="flex min-h-[420px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-orange-200 bg-gradient-to-b from-orange-50/70 to-white p-8 text-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-sm">
+                  📍
+                </div>
+                <h3 className="mt-5 text-[clamp(1.5rem,2.8vw,2.2rem)] font-black text-stone-950">
+                  {hasSearched ? "No Order Found" : "Search for an order"}
+                </h3>
+                <p className="mt-3 max-w-md text-sm leading-7 text-stone-500">
+                  {hasSearched
+                    ? "Try again with the exact phone number and Razorpay order ID used at checkout."
+                    : "Enter your phone number and Razorpay order ID to see the live delivery progress, order details, and products."}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-8">
+                <div className="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-5 shadow-sm sm:p-6">
+                  <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="space-y-4">
+                      <div>
+                        <p className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-600">
+                          Order overview
+                        </p>
+                        <h3 className="mt-2 text-[clamp(1.8rem,3vw,2.7rem)] font-black tracking-tight text-stone-950">
+                          {trackedOrder.customerName || "Customer"}
+                        </h3>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                            Phone Number
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-stone-950">
+                            {trackedOrder.phone || "Not available"}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                            Created Date
+                          </p>
+                          <p className="mt-1 text-sm font-semibold text-stone-950">
+                            {formatDate(trackedOrder.createdAt)}
+                          </p>
+                        </div>
+
+                        <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100 sm:col-span-2">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                            Delivery Address
+                          </p>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-stone-950">
+                            {trackedOrder.address || "Not available"}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[260px] xl:grid-cols-1">
+                      <div className="rounded-2xl bg-white/95 px-4 py-4 shadow-sm ring-1 ring-orange-100">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                          Order ID
+                        </p>
+                        <p className="mt-1 break-all text-sm font-black text-stone-950">
+                          {trackedOrder.razorpayOrderId || trackedOrder.id}
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-white/95 px-4 py-4 shadow-sm ring-1 ring-orange-100">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
+                          Order Amount
+                        </p>
+                        <p className="mt-1 text-3xl font-black tracking-tight text-orange-700">
+                          ₹{formatPrice(trackedOrder.totalAmount)}
+                        </p>
+                      </div>
+
+                      <div className={`rounded-2xl border px-4 py-4 shadow-sm ${paymentBadgeClass}`}>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.24em] opacity-70">
+                          Payment Status
+                        </p>
+                        <p className="mt-1 text-sm font-black">
+                          {trackedOrder.paymentStatus || "PENDING"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-orange-100 bg-white p-5 shadow-sm sm:p-6">
+                  <div className="mb-6 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-600">
+                        Delivery progress
+                      </p>
+                      <h4 className="mt-2 text-[clamp(1.35rem,2.2vw,2rem)] font-black text-stone-950">
+                        Live status
+                      </h4>
+                    </div>
+
+                    <div className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
+                      Current: {trackedOrder.status || "Preparing"}
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute left-4 right-4 top-4 hidden h-0.5 bg-stone-200 sm:block" />
+
+                    <div className="grid gap-4 sm:grid-cols-4 sm:gap-2">
+                      {DELIVERY_STEPS.map((step, index) => {
+                        const isCompleted = index < currentStep;
+                        const isActive = index === currentStep;
+                        const isFuture = index > currentStep;
+
+                        return (
+                          <div
+                            key={step}
+                            className="relative z-10 flex flex-col items-start gap-3 rounded-[1.25rem] border border-orange-100 bg-orange-50/30 p-4 sm:items-center sm:text-center"
+                          >
+                            <div
+                              className={`flex h-11 w-11 items-center justify-center rounded-full border-2 text-sm font-black transition ${isCompleted
+                                ? "border-emerald-500 bg-emerald-500 text-white shadow-[0_0_0_8px_rgba(16,185,129,0.12)]"
+                                : isActive
+                                  ? "border-orange-600 bg-orange-600 text-white shadow-[0_0_0_8px_rgba(249,115,22,0.16)]"
+                                  : "border-stone-300 bg-white text-stone-400"
+                                }`}
+                            >
+                              {isCompleted ? "✓" : index + 1}
+                            </div>
+
+                            <div className="space-y-1 sm:max-w-[120px]">
+                              <p className={`text-sm font-black ${isActive ? "text-stone-950" : isCompleted ? "text-emerald-700" : "text-stone-500"}`}>
+                                {step}
+                              </p>
+                              <p className={`text-xs leading-5 ${isFuture ? "text-stone-400" : "text-stone-500"}`}>
+                                {isCompleted ? "Completed" : isActive ? "In progress" : "Pending"}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-orange-100 bg-white p-5 shadow-sm sm:p-6">
+                  <div className="mb-5 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-600">
+                        Products
+                      </p>
+                      <h4 className="mt-2 text-[clamp(1.35rem,2.2vw,2rem)] font-black text-stone-950">
+                        Ordered items
+                      </h4>
+                    </div>
+
+                    <div className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
+                      {trackedOrder.products?.length || 0} item(s)
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
+                    {trackedOrder.products?.map((product, index) => (
+                      <article
+                        key={`${product.name || "item"}-${index}`}
+                        className="group overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-white to-orange-50/60 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(249,115,22,0.12)]"
+                      >
+                        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
+                          <div className="relative h-28 w-full overflow-hidden rounded-2xl bg-orange-100 sm:h-24 sm:w-24 sm:flex-shrink-0">
+                            <img
+                              src={product.image || hero}
+                              alt={product.name || "Order item"}
+                              loading="lazy"
+                              decoding="async"
+                              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            />
+                          </div>
+
+                          <div className="min-w-0 flex-1 space-y-2">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                              <div>
+                                <h5 className="text-lg font-black text-stone-950">
+                                  {product.name}
+                                </h5>
+                                <p className="mt-1 text-sm text-stone-500">
+                                  Quantity and item price
+                                </p>
+                              </div>
+
+                              <div className="rounded-full bg-orange-100 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-orange-700">
+                                Qty {product.quantity}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-3 border-t border-dashed border-orange-100 pt-3">
+                              <p className="text-sm font-semibold text-stone-500">
+                                Unit Price
+                              </p>
+                              <p className="text-xl font-black text-orange-700">
+                                ₹{formatPrice(product.price)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </article>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function HomePage() {
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   const [cart, setCart] = useState(() => {
     try {
@@ -24,31 +948,98 @@ function HomePage() {
   const [tracking, setTracking] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState(null);
   const [trackError, setTrackError] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
 
-  /* SAVE CART */
+  const cartMap = useMemo(
+    () => new Map(cart.map((item) => [item.id, item.quantity])),
+    [cart]
+  );
+
+  const totalCartCount = useMemo(
+    () => cart.reduce((count, item) => count + item.quantity, 0),
+    [cart]
+  );
+
+  const normalizedProducts = useMemo(() => sortProducts(products), [products]);
+
+  const featuredProducts = useMemo(
+    () => normalizedProducts.filter((product) => product.featured),
+    [normalizedProducts]
+  );
+
+  const categorySections = useMemo(() => {
+    const grouped = new Map();
+
+    normalizedProducts.forEach((product) => {
+      const category = normalizeCategory(product.category);
+
+      if (!grouped.has(category)) {
+        grouped.set(category, []);
+      }
+
+      grouped.get(category).push(product);
+    });
+
+    return Array.from(grouped.entries()).map(([category, items]) => ({
+      category,
+      items,
+    }));
+  }, [normalizedProducts]);
 
   useEffect(() => {
-
-    localStorage.setItem(
-      "cart",
-      JSON.stringify(cart)
-    );
-
+    localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  useEffect(() => {
+    try {
+      const unsubscribe = onSnapshot(
+        collection(db, "products"),
+        (snapshot) => {
+          const productData = snapshot.docs.map((document) => ({
+            id: document.id,
+            ...document.data(),
+          }));
 
-  /* ADD TO CART */
+          setProducts(productData);
+          setProductsLoading(false);
+        },
+        (err) => {
+          // Log and handle permission errors gracefully by falling back to
+          // the local static product list so the homepage remains usable.
+          console.error("Error in snapshot listener:", err);
 
-  const addToCart = (product) => {
+          if (err && err.code === "permission-denied") {
+            // Convert fallback IDs to strings to match Firestore id shape
+            const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
+            setProducts(fallback);
+          } else {
+            setProducts([]);
+          }
 
-    setCart((currentCart) => {
-
-      const existingItem = currentCart.find(
-        (item) => item.id === product.id
+          setProductsLoading(false);
+        }
       );
 
-      if (existingItem) {
+      return () => unsubscribe();
+    } catch (setupError) {
+      // onSnapshot setup could throw synchronously in some environments.
+      console.error("Failed to initialize products listener:", setupError);
+      const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
+      setProducts(fallback);
+      setProductsLoading(false);
+      return () => {};
+    }
+  }, []);
 
+  const addToCart = (product) => {
+    if (product.stock === false) {
+      return;
+    }
+
+    setCart((currentCart) => {
+      const existingItem = currentCart.find((item) => item.id === product.id);
+
+      if (existingItem) {
         return currentCart.map((item) =>
           item.id === product.id
             ? {
@@ -57,7 +1048,6 @@ function HomePage() {
               }
             : item
         );
-
       }
 
       return [
@@ -67,25 +1057,12 @@ function HomePage() {
           quantity: 1,
         },
       ];
-
     });
-
-    // open cart page instead of drawer (CartPage reads localStorage)
-
   };
 
-  /* INCREASE */
-  // Not used in this page; quantity changes happen via addToCart/decreaseQty
-
-  /* DECREASE */
-
   const decreaseQty = (id) => {
-
     setCart((currentCart) => {
-
-      const itemExists = currentCart.find(
-        (item) => item.id === id
-      );
+      const itemExists = currentCart.find((item) => item.id === id);
 
       if (!itemExists) {
         return currentCart;
@@ -101,83 +1078,47 @@ function HomePage() {
             : item
         )
         .filter((item) => item.quantity > 0);
-
     });
-
   };
-
-  /* TOTALS */
-  // totalAmount not used on this page; computed where needed in other pages
-
-  const totalCartCount = cart.reduce(
-    (count, item) =>
-      count + item.quantity,
-    0
-  );
-
-  const deliverySteps = [
-    "Preparing",
-    "Packed",
-    "Shipped",
-    "Delivered",
-  ];
-
-  const formatDate = (value) => {
-    if (!value) return "Not available";
-
-    const date = value?.toDate
-      ? value.toDate()
-      : value instanceof Date
-        ? value
-        : new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return "Not available";
-    }
-
-    return new Intl.DateTimeFormat("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(date);
-  };
-
-  const getCurrentStepIndex = (status) => {
-    const currentStatus = status || "Preparing";
-    const index = deliverySteps.indexOf(currentStatus);
-    return index === -1 ? 0 : index;
-  };
-
-  const paymentBadgeClass = trackedOrder?.paymentStatus === "PAID"
-    ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-    : trackedOrder?.paymentStatus === "FAILED"
-      ? "bg-red-100 text-red-700 border-red-200"
-      : "bg-amber-100 text-amber-700 border-amber-200";
 
   const searchTrackedOrder = async () => {
     try {
+      const sanitizedPhone = trackPhone.trim();
+      const sanitizedOrderId = trackOrderId.trim();
+
+      if (!sanitizedPhone || !sanitizedOrderId) {
+        setTrackedOrder(null);
+        setTrackError("Enter both phone number and Razorpay order ID");
+        setHasSearched(true);
+        return;
+      }
+
       setTracking(true);
       setTrackError("");
       setTrackedOrder(null);
+      setHasSearched(true);
 
-      const snapshot = await getDocs(collection(db, "orders"));
-      const orders = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      const foundOrder = orders.find(
-        (item) =>
-          item.phone === trackPhone &&
-          item.razorpayOrderId === trackOrderId
+      const snapshot = await getDocs(
+        query(
+          collection(db, "orders"),
+          where("phone", "==", sanitizedPhone),
+          where("razorpayOrderId", "==", sanitizedOrderId)
+        )
       );
+
+      const foundOrder = snapshot.docs[0]
+        ? {
+            id: snapshot.docs[0].id,
+            ...snapshot.docs[0].data(),
+          }
+        : null;
 
       if (foundOrder) {
         setTrackedOrder(foundOrder);
       } else {
         setTrackError("Order not found");
       }
-    } catch (error) {
-      console.log(error);
+    } catch {
       setTrackError("Something went wrong");
     } finally {
       setTracking(false);
@@ -185,693 +1126,151 @@ function HomePage() {
   };
 
   return (
-
-    <div className="min-h-screen bg-[#fffaf5] overflow-x-hidden">
-
-      {/* NAVBAR */}
-
-      <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-orange-100 shadow-sm">
-
-        <div className="container mx-auto px-4 flex items-center justify-between py-5">
-
-          <Link to="/" className="leading-none">
-
-            <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-stone-900">
+    <div className="min-h-screen overflow-x-hidden bg-[#fffaf5]">
+      <header className="sticky top-0 z-50 border-b border-orange-100/80 bg-white/88 shadow-[0_10px_30px_rgba(249,115,22,0.06)] backdrop-blur-xl">
+        <div className={`${pageShell} flex items-center justify-between py-4 sm:py-5`}>
+          <Link to="/" className="leading-none transition hover:opacity-90">
+            <h1 className="text-[clamp(1.1rem,2vw,1.75rem)] font-black tracking-tight text-stone-950">
               SITA RAMA
             </h1>
 
-            <span className="text-orange-600 text-xs tracking-[0.3em] font-semibold">
-              PUTHAREKULU
+            <span className="text-[10px] font-black uppercase tracking-[0.34em] text-orange-600 sm:text-xs">
+              Putharekulu
             </span>
-
           </Link>
 
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-2 sm:gap-3">
+            <a
+              href="#featured-products"
+              className="hidden rounded-full px-4 py-2 text-sm font-bold text-stone-600 transition hover:bg-orange-50 hover:text-orange-700 md:inline-flex"
+            >
+              Featured
+            </a>
 
             <a
-              href="#products"
-              className="hidden sm:block text-sm font-semibold text-stone-700 hover:text-orange-600"
+              href="#track-order"
+              className="hidden rounded-full px-4 py-2 text-sm font-bold text-stone-600 transition hover:bg-orange-50 hover:text-orange-700 md:inline-flex"
             >
-              Our Sweets
+              Track
             </a>
 
             <Link
               to="/reviews"
-              className="hidden sm:block text-sm font-semibold text-stone-700 hover:text-orange-600"
+              className="hidden rounded-full px-4 py-2 text-sm font-bold text-stone-600 transition hover:bg-orange-50 hover:text-orange-700 lg:inline-flex"
             >
               Reviews
             </Link>
 
             <Link
               to="/cart"
-              className="bg-orange-600 hover:bg-orange-700 text-white px-5 py-2 rounded-full flex items-center gap-2 font-bold transition"
+              className="inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-4 py-2.5 text-sm font-black text-white shadow-lg shadow-orange-200 transition duration-300 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 sm:px-5"
             >
               Cart
-              <span className="bg-white text-orange-700 rounded-full px-2 py-0.5 text-xs">
+              <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-black text-orange-700">
                 {totalCartCount}
               </span>
             </Link>
-
-            <a
-              href="#track-order"
-              className="hidden sm:inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-sm font-bold text-orange-700 transition hover:border-orange-400 hover:bg-orange-50"
-            >
-              📦 Track Order
-            </a>
-
           </nav>
-
         </div>
-
       </header>
 
-      {/* HERO */}
+      <HeroSection
+        totalProducts={normalizedProducts.length}
+        featuredCount={featuredProducts.length}
+        categoryCount={categorySections.length}
+        totalCartCount={totalCartCount}
+      />
 
-      <section className="py-10 lg:py-20">
+      <main>
+        <FeaturedSection
+          products={featuredProducts}
+          loading={productsLoading}
+          cartMap={cartMap}
+          onAdd={addToCart}
+          onDecrease={decreaseQty}
+        />
 
-        <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
-
-          <div className="space-y-6 text-center lg:text-left">
-
-            <span className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-5 py-2 rounded-full text-xs font-bold uppercase">
-              ✨ Authentic Atreyapuram Craftsmanship
-            </span>
-
-            <h1 className="fluid-title font-black leading-none text-stone-900">
-
-              Handmade
-
-              <br />
-
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-orange-600 to-amber-500">
-                Premium Pure
-              </span>
-
-              <br />
-
-              Putharekulu
-
-            </h1>
-
-            <p className="fluid-body text-stone-600 max-w-xl mx-auto lg:mx-0">
-              Authentic Andhra sweets handcrafted with pure ghee, premium dry fruits and traditional methods.
-            </p>
-
-          </div>
-
-          <div className="relative">
-
-            <div className="rounded-[32px] overflow-hidden shadow-2xl border border-orange-100">
-
-              <img
-                src={hero}
-                alt="Premium Putharekulu"
-                className="responsive-image aspect-[16/10] sm:aspect-[4/3] lg:aspect-[5/4]"
+        {productsLoading ? (
+          <section className="py-6 sm:py-8">
+            <div className={pageShell}>
+              <SectionHeading
+                eyebrow="Shop by category"
+                title="Signature Collection"
+                description="Realtime Firestore-driven product categories with premium cards and conversion-focused spacing."
               />
 
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* PRODUCTS */}
-
-      <section
-        id="products"
-        className="bg-white rounded-t-[50px] py-16"
-      >
-
-        <div className="container mx-auto px-4">
-
-          <div className="text-center mb-14">
-
-            <span className="text-orange-600 text-xs uppercase tracking-[0.3em] font-black">
-              Freshly Prepared
-            </span>
-
-            <h2 className="fluid-heading font-black text-stone-900 mt-4">
-              Our Signature Collection
-            </h2>
-
-          </div>
-
-              {/* GRID */}
-
-            {/* PRODUCT GRID */}
-
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 sm:gap-6 xl:gap-7">
-
-  {products.map((product) => {
-
-    const cartItem = cart.find(
-      (item) => item.id === product.id
-    );
-
-    const quantity = cartItem?.quantity || 0;
-
-    return (
-
-      <article
-        key={product.id}
-        className="group relative overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)]"
-      >
-
-        {/* PREMIUM BADGE */}
-
-        <div className="absolute left-4 top-4 z-20">
-
-          <span className="rounded-full bg-linear-to-r from-orange-500 to-amber-500 px-4 py-1.5 text-[11px] font-black uppercase tracking-[0.18em] text-white shadow-lg">
-            Premium
-          </span>
-
-        </div>
-
-        {/* HEART BUTTON */}
-
-        <button
-          type="button"
-          className="absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/95 text-orange-500 shadow-lg backdrop-blur-md transition hover:scale-110"
-        >
-          ❤
-        </button>
-
-        {/* IMAGE SECTION */}
-
-        <div className="relative overflow-hidden bg-linear-to-b from-orange-50 to-white p-4">
-
-          <div className="overflow-hidden rounded-[24px] bg-white">
-
-            <img
-              src={product.image}
-              alt={product.name}
-              className="aspect-[4/5] w-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-
-          </div>
-
-        </div>
-
-        {/* CONTENT */}
-
-        <div className="space-y-5 p-5">
-
-          {/* TITLE */}
-
-          <div>
-
-            <h3 className="text-[1.25rem] font-black leading-tight text-stone-900 transition-colors duration-300 group-hover:text-orange-600">
-              {product.name}
-            </h3>
-
-            <p className="mt-2 text-sm leading-6 text-stone-500">
-              {product.sizes}
-            </p>
-
-          </div>
-
-          {/* INFO PILLS */}
-
-          <div className="flex flex-wrap gap-2">
-
-            <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700 border border-orange-100">
-              🥇 Handmade
-            </span>
-
-            <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700 border border-orange-100">
-              🌿 Pure Ghee
-            </span>
-
-          </div>
-
-          {/* PRICE + STOCK */}
-
-          <div className="flex items-center justify-between">
-
-            <div>
-
-              <p className="text-3xl font-black text-orange-700">
-                ₹{product.price}
-              </p>
-
-              <p className="mt-1 text-[11px] uppercase tracking-[0.18em] text-stone-400">
-                Freshly Prepared
-              </p>
-
-            </div>
-
-            <div className="rounded-2xl bg-green-50 px-3 py-2 text-right border border-green-100">
-
-              <p className="text-xs font-black text-green-700">
-                ● In Stock
-              </p>
-
-              <p className="text-[10px] text-green-600">
-                Fast Delivery
-              </p>
-
-            </div>
-
-          </div>
-
-          {/* QUANTITY */}
-
-          <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50 px-4 py-3">
-
-            <span className="text-sm font-bold text-stone-700">
-              Quantity
-            </span>
-
-            <div className="flex items-center gap-3">
-
-              <button
-                type="button"
-                onClick={() => decreaseQty(product.id)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-xl font-black text-orange-700 shadow-sm transition hover:bg-orange-100"
-              >
-                −
-              </button>
-
-              <span className="w-6 text-center text-lg font-black text-stone-900">
-                {quantity}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => addToCart(product)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-orange-600 text-xl font-black text-white shadow-md transition hover:bg-orange-700"
-              >
-                +
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* BUTTONS */}
-
-          <div className="grid grid-cols-2 gap-3">
-
-            <button
-              type="button"
-              onClick={() => addToCart(product)}
-              className="rounded-2xl border border-orange-200 bg-white py-3.5 text-sm font-black text-orange-700 transition-all duration-300 hover:border-orange-500 hover:bg-orange-50"
-            >
-              Add To Cart
-            </button>
-
-            <Link
-              to="/checkout"
-              className="rounded-2xl bg-linear-to-r from-orange-600 to-amber-500 py-3.5 text-center text-sm font-black text-white shadow-lg transition-all duration-300 hover:scale-[1.02]"
-            >
-              ⚡ Buy Now
-            </Link>
-
-          </div>
-
-        </div>
-
-      </article>
-
-    );
-
-  })}
-
-    </div>
-
-      </div>
-
-      </section>
-
-      {/* TRACK ORDER */}
-
-      <section
-        id="track-order"
-        className="relative overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50 py-16 sm:py-24"
-      >
-
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
-
-        <div className="container mx-auto px-4">
-
-          <div className="mx-auto mb-12 max-w-3xl text-center">
-            <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-xs font-black uppercase tracking-[0.28em] text-orange-600 shadow-sm">
-              Live Tracking
-            </span>
-            <h2 className="mt-4 text-4xl font-black tracking-tight text-stone-900 sm:text-5xl">
-              Track Your Order
-            </h2>
-            <p className="mt-4 text-sm leading-7 text-stone-600 sm:text-base">
-              Check your order status, payment details, and product list right from the homepage.
-            </p>
-          </div>
-
-          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.45fr]">
-
-            <aside className="rounded-[2rem] border border-orange-100 bg-white p-6 shadow-[0_20px_60px_rgba(249,115,22,0.08)] sm:p-8">
-
-              <div className="mb-6 flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
-                    Track Order
-                  </p>
-                  <h3 className="mt-2 text-2xl font-black text-stone-900">
-                    Find your parcel
-                  </h3>
-                </div>
-
-                <div className="rounded-2xl bg-orange-50 px-4 py-3 text-right">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-stone-400">
-                    Secure lookup
-                  </p>
-                  <p className="mt-1 text-sm font-black text-orange-700">
-                    Mobile friendly
-                  </p>
-                </div>
+              <div className="mt-8 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <ProductSkeletonCard key={index} />
+                ))}
               </div>
-
-              <div className="space-y-4">
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    Phone Number
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Phone number used at checkout"
-                    value={trackPhone}
-                    onChange={(e) => setTrackPhone(e.target.value)}
-                    className="w-full rounded-2xl border border-orange-100 bg-white px-5 py-4 outline-none transition focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
-                  />
+            </div>
+          </section>
+        ) : categorySections.length ? (
+          categorySections.map((section) => (
+            <CategorySection
+              key={section.category}
+              category={section.category}
+              products={section.items}
+              cartMap={cartMap}
+              onAdd={addToCart}
+              onDecrease={decreaseQty}
+            />
+          ))
+        ) : (
+          <section className="py-10 sm:py-16">
+            <div className={pageShell}>
+              <div className="rounded-[2rem] border border-dashed border-orange-200 bg-white/85 p-8 text-center shadow-[0_20px_60px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-12">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-3xl shadow-sm">
+                  🍬
                 </div>
-
-                <div>
-                  <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-stone-700">
-                    Razorpay Order ID
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Order ID from payment"
-                    value={trackOrderId}
-                    onChange={(e) => setTrackOrderId(e.target.value)}
-                    className="w-full rounded-2xl border border-orange-100 bg-white px-5 py-4 outline-none transition focus:border-orange-500 focus:ring-4 focus:ring-orange-100"
-                  />
-                </div>
-
-                <button
-                  onClick={searchTrackedOrder}
-                  disabled={tracking}
-                  className="inline-flex w-full items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 px-6 py-4 text-lg font-black text-white shadow-lg shadow-orange-200 transition duration-200 hover:-translate-y-0.5 hover:from-orange-500 hover:to-amber-400 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  {tracking ? (
-                    <>
-                      <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                      Searching...
-                    </>
-                  ) : (
-                    "📦 Track Order"
-                  )}
-                </button>
-
-                <p className="text-xs leading-6 text-stone-500">
-                  Enter the same phone number and Razorpay order ID used during checkout.
+                <h2 className="mt-5 text-2xl font-black text-stone-950">
+                  No products available yet
+                </h2>
+                <p className="mt-3 text-sm leading-7 text-stone-500">
+                  Add products in Firebase to automatically populate the featured and category sections.
                 </p>
               </div>
+            </div>
+          </section>
+        )}
 
-              {trackError && (
-                <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">
-                  {trackError}
-                </div>
-              )}
+        <TrackOrderSection
+          trackPhone={trackPhone}
+          setTrackPhone={setTrackPhone}
+          trackOrderId={trackOrderId}
+          setTrackOrderId={setTrackOrderId}
+          tracking={tracking}
+          trackedOrder={trackedOrder}
+          trackError={trackError}
+          hasSearched={hasSearched}
+          onSearch={searchTrackedOrder}
+        />
+      </main>
 
-              {tracking && (
-                <div className="mt-6 space-y-3 rounded-[1.5rem] border border-orange-100 bg-orange-50/60 p-4">
-                  <div className="h-5 w-1/2 animate-pulse rounded-full bg-orange-200" />
-                  <div className="h-4 w-full animate-pulse rounded-full bg-orange-100" />
-                  <div className="h-4 w-5/6 animate-pulse rounded-full bg-orange-100" />
-                  <div className="h-32 rounded-[1.25rem] bg-white/80" />
-                </div>
-              )}
-
-              {!tracking && !trackedOrder && !trackError && (
-                <div className="mt-6 rounded-[1.5rem] border border-dashed border-orange-200 bg-orange-50/60 p-6 text-center">
-                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-white text-3xl shadow-sm">
-                    🧡
-                  </div>
-                  <h4 className="mt-4 text-lg font-black text-stone-900">
-                    Ready to track
-                  </h4>
-                  <p className="mt-2 text-sm leading-6 text-stone-500">
-                    Your order timeline will appear here once a valid order is found.
-                  </p>
-                </div>
-              )}
-
-            </aside>
-
-            <article className="rounded-[2rem] border border-orange-100 bg-white p-5 shadow-[0_20px_60px_rgba(249,115,22,0.08)] sm:p-6 lg:p-8">
-
-              {!trackedOrder ? (
-                <div className="flex min-h-[420px] flex-col items-center justify-center rounded-[1.5rem] border border-dashed border-orange-200 bg-gradient-to-b from-orange-50 to-white p-8 text-center">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-sm">
-                    📍
-                  </div>
-                  <h3 className="mt-5 text-2xl font-black text-stone-900">
-                    No Order Found
-                  </h3>
-                  <p className="mt-3 max-w-md text-sm leading-7 text-stone-500">
-                    Search with your phone number and Razorpay order ID to see the live delivery progress, order details, and products.
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-8">
-                  <div className="overflow-hidden rounded-[1.75rem] border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-5 shadow-sm sm:p-6">
-                    <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-                      <div className="space-y-4">
-                        <div>
-                          <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
-                            Order Overview
-                          </p>
-                          <h3 className="mt-2 text-3xl font-black tracking-tight text-stone-900">
-                            {trackedOrder.customerName}
-                          </h3>
-                        </div>
-
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                              Phone Number
-                            </p>
-                            <p className="mt-1 text-sm font-semibold text-stone-900">
-                              {trackedOrder.phone || "Not available"}
-                            </p>
-                          </div>
-
-                          <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                              Created Date
-                            </p>
-                            <p className="mt-1 text-sm font-semibold text-stone-900">
-                              {formatDate(trackedOrder.createdAt)}
-                            </p>
-                          </div>
-
-                          <div className="rounded-2xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-orange-100 sm:col-span-2">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                              Delivery Address
-                            </p>
-                            <p className="mt-1 text-sm font-semibold leading-6 text-stone-900">
-                              {trackedOrder.address || "Not available"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2 xl:min-w-[260px] xl:grid-cols-1">
-                        <div className="rounded-2xl bg-white/95 px-4 py-4 shadow-sm ring-1 ring-orange-100">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                            Order ID
-                          </p>
-                          <p className="mt-1 break-all text-sm font-black text-stone-900">
-                            {trackedOrder.razorpayOrderId || trackedOrder.id}
-                          </p>
-                        </div>
-
-                        <div className="rounded-2xl bg-white/95 px-4 py-4 shadow-sm ring-1 ring-orange-100">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-stone-400">
-                            Order Amount
-                          </p>
-                          <p className="mt-1 text-3xl font-black tracking-tight text-orange-700">
-                            ₹{trackedOrder.totalAmount}
-                          </p>
-                        </div>
-
-                        <div className={`rounded-2xl border px-4 py-4 shadow-sm ${paymentBadgeClass}`}>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] opacity-70">
-                            Payment Status
-                          </p>
-                          <p className="mt-1 text-sm font-black">
-                            {trackedOrder.paymentStatus || "PENDING"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[1.75rem] border border-orange-100 bg-white p-5 shadow-sm sm:p-6">
-                    <div className="mb-6 flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
-                          Delivery Progress
-                        </p>
-                        <h4 className="mt-2 text-2xl font-black text-stone-900">
-                          Live Status
-                        </h4>
-                      </div>
-                      <div className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
-                        Current: {trackedOrder.status || "Preparing"}
-                      </div>
-                    </div>
-
-                    <div className="relative">
-                      <div className="absolute left-4 right-4 top-4 hidden h-0.5 bg-stone-200 sm:block" />
-
-                      <div className="grid gap-4 sm:grid-cols-4 sm:gap-2">
-                        {deliverySteps.map((step, index) => {
-                          const currentStep = getCurrentStepIndex(trackedOrder.status);
-                          const isCompleted = index < currentStep;
-                          const isActive = index === currentStep;
-                          const isFuture = index > currentStep;
-
-                          return (
-                            <div key={step} className="relative z-10 flex flex-col items-start gap-3 sm:items-center sm:text-center">
-                              <div
-                                className={`flex h-10 w-10 items-center justify-center rounded-full border-2 text-sm font-black transition ${
-                                  isCompleted
-                                    ? "border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-200"
-                                    : isActive
-                                      ? "border-orange-600 bg-orange-600 text-white shadow-lg shadow-orange-200"
-                                      : "border-stone-300 bg-white text-stone-400"
-                                }`}
-                              >
-                                {isCompleted ? "✓" : index + 1}
-                              </div>
-
-                              <div className="space-y-1 sm:max-w-[110px]">
-                                <p className={`text-sm font-black ${isActive ? "text-stone-900" : isCompleted ? "text-emerald-700" : "text-stone-500"}`}>
-                                  {step}
-                                </p>
-                                <p className={`text-xs leading-5 ${isFuture ? "text-stone-400" : "text-stone-500"}`}>
-                                  {isCompleted
-                                    ? "Completed"
-                                    : isActive
-                                      ? "In progress"
-                                      : "Pending"}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[1.75rem] border border-orange-100 bg-white p-5 shadow-sm sm:p-6">
-                    <div className="mb-5 flex items-center justify-between gap-4">
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-[0.28em] text-orange-600">
-                          Products
-                        </p>
-                        <h4 className="mt-2 text-2xl font-black text-stone-900">
-                          Ordered Items
-                        </h4>
-                      </div>
-
-                      <div className="rounded-full bg-orange-50 px-4 py-2 text-sm font-bold text-orange-700">
-                        {trackedOrder.products?.length || 0} item(s)
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-1">
-                      {trackedOrder.products?.map((product, index) => (
-                        <article
-                          key={`${product.name}-${index}`}
-                          className="group overflow-hidden rounded-3xl border border-orange-100 bg-gradient-to-br from-white to-orange-50/60 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(249,115,22,0.12)]"
-                        >
-                          <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
-                            <div className="relative h-28 w-full overflow-hidden rounded-2xl bg-orange-100 sm:h-24 sm:w-24 sm:flex-shrink-0">
-                              <img
-                                src={product.image}
-                                alt={product.name}
-                                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                              />
-                            </div>
-
-                            <div className="min-w-0 flex-1 space-y-2">
-                              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                <div>
-                                  <h5 className="text-lg font-black text-stone-900">
-                                    {product.name}
-                                  </h5>
-                                  <p className="mt-1 text-sm text-stone-500">
-                                    Quantity and item price
-                                  </p>
-                                </div>
-
-                                <div className="rounded-full bg-orange-100 px-3 py-1 text-xs font-black uppercase tracking-[0.18em] text-orange-700">
-                                  Qty {product.quantity}
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between gap-3 border-t border-dashed border-orange-100 pt-3">
-                                <p className="text-sm font-semibold text-stone-500">
-                                  Unit Price
-                                </p>
-                                <p className="text-xl font-black text-orange-700">
-                                  ₹{product.price}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </article>
-
-          </div>
-        </div>
-
-      </section>
-
-      {/* Mobile quick navigation */}
-
-      <nav className="sm:hidden fixed bottom-4 left-4 right-4 z-50 rounded-full border border-orange-100 bg-white/95 px-3 py-2 shadow-[0_18px_50px_rgba(249,115,22,0.18)] backdrop-blur">
+      <nav className="fixed bottom-4 left-4 right-4 z-50 rounded-full border border-orange-100 bg-white/95 px-3 py-2 shadow-[0_18px_50px_rgba(249,115,22,0.18)] backdrop-blur-xl sm:hidden">
         <div className="grid grid-cols-4 gap-2 text-center text-[11px] font-bold text-stone-600">
-          <Link to="/" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
+          <a href="#" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
             <span className="text-base">🏠</span>
             Home
-          </Link>
-          <a href="#products" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
-            <span className="text-base">🛍️</span>
-            Shop
           </a>
+
+          <a href="#featured-products" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
+            <span className="text-base">⭐</span>
+            Featured
+          </a>
+
           <a href="#track-order" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
             <span className="text-base">📦</span>
             Track
           </a>
+
           <Link to="/cart" className="flex flex-col items-center gap-1 rounded-full px-2 py-2 transition hover:bg-orange-50 hover:text-orange-700">
             <span className="text-base">🛒</span>
             Cart
           </Link>
         </div>
       </nav>
-
-      {/* Cart is now a separate page at /cart */}
 
       <button
         type="button"
@@ -881,15 +1280,13 @@ function HomePage() {
             block: "start",
           })
         }
-        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-orange-600 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.35)] transition duration-200 hover:-translate-y-1 hover:from-orange-500 hover:to-amber-400 sm:bottom-6 sm:right-6"
+        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 rounded-full bg-linear-to-r from-orange-600 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-[0_18px_35px_rgba(249,115,22,0.35)] transition duration-300 hover:-translate-y-1 hover:from-orange-500 hover:to-amber-400 sm:bottom-6 sm:right-6"
       >
-        📦 Track Order
+        Track Order
       </button>
 
       <Footer />
-
     </div>
-
   );
 }
 
