@@ -10,12 +10,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import ShippingPolicy from "./pages/ShippingPolicy";
 import TermsPage from "./pages/TermsPage";
-import AdminLogin from "./pages/AdminLogin";
-import AdminOrders from "./pages/AdminOrders";
-import AdminProducts from "./pages/AdminProducts";
-
-import ProtectedRoute from "./components/ProtectedRoute";
-import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
 
@@ -72,25 +67,7 @@ function App() {
 
       <Route
         path="/sr-admin-portal-2026"
-        element={<AdminLogin />}
-      />
-
-      <Route
-        path="/admin-orders"
-        element={
-          <AdminRoute>
-            <AdminOrders />
-          </AdminRoute>
-        }
-      />
-
-      <Route
-        path="/admin-products"
-        element={
-          <AdminRoute>
-            <AdminProducts />
-          </AdminRoute>
-        }
+        element={<AdminDashboard />}
       />
 
     </Routes>

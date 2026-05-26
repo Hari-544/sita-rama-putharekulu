@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 
 import { db } from "../firebase";
 
-function AdminOrders() {
+function AdminOrders({ embedded = false }) {
 
   const [orders, setOrders] =
     useState([]);
@@ -21,6 +21,18 @@ function AdminOrders() {
 
   const [search, setSearch] =
     useState("");
+
+  const pageShellClass = embedded
+    ? "w-full"
+    : "min-h-screen bg-[#fffaf5] p-4 sm:p-6";
+
+  const pageInnerClass = embedded
+    ? "w-full"
+    : "max-w-7xl mx-auto";
+
+  const pageTitleClass = embedded
+    ? "hidden"
+    : "fluid-heading font-black text-orange-700 mb-8";
 
   /* FETCH ORDERS */
 
@@ -134,11 +146,11 @@ function AdminOrders() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] p-4 sm:p-6">
+    <div className={pageShellClass}>
 
-      <div className="max-w-7xl mx-auto">
+      <div className={pageInnerClass}>
 
-        <h1 className="fluid-heading font-black text-orange-700 mb-8">
+        <h1 className={pageTitleClass}>
           Admin Orders Dashboard
         </h1>
 

@@ -15,7 +15,7 @@ import {
 import { db } from "../firebase";
 import { products as fallbackProducts } from "../data/products";
 
-function AdminProducts() {
+function AdminProducts({ embedded = false }) {
 
   const [products, setProducts] =
     useState([]);   
@@ -41,6 +41,18 @@ function AdminProducts() {
       featured: false,
       stock: true,
     });
+
+    const pageShellClass = embedded
+      ? "w-full"
+      : "min-h-screen bg-[#fffaf5] p-6";
+
+    const pageInnerClass = embedded
+      ? "w-full"
+      : "max-w-7xl mx-auto";
+
+    const pageTitleClass = embedded
+      ? "hidden"
+      : "text-4xl font-black text-orange-700 mb-8";
 
   /* FETCH PRODUCTS */
 
@@ -300,11 +312,11 @@ function AdminProducts() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] p-6">
+    <div className={pageShellClass}>
 
-      <div className="max-w-7xl mx-auto">
+      <div className={pageInnerClass}>
 
-        <h1 className="text-4xl font-black text-orange-700 mb-8">
+        <h1 className={pageTitleClass}>
           Product Management
         </h1>
 
