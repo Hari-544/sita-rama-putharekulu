@@ -87,8 +87,8 @@ function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#fffaf5] text-stone-900">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
+    <div className="min-h-screen bg-[#fffaf5] text-stone-900 safe-bottom-lg">
+      <div className="responsive-shell mx-auto flex min-h-screen w-full max-w-[1600px] flex-col lg:flex-row">
         <aside className="border-b border-orange-100 bg-white/95 p-4 shadow-sm backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:border-b-0 lg:border-r lg:p-6">
           <div className="mb-6">
             <p className="text-[11px] font-black uppercase tracking-[0.3em] text-orange-600">

@@ -521,9 +521,9 @@ function CheckoutPage() {
 
   return (
 
-    <div className="min-h-screen bg-[#fffaf5] py-8 px-4 sm:py-10">
+    <div className="adaptive-section safe-bottom min-h-screen bg-[#fffaf5] px-4 py-8 sm:py-10">
 
-      <div className="container mx-auto max-w-7xl">
+      <div className="responsive-shell mx-auto">
 
         <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
@@ -545,7 +545,7 @@ function CheckoutPage() {
           {/* LEFT */}
 
           {/* LEFT */}
-          <div className="panel-shell p-5 sm:p-8">
+          <div className="panel-shell adaptive-card p-5 sm:p-8">
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Order Summary
             </h2>
@@ -563,14 +563,14 @@ function CheckoutPage() {
                 cart.map((item) => (
                   <div
                     key={item.id}
-                    className="flex gap-4 border border-orange-100 rounded-2xl p-4 bg-orange-50/70 backdrop-blur-md"
+                    className="grid gap-4 border border-orange-100 rounded-2xl p-4 bg-orange-50/70 backdrop-blur-md sm:grid-cols-[auto,minmax(0,1fr)] sm:items-center"
                   >
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="w-24 h-24 rounded-2xl object-cover shadow-sm"
+                      className="aspect-square w-full max-w-[6.5rem] rounded-2xl object-cover shadow-sm sm:max-w-[7.5rem]"
                     />
-                    <div className="grow">
+                    <div className="min-w-0">
                       <h3 className="font-bold text-stone-900">
                         {item.name}
                       </h3>
@@ -598,7 +598,7 @@ function CheckoutPage() {
           </div>
 
           {/* RIGHT */}
-          <div className="panel-shell p-5 sm:p-8">
+          <div className="panel-shell adaptive-card p-5 sm:p-8">
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Delivery Details
             </h2>

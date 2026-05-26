@@ -258,6 +258,93 @@
   transition: opacity 0.2s ease;
 }
 
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn:focus-visible {
+  outline: 2px solid rgba(234, 88, 12, 0.45);
+  outline-offset: 3px;
+}
+
+.btn-primary,
+.btn-secondary {
+  min-width: min(100%, 12rem);
+}
+
+.responsive-shell {
+  width: 100%;
+  max-width: min(100%, 1600px);
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 3vw, 2.5rem);
+}
+
+.adaptive-section {
+  padding-block: clamp(2.75rem, 6vw, 5.5rem);
+}
+
+.adaptive-stack {
+  display: grid;
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.adaptive-card {
+  border-radius: clamp(20px, 3vw, 32px);
+  overflow: clip;
+}
+
+.adaptive-button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(0.75rem, 1.6vw, 1rem);
+}
+
+.adaptive-button-row > * {
+  flex: 1 1 12rem;
+}
+
+.adaptive-grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.adaptive-grid-wide {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+}
+
+.responsive-tablet-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(1rem, 2.5vw, 2rem);
+}
+
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+}
+
+.safe-bottom-lg {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
+}
+
+.fluid-touch {
+  min-height: clamp(44px, 5.5vw, 52px);
+  min-width: clamp(44px, 5.5vw, 52px);
+}
+
+.fluid-image-frame {
+  aspect-ratio: 4 / 3;
+}
+
+.fluid-image-frame > img,
+.fluid-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .btn:hover {
   transform: translateY(-3px);
 }
@@ -571,5 +658,25 @@
   .container,
   .responsive-container {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6.5rem);
+  }
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .touch-target,
+  button,
+  a[role="button"] {
+    min-height: 48px;
+  }
+
+  .nav-link {
+    padding-block: 0.85rem;
+  }
+}
+
+@media (min-width: 1400px) {
+  .responsive-container,
+  .container {
+    max-width: min(100%, 1680px);
   }
 }

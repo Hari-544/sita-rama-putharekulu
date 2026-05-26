@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 function SuccessPage() {
   return (
-    <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center px-4 py-10 sm:px-6 sm:py-14">
-      <section className="panel-shell mx-auto w-full max-w-2xl p-6 text-center sm:p-10">
+    <main className="responsive-shell adaptive-section safe-bottom min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center">
+      <section className="panel-shell adaptive-card mx-auto w-full max-w-2xl p-6 text-center sm:p-10">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-green-100 shadow-inner sm:h-24 sm:w-24">
           <span className="text-5xl text-green-700">✓</span>
         </div>

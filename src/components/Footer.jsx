@@ -4,9 +4,9 @@ function Footer() {
 
   return (
 
-    <footer className="site-footer relative overflow-hidden bg-[#2a1208] text-white py-16 px-4 sm:px-6 sm:py-20">
+    <footer className="site-footer relative overflow-hidden bg-[#2a1208] px-4 py-16 text-white sm:px-6 sm:py-20">
 
-      <div className="container grid gap-10 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="responsive-shell grid gap-10 sm:grid-cols-2 xl:grid-cols-3">
 
         <div>
 
@@ -70,7 +70,7 @@ function Footer() {
             href="https://wa.me/919652999544"
             target="_blank"
             rel="noreferrer"
-            className="btn btn-primary inline-block mt-5 px-8 py-4"
+            className="btn btn-primary inline-flex mt-5 px-8 py-4"
           >
             Chat On WhatsApp
           </a>
