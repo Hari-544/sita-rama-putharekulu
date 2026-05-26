@@ -119,7 +119,7 @@
   line-height: 1.15;
   letter-spacing: -0.03em;
   font-weight: 700;
-  color: var(--primary-dark);
+  color: inherit;
 }
 
 .fluid-body {

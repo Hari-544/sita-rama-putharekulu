@@ -4,14 +4,14 @@ function Footer() {
 
   return (
 
-    <footer className="site-footer relative overflow-hidden bg-[#2a1208] px-4 py-14 text-white sm:px-6 sm:py-16 lg:px-8 lg:py-20">
+    <footer className="site-footer relative overflow-hidden bg-[#2a1208] px-4 py-14 text-white sm:px-6 sm:py-16 lg:px-8 lg:py-20 safe-bottom-lg">
 
       <div className="responsive-shell grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-10">
 
         <div>
 
-          <h2 className="fluid-heading font-black text-yellow-300">
-            SITA RAMA PUTHAREKULU
+          <h2 className="fluid-heading font-black tracking-tight leading-tight text-orange-100 inline-block rounded-2xl px-4 py-2 backdrop-blur-md shadow-2xl">
+          SITA RAMA PUTHAREKULU
           </h2>
 
           <p className="mt-5 text-orange-100 leading-8 max-w-sm">
