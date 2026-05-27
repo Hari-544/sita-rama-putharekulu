@@ -6,73 +6,23 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://sita-rama-putharekulu.vercel.app/track-order</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://sita-rama-putharekulu.vercel.app/reviews</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/1</loc>
+    <loc>https://sita-rama-putharekulu.vercel.app/cart</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/2</loc>
+    <loc>https://sita-rama-putharekulu.vercel.app/checkout</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/3</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/4</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/5</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/6</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/7</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/8</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/buy/9</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/privacy-policy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/refund-policy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/shipping-policy</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  <url>
-    <loc>https://sita-rama-putharekulu.vercel.app/terms-and-conditions</loc>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
+    <priority>0.6</priority>
   </url>
 </urlset>

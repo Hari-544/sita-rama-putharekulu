@@ -33,6 +33,11 @@ function App() {
       />
 
       <Route
+        path="/track-order"
+        element={<HomePage />}
+      />
+
+      <Route
         path="/reviews"
         element={<ReviewsPage />}
       />
