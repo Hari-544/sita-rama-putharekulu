@@ -7,6 +7,7 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import { setSeoMeta } from "../utils/seo";
 
 const ratings = [
   { visual: "★★★★★ (5/5)", value: "★★★★★" },
@@ -27,6 +28,14 @@ function ReviewsPage() {
 
   useEffect(() => {
     let isMounted = true;
+
+    setSeoMeta({
+      title: "Customer Reviews | Sita Rama Putharekulu",
+      description:
+        "Read genuine customer reviews for authentic Atreyapuram Putharekulu and handmade sweets from Sita Rama Putharekulu.",
+      path: "/reviews",
+      image: "/og-image.svg",
+    });
 
     const loadReviews = async () => {
       try {

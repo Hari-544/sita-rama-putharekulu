@@ -1,6 +1,18 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { setSeoMeta } from "../utils/seo";
 
 function PrivacyPolicy() {
+  useEffect(() => {
+    setSeoMeta({
+      title: "Privacy Policy | Sita Rama Putharekulu",
+      description:
+        "Read how Sita Rama Putharekulu collects, uses, and protects customer information for online sweet orders.",
+      path: "/privacy-policy",
+      image: "/og-image.svg",
+    });
+  }, []);
+
   return (
     <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white px-4 py-10 sm:px-6 sm:py-16">
       <article className="panel-shell mx-auto max-w-5xl p-6 sm:p-10">

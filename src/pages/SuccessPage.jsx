@@ -1,6 +1,19 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { setSeoMeta } from "../utils/seo";
 
 function SuccessPage() {
+  useEffect(() => {
+    setSeoMeta({
+      title: "Order Confirmed | Sita Rama Putharekulu",
+      description:
+        "Your Atreyapuram Putharekulu order has been placed successfully. Thank you for shopping with Sita Rama Putharekulu.",
+      path: "/success",
+      image: "/og-image.svg",
+      noindex: true,
+    });
+  }, []);
+
   return (
     <main className="responsive-shell adaptive-section safe-bottom min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white flex items-center justify-center">
       <section className="panel-shell adaptive-card mx-auto w-full max-w-2xl p-6 text-center sm:p-10">

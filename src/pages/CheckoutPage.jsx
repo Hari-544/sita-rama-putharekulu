@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import {
@@ -13,8 +13,20 @@ import {
   cloudinarySrcSet,
   optimizeCloudinaryImage,
 } from "../utils/image";
+import { setSeoMeta } from "../utils/seo";
 
 function CheckoutPage() {
+
+  useEffect(() => {
+    setSeoMeta({
+      title: "Checkout | Sita Rama Putharekulu",
+      description:
+        "Secure checkout for authentic Atreyapuram Putharekulu. Complete your handmade sweets order and payment safely.",
+      path: "/checkout",
+      image: "/og-image.svg",
+      noindex: true,
+    });
+  }, []);
 
   const [cart, setCart] = useState(() => {
 

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /checkout
+Disallow: /cart
+Disallow: /sr-admin-portal-2026
+Disallow: /success
+
+Sitemap: https://sita-rama-putharekulu.vercel.app/sitemap.xml

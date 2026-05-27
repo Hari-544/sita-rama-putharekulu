@@ -1,6 +1,18 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { setSeoMeta } from "../utils/seo";
 
 function TermsPage() {
+  useEffect(() => {
+    setSeoMeta({
+      title: "Terms & Conditions | Sita Rama Putharekulu",
+      description:
+        "Review the terms and conditions for using Sita Rama Putharekulu and placing online orders.",
+      path: "/terms-and-conditions",
+      image: "/og-image.svg",
+    });
+  }, []);
+
   return (
     <main className="min-h-screen bg-linear-to-b from-orange-50 via-yellow-50 to-white px-4 py-10 sm:px-6 sm:py-16">
       <article className="panel-shell mx-auto max-w-5xl p-6 sm:p-10">

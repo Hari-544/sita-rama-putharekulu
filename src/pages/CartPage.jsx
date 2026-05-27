@@ -4,8 +4,20 @@ import {
   cloudinarySrcSet,
   optimizeCloudinaryImage,
 } from "../utils/image";
+import { setSeoMeta } from "../utils/seo";
 
 function CartPage() {
+
+  useEffect(() => {
+    setSeoMeta({
+      title: "Your Cart | Sita Rama Putharekulu",
+      description:
+        "Review and update your selected Atreyapuram Putharekulu sweets before checkout.",
+      path: "/cart",
+      image: "/og-image.svg",
+      noindex: true,
+    });
+  }, []);
 
   const [cart, setCart] = useState(() => {
     try {

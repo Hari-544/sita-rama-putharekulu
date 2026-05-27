@@ -16,6 +16,10 @@ import {
   cloudinarySrcSet,
   optimizeCloudinaryImage,
 } from "../utils/image";
+import {
+  setPreloadImage,
+  setSeoMeta,
+} from "../utils/seo";
 
 const DELIVERY_STEPS = ["Preparing", "Packed", "Shipped", "Delivered"];
 
@@ -1036,6 +1040,24 @@ function HomePage() {
     () => cart.reduce((count, item) => count + item.quantity, 0),
     [cart]
   );
+
+  useEffect(() => {
+    const cleanupPreload = setPreloadImage({
+      id: "home-hero-preload",
+      href: hero,
+      type: "image/jpeg",
+    });
+
+    setSeoMeta({
+      title: "Sita Rama Putharekulu | Authentic Atreyapuram Putharekulu Online",
+      description:
+        "Order authentic Atreyapuram Putharekulu online from Sita Rama Putharekulu. Handmade sweets, premium ingredients, and reliable delivery across India.",
+      path: "/",
+      image: "/og-image.svg",
+    });
+
+    return () => cleanupPreload();
+  }, []);
 
   const normalizedProducts = useMemo(() => sortProducts(products), [products]);
 

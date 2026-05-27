@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { products } from "../data/products";
 import { loadRazorpay } from "../utils/loadRazorpay";
@@ -6,6 +6,7 @@ import {
   cloudinarySrcSet,
   optimizeCloudinaryImage,
 } from "../utils/image";
+import { setSeoMeta } from "../utils/seo";
 
 function BuyNowPage() {
   const { id } = useParams();
@@ -21,6 +22,27 @@ function BuyNowPage() {
   const updateCustomer = (field, value) => {
     setCustomer((current) => ({ ...current, [field]: value }));
   };
+
+  useEffect(() => {
+    if (!product) {
+      setSeoMeta({
+        title: "Product Not Found | Sita Rama Putharekulu",
+        description:
+          "Explore authentic Atreyapuram Putharekulu and handmade sweets from Sita Rama Putharekulu.",
+        path: `/buy/${id}`,
+        image: "/og-image.svg",
+        noindex: true,
+      });
+      return;
+    }
+
+    setSeoMeta({
+      title: `${product.name} | Buy Atreyapuram Putharekulu Online`,
+      description: `${product.name} from Sita Rama Putharekulu. Handmade Atreyapuram Putharekulu with premium ingredients and online delivery.`,
+      path: `/buy/${id}`,
+      image: "/og-image.svg",
+    });
+  }, [id, product]);
 
 const handlePayment = async () => {
 

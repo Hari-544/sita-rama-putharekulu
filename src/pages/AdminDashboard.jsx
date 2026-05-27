@@ -4,6 +4,7 @@ import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import AdminProducts from "./AdminProducts";
 import AdminOrders from "./AdminOrders";
+import { setSeoMeta } from "../utils/seo";
 
 const ADMIN_EMAIL = "patnalaharikrishna9544@gmail.com";
 
@@ -12,6 +13,17 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("products");
   const [authenticating, setAuthenticating] = useState(false);
+
+  useEffect(() => {
+    setSeoMeta({
+      title: "Admin Portal | Sita Rama Putharekulu",
+      description:
+        "Secure admin access for managing products, orders, and customer operations.",
+      path: "/sr-admin-portal-2026",
+      image: "/og-image.svg",
+      noindex: true,
+    });
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
