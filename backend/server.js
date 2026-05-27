@@ -4,14 +4,28 @@ import cors from "cors";
 import dotenv from "dotenv";
 import Razorpay from "razorpay";
 import crypto from "crypto";
+import path from "path";
+import { fileURLToPath } from "url";
+import sendOrderMail from "./utils/sendMail.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({
+  path: path.resolve(__dirname, ".env"),
+});
 
 const app = express();
 
 app.use(cors());
 
 app.use(express.json());
+
+console.log("[ENV] backend/.env loaded");
+console.log("[ENV] RAZORPAY_KEY_ID loaded:", Boolean(process.env.RAZORPAY_KEY_ID));
+console.log("[ENV] RAZORPAY_KEY_SECRET loaded:", Boolean(process.env.RAZORPAY_KEY_SECRET));
+console.log("[ENV] EMAIL_USER loaded:", Boolean(process.env.EMAIL_USER));
+console.log("[ENV] EMAIL_PASS loaded:", Boolean(process.env.EMAIL_PASS));
 
 /* RAZORPAY */
 
@@ -67,77 +81,155 @@ app.post(
 
 /* VERIFY PAYMENT */
 
-app.post("/api/payment/verify", async (req, res) => {
+app.post(
+  "/api/payment/verify",
+  async (req, res) => {
 
-  try {
+    console.log("[VERIFY] /api/payment/verify route started");
+    console.log("[VERIFY] Request body:", req.body);
 
-    const {
-      razorpay_order_id,
-      razorpay_payment_id,
-      razorpay_signature,
-    } = req.body;
+    try {
 
-    console.log("VERIFY BODY:", req.body);
+      const {
+        razorpay_order_id,
+        razorpay_payment_id,
+        razorpay_signature,
 
-    const body =
-      razorpay_order_id +
-      "|" +
-      razorpay_payment_id;
+        customerName,
+        email,
+        totalAmount,
+      } = req.body;
 
-    const expectedSignature =
-      crypto
-        .createHmac(
-          "sha256",
-          process.env.RAZORPAY_KEY_SECRET
-        )
-        .update(body.toString())
-        .digest("hex");
-
-    console.log(
-      "EXPECTED:",
-      expectedSignature
-    );
-
-    console.log(
-      "RECEIVED:",
-      razorpay_signature
-    );
-
-    const isAuthentic =
-      expectedSignature ===
-      razorpay_signature;
-
-    if (isAuthentic) {
-
-      return res.json({
-        success: true,
+      console.log("[VERIFY] Received fields:", {
+        razorpay_order_id,
+        razorpay_payment_id,
+        hasSignature: Boolean(razorpay_signature),
+        customerName,
+        email,
+        totalAmount,
       });
 
-    } else {
+      if (
+        !razorpay_order_id ||
+        !razorpay_payment_id ||
+        !razorpay_signature
+      ) {
+        console.error("[VERIFY] Missing Razorpay verification fields");
 
-      return res.status(400).json({
+        return res.status(400).json({
+          success: false,
+          message:
+            "Missing Razorpay verification fields",
+        });
+      }
+
+      const body =
+        razorpay_order_id +
+        "|" +
+        razorpay_payment_id;
+
+      const expectedSignature =
+        crypto
+          .createHmac(
+            "sha256",
+            process.env
+              .RAZORPAY_KEY_SECRET
+          )
+          .update(body.toString())
+          .digest("hex");
+
+      console.log("[VERIFY] Expected signature:", expectedSignature);
+      console.log("[VERIFY] Received signature:", razorpay_signature);
+
+      const isAuthentic =
+        expectedSignature ===
+        razorpay_signature;
+
+      if (isAuthentic) {
+
+        console.log("[VERIFY] Payment verified successfully");
+
+        let emailSent = false;
+        let emailError = null;
+
+        if (email) {
+
+          console.log("[VERIFY] Calling sendOrderMail...");
+
+          try {
+            await sendOrderMail({
+
+              customerName:
+                customerName ||
+                "Customer",
+
+              customerEmail:
+                email,
+
+              orderId:
+                razorpay_order_id,
+
+              amount:
+                totalAmount,
+
+            });
+
+            emailSent = true;
+            console.log("[VERIFY] Customer email sent successfully");
+          } catch (mailError) {
+            emailError = {
+              message: mailError.message,
+              code: mailError.code,
+              command: mailError.command,
+              response: mailError.response,
+              responseCode: mailError.responseCode,
+            };
+
+            console.error("[VERIFY] Customer email failed:", emailError);
+          }
+
+        } else {
+
+          console.error("[VERIFY] Customer email missing in request body");
+
+        }
+
+        return res.json({
+          success: true,
+          emailSent,
+          emailError,
+          orderId:
+            razorpay_order_id,
+        });
+
+      } else {
+
+        console.error("[VERIFY] Invalid Razorpay signature");
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Invalid Signature",
+        });
+
+      }
+
+    } catch (error) {
+
+      console.log(
+        "VERIFY ERROR:",
+        error
+      );
+
+      res.status(500).json({
         success: false,
-        message:
-          "Invalid Signature",
+        error: error.message,
       });
 
     }
 
-  } catch (error) {
-
-    console.log(
-      "VERIFY ERROR:",
-      error
-    );
-
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
-
   }
-
-});
+);
 
 /* SERVER */
 

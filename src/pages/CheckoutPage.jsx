@@ -36,6 +36,7 @@ function CheckoutPage() {
   const [customer, setCustomer] =
     useState({
       name: "",
+      email: "",
       phone: "",
       address: "",
       pincode: "",
@@ -43,7 +44,14 @@ function CheckoutPage() {
 
   const API_BASE =
     import.meta.env.VITE_API_BASE ||
-    "https://sita-rama-backend.onrender.com";
+    (import.meta.env.DEV
+      ? "http://localhost:5000"
+      : "https://sita-rama-backend.onrender.com");
+
+  console.log(
+    "CHECKOUT API BASE:",
+    API_BASE
+  );
 
   /* TOTAL */
 
@@ -77,6 +85,9 @@ function CheckoutPage() {
             {
               customerName:
                 customer.name,
+
+              customerEmail:
+                customer.email,
 
               phone:
                 customer.phone,
@@ -122,9 +133,7 @@ function CheckoutPage() {
           "FIREBASE ERROR:",
           firebaseError
         );
-                          <div className="fluid-image-frame overflow-hidden rounded-2xl bg-orange-50">
-                            <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-                          </div>
+
         return false;
 
       }
@@ -139,6 +148,7 @@ function CheckoutPage() {
 
       if (
         !customer.name ||
+        !customer.email ||
         !customer.phone ||
         !customer.address ||
         !customer.pincode
@@ -198,7 +208,9 @@ function CheckoutPage() {
 
         key:
           import.meta.env
-            .VITE_RAZORPAY_KEY,
+            .VITE_RAZORPAY_KEY ||
+          import.meta.env
+            .VITE_RAZORPAY_KEY_ID,
 
         amount:
           order.amount,
@@ -232,6 +244,30 @@ function CheckoutPage() {
 
               /* VERIFY PAYMENT */
 
+              const verifyPayload = {
+                razorpay_order_id:
+                  response.razorpay_order_id,
+
+                razorpay_payment_id:
+                  response.razorpay_payment_id,
+
+                razorpay_signature:
+                  response.razorpay_signature,
+
+                customerName:
+                  customer.name.trim(),
+
+                email:
+                  customer.email.trim(),
+
+                totalAmount,
+              };
+
+              console.log(
+                "VERIFY PAYMENT PAYLOAD:",
+                verifyPayload
+              );
+
               const verifyResponse =
                 await fetch(
                   `${API_BASE}/api/payment/verify`,
@@ -245,26 +281,40 @@ function CheckoutPage() {
                     },
 
                     body:
-                      JSON.stringify({
-                        razorpay_order_id:
-                          response.razorpay_order_id,
-
-                        razorpay_payment_id:
-                          response.razorpay_payment_id,
-
-                        razorpay_signature:
-                          response.razorpay_signature,
-                      }),
+                      JSON.stringify(
+                        verifyPayload
+                      ),
                   }
                 );
 
               const verifyData =
                 await verifyResponse.json();
 
+              const emailErrorMessage =
+                verifyData.emailError?.response ||
+                verifyData.emailError?.message ||
+                "Check backend logs for SMTP details.";
+
               console.log(
                 "VERIFY:",
                 verifyData
               );
+
+              console.log(
+                "EMAIL SENT BY BACKEND:",
+                verifyData.emailSent
+              );
+
+              if (
+                verifyData.emailError
+              ) {
+
+                console.log(
+                  "EMAIL ERROR FROM BACKEND:",
+                  verifyData.emailError
+                );
+
+              }
 
               /* SUCCESS */
 
@@ -310,6 +360,11 @@ function CheckoutPage() {
                   formData.append(
                     "Customer Name",
                     customer.name
+                  );
+
+                  formData.append(
+                    "Email",
+                    customer.email
                   );
 
                   formData.append(
@@ -384,7 +439,22 @@ function CheckoutPage() {
                 }
 
                 alert(
-                  "Payment Successful ✅"
+                  verifyData.emailSent
+                    ? `Payment Successful ✅
+
+Your Order ID:
+${response.razorpay_order_id}
+
+Order confirmation has been sent to your email.`
+                    : `Payment Successful ✅
+
+Your Order ID:
+${response.razorpay_order_id}
+
+Order saved. Email delivery failed, so please save your Order ID.
+
+Email Error:
+${emailErrorMessage}`
                 );
 
                 /* CLEAR CART */
@@ -397,6 +467,7 @@ function CheckoutPage() {
 
                 setCustomer({
                   name: "",
+                  email: "",
                   phone: "",
                   address: "",
                   pincode: "",
@@ -405,8 +476,6 @@ function CheckoutPage() {
                 setProcessing(
                   false
                 );
-
-                /* WAIT BEFORE REDIRECT */
 
                 setTimeout(() => {
 
@@ -459,6 +528,9 @@ function CheckoutPage() {
         prefill: {
           name:
             customer.name,
+
+          email:
+            customer.email,
 
           contact:
             customer.phone,
@@ -546,70 +618,104 @@ function CheckoutPage() {
 
           {/* LEFT */}
 
-          {/* LEFT */}
           <div className="panel-shell adaptive-card p-5 sm:p-6 lg:p-8">
+
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Order Summary
             </h2>
+
             <div className="space-y-5">
+
               {cart.length === 0 ? (
+
                 <div className="text-center py-16">
+
                   <span className="text-6xl">
                     🛒
                   </span>
+
                   <p className="mt-4 text-stone-500">
                     Your cart is empty
                   </p>
+
                 </div>
+
               ) : (
+
                 cart.map((item) => (
+
                   <div
                     key={item.id}
                     className="grid gap-4 border border-orange-100 rounded-2xl p-4 bg-orange-50/70 backdrop-blur-md sm:grid-cols-[auto,minmax(0,1fr)] sm:items-center"
                   >
+
                     <img
                       src={item.image}
                       alt={item.name}
                       className="aspect-square w-full max-w-[6.5rem] rounded-2xl object-cover shadow-sm sm:max-w-[7.5rem]"
                     />
+
                     <div className="min-w-0">
+
                       <h3 className="font-bold text-stone-900">
                         {item.name}
                       </h3>
+
                       <p className="text-sm text-stone-500 mt-1">
-                        {item.sizes}
+                        Qty: {item.quantity}
                       </p>
+
                       <p className="text-xl font-black text-orange-700 mt-2">
                         ₹{item.price}
                       </p>
+
                     </div>
+
                   </div>
+
                 ))
+
               )}
+
             </div>
+
             {cart.length > 0 && (
+
               <div className="border-t border-orange-100 mt-8 pt-6 flex items-center justify-between">
+
                 <span className="text-lg font-semibold text-stone-600">
                   Total Amount
                 </span>
+
                 <span className="text-4xl font-black text-orange-700">
                   ₹{totalAmount}
                 </span>
+
               </div>
+
             )}
+
           </div>
 
           {/* RIGHT */}
+
           <div className="panel-shell adaptive-card p-5 sm:p-6 lg:p-8">
+
             <h2 className="text-2xl font-black text-stone-900 mb-6">
               Delivery Details
             </h2>
+
             <div className="space-y-5">
+
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Full Name</label>
+
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+                  Full Name
+                </label>
+
                 <input
                   type="text"
-                  placeholder="e.g., Hari Prasad"
+                  placeholder="e.g., Hari Krishna"
                   value={customer.name}
                   onChange={(e) =>
                     setCustomer({
@@ -617,14 +723,41 @@ function CheckoutPage() {
                       name: e.target.value,
                     })
                   }
+                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
                 />
+
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Phone Number</label>
+
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+                  Email Address
+                </label>
+
+                <input
+                  type="email"
+                  placeholder="e.g., example@gmail.com"
+                  value={customer.email}
+                  onChange={(e) =>
+                    setCustomer({
+                      ...customer,
+                      email: e.target.value,
+                    })
+                  }
+                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
+                />
+
+              </div>
+
+              <div>
+
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+                  Phone Number
+                </label>
+
                 <input
                   type="tel"
-                  placeholder="e.g., 0123456789"
+                  placeholder="e.g., 9876543210"
                   value={customer.phone}
                   onChange={(e) =>
                     setCustomer({
@@ -632,11 +765,17 @@ function CheckoutPage() {
                       phone: e.target.value,
                     })
                   }
+                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
                 />
+
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">Complete Delivery Address</label>
+
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+                  Complete Delivery Address
+                </label>
+
                 <textarea
                   rows="4"
                   placeholder="Door Number, Street Name, Landmark, City/Village"
@@ -647,15 +786,21 @@ function CheckoutPage() {
                       address: e.target.value,
                     })
                   }
+                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
                 />
+
               </div>
 
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">6-Digit Pincode</label>
+
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-700 mb-2">
+                  6-Digit Pincode
+                </label>
+
                 <input
                   type="text"
                   maxLength="6"
-                  placeholder="e.g., 111111"
+                  placeholder="e.g., 533214"
                   value={customer.pincode}
                   onChange={(e) =>
                     setCustomer({
@@ -663,7 +808,9 @@ function CheckoutPage() {
                       pincode: e.target.value,
                     })
                   }
+                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
                 />
+
               </div>
 
               <button
@@ -671,19 +818,48 @@ function CheckoutPage() {
                 disabled={processing}
                 className="btn btn-primary w-full py-4 mt-6 text-base font-bold"
               >
+
                 {processing ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5 text-stone-950" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+
+                  <span className="flex items-center justify-center gap-2">
+
+                    <svg
+                      className="animate-spin h-5 w-5 text-stone-950"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+
                     </svg>
+
                     Processing Secure Order...
+
                   </span>
+
                 ) : (
+
                   `Pay ₹${totalAmount}`
+
                 )}
+
               </button>
+
             </div>
+
           </div>
 
         </div>
