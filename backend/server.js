@@ -7,6 +7,7 @@ import crypto from "crypto";
 import path from "path";
 import { fileURLToPath } from "url";
 import sendOrderMail from "./utils/sendMail.js";
+import sendStatusMail from "./utils/sendStatusMail.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -224,6 +225,87 @@ app.post(
       res.status(500).json({
         success: false,
         error: error.message,
+      });
+
+    }
+
+  }
+);
+
+
+
+/* UPDATE ORDER STATUS */
+
+app.post(
+  "/api/order/status-mail",
+  async (req, res) => {
+
+    console.log("STATUS ROUTE HIT");
+    console.log("[STATUS ROUTE] Request body:", req.body);
+
+    try {
+
+      const {
+        customerName,
+        customerEmail,
+        orderId,
+        status,
+      } = req.body;
+
+      console.log("[STATUS ROUTE] Received fields:", {
+        customerName,
+        customerEmail,
+        orderId,
+        status,
+      });
+
+      if (!customerEmail || !status) {
+        console.error("[STATUS ROUTE] Missing required status email fields");
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Missing customerEmail or status",
+        });
+      }
+
+      console.log("[STATUS ROUTE] sendStatusMail called");
+
+      const mailInfo = await sendStatusMail({
+
+        customerName,
+        customerEmail,
+        orderId,
+        status,
+      });
+
+      console.log("[STATUS ROUTE] Email sent successfully");
+
+      res.json({
+        success: true,
+        messageId:
+          mailInfo.messageId,
+      });
+
+    } catch (error) {
+
+      console.error("[STATUS ROUTE] Mail failure:", {
+        message: error.message,
+        code: error.code,
+        command: error.command,
+        response: error.response,
+        responseCode: error.responseCode,
+      });
+
+      res.status(500).json({
+        success: false,
+        error: {
+          message: error.message,
+          code: error.code,
+          command: error.command,
+          response: error.response,
+          responseCode: error.responseCode,
+        },
       });
 
     }

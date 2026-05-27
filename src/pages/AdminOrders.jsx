@@ -34,6 +34,12 @@ function AdminOrders({ embedded = false }) {
     ? "hidden"
     : "fluid-heading font-black text-orange-700 mb-8";
 
+  const API_BASE =
+    import.meta.env.VITE_API_BASE ||
+    (import.meta.env.DEV
+      ? "http://localhost:5000"
+      : "https://sita-rama-backend.onrender.com");
+
   /* FETCH ORDERS */
 
   useEffect(() => {
@@ -44,58 +50,199 @@ function AdminOrders({ embedded = false }) {
     );
 
     try {
-      const unsubscribe = onSnapshot(
-        q,
-        (snapshot) => {
-          const ordersData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-          setOrders(ordersData);
-          setLoading(false);
-        },
-        (err) => {
-          console.error("Orders snapshot error:", err);
-          // If permissions are denied, surface an empty list and stop loading
-          setOrders([]);
-          setLoading(false);
-        }
+
+      const unsubscribe =
+        onSnapshot(
+
+          q,
+
+          (snapshot) => {
+
+            const ordersData =
+              snapshot.docs.map(
+                (doc) => ({
+                  id: doc.id,
+                  ...doc.data(),
+                })
+              );
+
+            setOrders(
+              ordersData
+            );
+
+            setLoading(false);
+
+          },
+
+          (err) => {
+
+            console.error(
+              "Orders snapshot error:",
+              err
+            );
+
+            setOrders([]);
+
+            setLoading(false);
+
+          }
+
+        );
+
+      return () =>
+        unsubscribe();
+
+    } catch (err) {
+
+      console.error(
+        "Failed to initialize orders listener:",
+        err
       );
 
-      return () => unsubscribe();
-    } catch (err) {
-      console.error("Failed to initialize orders listener:", err);
       setOrders([]);
+
       setLoading(false);
+
       return () => {};
+
     }
 
   }, []);
 
   /* UPDATE STATUS */
 
-  const updateStatus = async (
-    id,
-    status
-  ) => {
+  const updateStatus =
+    async (
+      order,
+      status
+    ) => {
 
-    try {
+      try {
 
-      await updateDoc(
-        doc(db, "orders", id),
-        {
-          status: status,
+        /* UPDATE FIREBASE */
+
+        await updateDoc(
+
+          doc(
+            db,
+            "orders",
+            order.id
+          ),
+
+          {
+            status: status,
+          }
+
+        );
+
+        /* SEND STATUS EMAIL */
+
+        try {
+
+          const statusMailPayload = {
+            customerName:
+              order.customerName,
+
+            customerEmail:
+              order.customerEmail,
+
+            orderId:
+              order.razorpayOrderId ||
+              order.orderId ||
+              order.id,
+
+            status,
+          };
+
+          console.log(
+            "Sending status mail:",
+            statusMailPayload
+          );
+
+          console.log(
+            "STATUS MAIL API BASE:",
+            API_BASE
+          );
+
+          const statusMailResponse =
+            await fetch(
+
+              `${API_BASE}/api/order/status-mail`,
+
+              {
+
+                method: "POST",
+
+                headers: {
+                  "Content-Type":
+                    "application/json",
+                },
+
+                body:
+                  JSON.stringify(
+                    statusMailPayload
+                  ),
+
+              }
+
+            );
+
+          const statusMailData =
+            await statusMailResponse.json();
+
+          console.log(
+            "STATUS MAIL RESPONSE:",
+            statusMailData
+          );
+
+          if (
+            !statusMailResponse.ok ||
+            !statusMailData.success
+          ) {
+
+            throw new Error(
+              statusMailData.error?.response ||
+              statusMailData.error?.message ||
+              statusMailData.message ||
+              "Status email request failed"
+            );
+
+          }
+
+          console.log(
+            "STATUS EMAIL SENT ✅"
+          );
+
+        } catch (mailError) {
+
+          console.error(
+            "MAIL ERROR:",
+            mailError
+          );
+
+          alert(
+            `Status Updated, but email failed: ${mailError.message}`
+          );
+
+          return;
+
         }
-      );
 
-      alert("Status Updated ✅");
+        alert(
+          "Status Updated ✅"
+        );
 
-    } catch (error) {
+      } catch (error) {
 
-      console.log(error);
+        console.log(error);
 
-      alert("Failed To Update");
+        alert(
+          "Failed To Update"
+        );
 
-    }
+      }
 
-  };
+    };
 
   /* FILTER */
 
@@ -110,10 +257,15 @@ function AdminOrders({ embedded = false }) {
         order.phone || "";
 
       return (
+
         name.includes(
           search.toLowerCase()
         ) ||
-        phone.includes(search)
+
+        phone.includes(
+          search
+        )
+
       );
 
     });
@@ -124,24 +276,28 @@ function AdminOrders({ embedded = false }) {
     orders
       .filter(
         (o) =>
-          o.paymentStatus === "PAID"
+          o.paymentStatus ===
+          "PAID"
       )
       .reduce(
         (acc, item) =>
-          acc + item.totalAmount,
+          acc +
+          item.totalAmount,
         0
       );
 
   const paidOrders =
     orders.filter(
       (o) =>
-        o.paymentStatus === "PAID"
+        o.paymentStatus ===
+        "PAID"
     ).length;
 
   const failedOrders =
     orders.filter(
       (o) =>
-        o.paymentStatus === "FAILED"
+        o.paymentStatus ===
+        "FAILED"
     ).length;
 
   return (
@@ -159,6 +315,7 @@ function AdminOrders({ embedded = false }) {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4 mb-8">
 
           <div className="panel-shell p-6">
+
             <h2 className="text-stone-500 font-semibold">
               Total Orders
             </h2>
@@ -166,9 +323,11 @@ function AdminOrders({ embedded = false }) {
             <p className="text-4xl font-black mt-2 text-stone-950">
               {orders.length}
             </p>
+
           </div>
 
           <div className="panel-shell p-6">
+
             <h2 className="text-stone-500 font-semibold">
               Paid Orders
             </h2>
@@ -176,9 +335,11 @@ function AdminOrders({ embedded = false }) {
             <p className="text-4xl font-black text-green-600 mt-2">
               {paidOrders}
             </p>
+
           </div>
 
           <div className="panel-shell p-6">
+
             <h2 className="text-stone-500 font-semibold">
               Failed Orders
             </h2>
@@ -186,9 +347,11 @@ function AdminOrders({ embedded = false }) {
             <p className="text-4xl font-black text-red-600 mt-2">
               {failedOrders}
             </p>
+
           </div>
 
           <div className="panel-shell p-6">
+
             <h2 className="text-stone-500 font-semibold">
               Revenue
             </h2>
@@ -196,6 +359,7 @@ function AdminOrders({ embedded = false }) {
             <p className="text-4xl font-black text-orange-700 mt-2">
               ₹{totalRevenue}
             </p>
+
           </div>
 
         </div>
@@ -260,11 +424,16 @@ function AdminOrders({ embedded = false }) {
                       </p>
 
                       <p className="text-stone-500">
+                        📧 {order.customerEmail}
+                      </p>
+
+                      <p className="text-stone-500">
                         📍 {order.address}
                       </p>
 
                       <p className="text-stone-500">
-                        Pincode:{" "}
+                        Pincode:
+                        {" "}
                         {
                           order.pincode
                         }
@@ -330,7 +499,8 @@ function AdminOrders({ embedded = false }) {
                               </p>
 
                               <p className="text-sm text-stone-500">
-                                Qty:{" "}
+                                Qty:
+                                {" "}
                                 {
                                   product.quantity
                                 }
@@ -359,14 +529,16 @@ function AdminOrders({ embedded = false }) {
                   <div className="mt-5 border-t border-orange-100 pt-5">
 
                     <p className="text-sm text-stone-500 break-all">
-                      Payment ID:{" "}
+                      Payment ID:
+                      {" "}
                       {
                         order.razorpayPaymentId
                       }
                     </p>
 
                     <p className="text-sm text-stone-500 break-all mt-1">
-                      Order ID:{" "}
+                      Order ID:
+                      {" "}
                       {
                         order.razorpayOrderId
                       }
@@ -385,17 +557,21 @@ function AdminOrders({ embedded = false }) {
                       </p>
 
                       <select
+
                         value={
                           order.status ||
                           "Preparing"
                         }
+
                         onChange={(e) =>
                           updateStatus(
-                            order.id,
+                            order,
                             e.target.value
                           )
                         }
+
                         className="!w-fit !py-2 !px-4 mt-2"
+
                       >
 
                         <option>
