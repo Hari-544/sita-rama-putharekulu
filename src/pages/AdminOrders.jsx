@@ -99,9 +99,10 @@ function AdminOrders({ embedded = false }) {
         err
       );
 
-      setOrders([]);
-
-      setLoading(false);
+      queueMicrotask(() => {
+        setOrders([]);
+        setLoading(false);
+      });
 
       return () => {};
 
@@ -154,16 +155,6 @@ function AdminOrders({ embedded = false }) {
             status,
           };
 
-          console.log(
-            "Sending status mail:",
-            statusMailPayload
-          );
-
-          console.log(
-            "STATUS MAIL API BASE:",
-            API_BASE
-          );
-
           const statusMailResponse =
             await fetch(
 
@@ -190,11 +181,6 @@ function AdminOrders({ embedded = false }) {
           const statusMailData =
             await statusMailResponse.json();
 
-          console.log(
-            "STATUS MAIL RESPONSE:",
-            statusMailData
-          );
-
           if (
             !statusMailResponse.ok ||
             !statusMailData.success
@@ -208,10 +194,6 @@ function AdminOrders({ embedded = false }) {
             );
 
           }
-
-          console.log(
-            "STATUS EMAIL SENT ✅"
-          );
 
         } catch (mailError) {
 
@@ -234,7 +216,7 @@ function AdminOrders({ embedded = false }) {
 
       } catch (error) {
 
-        console.log(error);
+        console.error("Failed to update order status:", error);
 
         alert(
           "Failed To Update"

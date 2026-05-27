@@ -14,6 +14,10 @@ import {
 
 import { db } from "../firebase";
 import { products as fallbackProducts } from "../data/products";
+import {
+  cloudinarySrcSet,
+  optimizeCloudinaryImage,
+} from "../utils/image";
 
 function AdminProducts({ embedded = false }) {
 
@@ -81,7 +85,9 @@ function AdminProducts({ embedded = false }) {
     } catch (err) {
       console.error("Failed to initialize products listener:", err);
       const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
-      setProducts(fallback);
+      queueMicrotask(() => {
+        setProducts(fallback);
+      });
       return () => {};
     }
   }, []);
@@ -202,7 +208,7 @@ function AdminProducts({ embedded = false }) {
 
       } catch (error) {
 
-        console.log(error);
+        console.error("Failed to add product:", error);
 
         alert(
           "Failed To Add Product"
@@ -235,7 +241,7 @@ function AdminProducts({ embedded = false }) {
 
       } catch (error) {
 
-        console.log(error);
+        console.error("Failed to delete product:", error);
 
       }
 
@@ -443,8 +449,20 @@ function AdminProducts({ embedded = false }) {
               >
 
                 <img
-                  src={item.image}
+                  src={optimizeCloudinaryImage(
+                    item.image,
+                    560
+                  )}
+                  srcSet={cloudinarySrcSet(
+                    item.image,
+                    [320, 480, 640]
+                  )}
+                  sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                   alt={item.name}
+                  loading="lazy"
+                  decoding="async"
+                  width="560"
+                  height="420"
                   className="aspect-[4/3] w-full object-cover"
                 />
 

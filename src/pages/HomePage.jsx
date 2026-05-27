@@ -1,11 +1,20 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Link } from "react-router-dom";
-import { collection, getDocs, onSnapshot, query, where } from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 import Footer from "../components/Footer";
 import hero from "../assets/premiumHero.jpg";
 import { db } from "../firebase";
-import { products as fallbackProducts } from "../data/products";
+import {
+  cloudinarySrcSet,
+  optimizeCloudinaryImage,
+} from "../utils/image";
 
 const DELIVERY_STEPS = ["Preparing", "Packed", "Shipped", "Delivered"];
 
@@ -26,12 +35,6 @@ const normalizeCategory = (value) => {
   if (!value) return "Uncategorized";
   return String(value).trim() || "Uncategorized";
 };
-
-const slugify = (value) =>
-  normalizeCategory(value)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/(^-|-$)/g, "");
 
 const toMillis = (value) => {
   if (!value) return 0;
@@ -64,6 +67,14 @@ const sortProducts = (items) =>
 
     return String(left.name || "").localeCompare(String(right.name || ""));
   });
+
+const loadFallbackProducts = async () => {
+  const { products } = await import("../data/products");
+  return products.map((product) => ({
+    ...product,
+    id: String(product.id),
+  }));
+};
 
 const getCurrentStepIndex = (status) => {
   const currentStatus = status || "Preparing";
@@ -149,12 +160,11 @@ function ProductSkeletonCard() {
   );
 }
 
-function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) {
+const ProductCard = memo(function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) {
   const inStock = product.stock !== false;
   const isFeatured = Boolean(product.featured);
   const category = normalizeCategory(product.category);
-  const imageSrc = product.image || hero;
-  const description = product.description || product.sizes || "Freshly prepared in small batches.";
+  const imageSrc = optimizeCloudinaryImage(product.image || hero, compact ? 520 : 760);
   const sizeText = product.sizes || product.description || "Small & Big Size";
 
   return (
@@ -198,11 +208,22 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
           <div className="aspect-square overflow-hidden rounded-[24px] bg-white">
             <img
               src={imageSrc}
+              srcSet={cloudinarySrcSet(
+                product.image,
+                compact
+                  ? [320, 420, 560]
+                  : [420, 640, 800]
+              )}
+              sizes={compact
+                ? "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 82vw"
+                : "(min-width: 1024px) 33vw, 100vw"}
               alt={product.name || "Premium product"}
               loading="lazy"
               decoding="async"
               draggable="false"
-              className={`h-full w-full object-cover transition-transform duration-700' ${compact ? "group-hover:scale-105" : "group-hover:scale-110"}` }
+              width="560"
+              height="560"
+              className={`h-full w-full object-cover transition-transform duration-700 ${compact ? "group-hover:scale-105" : "group-hover:scale-110"}` }
             />
           </div>
         </div>
@@ -306,7 +327,7 @@ function ProductCard({ product, quantity, onAdd, onDecrease, compact = false }) 
       </div>
     </article>
   );
-}
+});
 
 function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCount }) {
   const heroStats = [
@@ -404,6 +425,10 @@ function HeroSection({ totalProducts, featuredCount, categoryCount, totalCartCou
                 alt="Premium Putharekulu"
                 loading="eager"
                 decoding="async"
+                fetchPriority="high"
+                width="960"
+                height="720"
+                sizes="(min-width: 1024px) 50vw, 100vw"
                 className="fluid-image-frame w-full rounded-[28px] object-cover"
               />
 
@@ -858,10 +883,20 @@ function TrackOrderSection({
                         <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                           <div className="fluid-image-frame w-full overflow-hidden rounded-2xl bg-orange-100 sm:w-24 sm:flex-shrink-0">
                             <img
-                              src={product.image || hero}
+                              src={optimizeCloudinaryImage(
+                                product.image || hero,
+                                240
+                              )}
+                              srcSet={cloudinarySrcSet(
+                                product.image,
+                                [160, 240, 360]
+                              )}
+                              sizes="(min-width: 640px) 6rem, 100vw"
                               alt={product.name || "Order item"}
                               loading="lazy"
                               decoding="async"
+                              width="240"
+                              height="180"
                               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                             />
                           </div>
@@ -966,47 +1001,47 @@ function HomePage() {
   }, [cart]);
 
   useEffect(() => {
-    try {
-      const unsubscribe = onSnapshot(
-        collection(db, "products"),
-        (snapshot) => {
-          const productData = snapshot.docs.map((document) => ({
+    let isActive = true;
+
+    const loadProducts = async () => {
+      try {
+        const snapshot = await getDocs(
+          collection(db, "products")
+        );
+
+        if (!isActive) {
+          return;
+        }
+
+        setProducts(
+          snapshot.docs.map((document) => ({
             id: document.id,
             ...document.data(),
-          }));
+          }))
+        );
+      } catch (setupError) {
+        console.error("Failed to load products:", setupError);
 
-          setProducts(productData);
-          setProductsLoading(false);
-        },
-        (err) => {
-          // Log and handle permission errors gracefully by falling back to
-          // the local static product list so the homepage remains usable.
-          console.error("Error in snapshot listener:", err);
+        const fallback = await loadFallbackProducts();
 
-          if (err && err.code === "permission-denied") {
-            // Convert fallback IDs to strings to match Firestore id shape
-            const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
-            setProducts(fallback);
-          } else {
-            setProducts([]);
-          }
-
+        if (isActive) {
+          setProducts(fallback);
+        }
+      } finally {
+        if (isActive) {
           setProductsLoading(false);
         }
-      );
+      }
+    };
 
-      return () => unsubscribe();
-    } catch (setupError) {
-      // onSnapshot setup could throw synchronously in some environments.
-      console.error("Failed to initialize products listener:", setupError);
-      const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
-      setProducts(fallback);
-      setProductsLoading(false);
-      return () => {};
-    }
+    loadProducts();
+
+    return () => {
+      isActive = false;
+    };
   }, []);
 
-  const addToCart = (product) => {
+  const addToCart = useCallback((product) => {
     if (product.stock === false) {
       return;
     }
@@ -1033,9 +1068,9 @@ function HomePage() {
         },
       ];
     });
-  };
+  }, []);
 
-  const decreaseQty = (id) => {
+  const decreaseQty = useCallback((id) => {
     setCart((currentCart) => {
       const itemExists = currentCart.find((item) => item.id === id);
 
@@ -1054,7 +1089,7 @@ function HomePage() {
         )
         .filter((item) => item.quantity > 0);
     });
-  };
+  }, []);
 
   const searchTrackedOrder = async () => {
     try {

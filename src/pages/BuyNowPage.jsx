@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { products } from "../data/products";
+import { loadRazorpay } from "../utils/loadRazorpay";
+import {
+  cloudinarySrcSet,
+  optimizeCloudinaryImage,
+} from "../utils/image";
 
 function BuyNowPage() {
   const { id } = useParams();
@@ -32,6 +37,7 @@ const handlePayment = async () => {
   setProcessing(true);
 
   try {
+    await loadRazorpay();
 
     /* SEND ORDER DATA */
 
@@ -76,9 +82,7 @@ const handlePayment = async () => {
 
       image: "/favicon.svg",
 
-      handler: function (response) {
-
-        console.log(response);
+      handler: function () {
 
         window.location.href = "/success";
       },
@@ -145,7 +149,23 @@ const handlePayment = async () => {
             <h2 className="text-xs uppercase tracking-widest text-orange-600 font-extrabold mb-4">Your Order</h2>
             <div className="mb-4 overflow-hidden rounded-2xl bg-orange-50">
               <div className="fluid-image-frame overflow-hidden rounded-2xl bg-orange-50">
-                <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                <img
+                  src={optimizeCloudinaryImage(
+                    product.image,
+                    760
+                  )}
+                  srcSet={cloudinarySrcSet(
+                    product.image,
+                    [360, 560, 760]
+                  )}
+                  sizes="(min-width: 1280px) 50vw, 100vw"
+                  alt={product.name}
+                  loading="eager"
+                  decoding="async"
+                  width="760"
+                  height="570"
+                  className="h-full w-full object-cover"
+                />
               </div>
             </div>
             <h3 className="fluid-heading font-bold text-stone-900">{product.name}</h3>

@@ -15,10 +15,6 @@ const getEmailConfig = () => {
   const emailUser = process.env.EMAIL_USER?.trim();
   const emailPass = process.env.EMAIL_PASS?.replace(/\s+/g, "");
 
-  console.log("[MAIL] EMAIL_USER loaded:", Boolean(emailUser));
-  console.log("[MAIL] EMAIL_PASS loaded:", Boolean(emailPass));
-  console.log("[MAIL] EMAIL_PASS length:", emailPass?.length || 0);
-
   if (!emailUser || !emailPass) {
     throw new Error(
       "Missing EMAIL_USER or EMAIL_PASS. Check backend/.env and deployment environment variables."
@@ -57,14 +53,6 @@ const sendOrderMail = async ({
   orderId,
   amount,
 }) => {
-  console.log("[MAIL] sendOrderMail called");
-  console.log("[MAIL] Email payload:", {
-    customerName,
-    customerEmail,
-    orderId,
-    amount,
-  });
-
   if (!customerEmail) {
     throw new Error("Customer email is missing. Cannot send order email.");
   }
@@ -73,12 +61,7 @@ const sendOrderMail = async ({
     const { emailUser } = getEmailConfig();
     const transporter = createTransporter();
 
-    console.log("[MAIL] Verifying Gmail SMTP transporter...");
     await transporter.verify();
-    console.log("[MAIL] SMTP connection and authentication successful");
-
-    console.log("[MAIL] Sending email...");
-    console.log("[MAIL] Customer Email:", customerEmail);
 
     const info = await transporter.sendMail({
       from: `"Sita Rama Putharekulu" <${emailUser}>`,
@@ -87,6 +70,7 @@ const sendOrderMail = async ({
       html: `
         <div style="font-family:sans-serif;padding:20px;">
           <h2>Thank you for shopping with Sita Rama Putharekulu</h2>
+          <p>Hello ${customerName || "Customer"},</p>
           <p>Your order has been confirmed successfully.</p>
           <h3>Order ID: ${orderId}</h3>
           <h3>Amount: INR ${amount}</h3>
@@ -97,13 +81,6 @@ const sendOrderMail = async ({
           <p>- Sita Rama Putharekulu</p>
         </div>
       `,
-    });
-
-    console.log("[MAIL] Email sent successfully:", {
-      messageId: info.messageId,
-      accepted: info.accepted,
-      rejected: info.rejected,
-      response: info.response,
     });
 
     return info;

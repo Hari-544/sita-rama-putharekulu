@@ -41,7 +41,7 @@ function AdminDashboard() {
 
       localStorage.setItem("adminLoggedIn", "true");
     } catch (error) {
-      console.log(error);
+      console.error("Admin login failed:", error);
       alert(error.message);
     } finally {
       setAuthenticating(false);
@@ -54,7 +54,7 @@ function AdminDashboard() {
       await signOut(auth);
       setActiveTab("products");
     } catch (error) {
-      console.log(error);
+      console.error("Admin logout failed:", error);
     }
   };
 

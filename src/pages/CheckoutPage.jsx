@@ -8,6 +8,11 @@ import {
 } from "firebase/firestore";
 
 import { db } from "../firebase";
+import { loadRazorpay } from "../utils/loadRazorpay";
+import {
+  cloudinarySrcSet,
+  optimizeCloudinaryImage,
+} from "../utils/image";
 
 function CheckoutPage() {
 
@@ -48,11 +53,6 @@ function CheckoutPage() {
       ? "http://localhost:5000"
       : "https://sita-rama-backend.onrender.com");
 
-  console.log(
-    "CHECKOUT API BASE:",
-    API_BASE
-  );
-
   /* TOTAL */
 
   const totalAmount = cart.reduce(
@@ -72,17 +72,12 @@ function CheckoutPage() {
 
       try {
 
-        console.log(
-          "SAVING TO FIREBASE..."
-        );
-
-        const docRef =
-          await addDoc(
-            collection(
-              db,
-              "orders"
-            ),
-            {
+        await addDoc(
+          collection(
+            db,
+            "orders"
+          ),
+          {
               customerName:
                 customer.name,
 
@@ -117,12 +112,7 @@ function CheckoutPage() {
 
               createdAt:
                 serverTimestamp(),
-            }
-          );
-
-        console.log(
-          "ORDER SAVED:",
-          docRef.id
+          }
         );
 
         return true;
@@ -174,6 +164,8 @@ function CheckoutPage() {
 
       setProcessing(true);
 
+      await loadRazorpay();
+
       /* CREATE ORDER */
 
       const orderResponse =
@@ -196,11 +188,6 @@ function CheckoutPage() {
 
       const order =
         await orderResponse.json();
-
-      console.log(
-        "ORDER:",
-        order
-      );
 
       /* RAZORPAY */
 
@@ -237,11 +224,6 @@ function CheckoutPage() {
 
             try {
 
-              console.log(
-                "PAYMENT RESPONSE:",
-                response
-              );
-
               /* VERIFY PAYMENT */
 
               const verifyPayload = {
@@ -262,11 +244,6 @@ function CheckoutPage() {
 
                 totalAmount,
               };
-
-              console.log(
-                "VERIFY PAYMENT PAYLOAD:",
-                verifyPayload
-              );
 
               const verifyResponse =
                 await fetch(
@@ -295,27 +272,6 @@ function CheckoutPage() {
                 verifyData.emailError?.message ||
                 "Check backend logs for SMTP details.";
 
-              console.log(
-                "VERIFY:",
-                verifyData
-              );
-
-              console.log(
-                "EMAIL SENT BY BACKEND:",
-                verifyData.emailSent
-              );
-
-              if (
-                verifyData.emailError
-              ) {
-
-                console.log(
-                  "EMAIL ERROR FROM BACKEND:",
-                  verifyData.emailError
-                );
-
-              }
-
               /* SUCCESS */
 
               if (
@@ -324,16 +280,10 @@ function CheckoutPage() {
 
                 /* SAVE TO FIREBASE */
 
-                const firebaseSaved =
-                  await saveOrderToFirebase(
+                await saveOrderToFirebase(
                     "PAID",
                     response
                   );
-
-                console.log(
-                  "FIREBASE SAVED:",
-                  firebaseSaved
-                );
 
                 /* WEB3FORMS */
 
@@ -425,13 +375,9 @@ function CheckoutPage() {
                     }
                   );
 
-                  console.log(
-                    "WEB3FORM SENT"
-                  );
-
                 } catch (web3Error) {
 
-                  console.log(
+                  console.error(
                     "WEB3FORM ERROR:",
                     web3Error
                   );
@@ -504,7 +450,7 @@ ${emailErrorMessage}`
 
             } catch (error) {
 
-              console.log(
+              console.error(
                 "VERIFY ERROR:",
                 error
               );
@@ -554,7 +500,7 @@ ${emailErrorMessage}`
           response
         ) {
 
-          console.log(
+          console.error(
             "PAYMENT FAILED:",
             response
           );
@@ -578,7 +524,7 @@ ${emailErrorMessage}`
 
     } catch (error) {
 
-      console.log(
+      console.error(
         "MAIN ERROR:",
         error
       );
@@ -650,8 +596,20 @@ ${emailErrorMessage}`
                   >
 
                     <img
-                      src={item.image}
+                      src={optimizeCloudinaryImage(
+                        item.image,
+                        240
+                      )}
+                      srcSet={cloudinarySrcSet(
+                        item.image,
+                        [160, 240, 360]
+                      )}
+                      sizes="(min-width: 640px) 7.5rem, 6.5rem"
                       alt={item.name}
+                      loading="lazy"
+                      decoding="async"
+                      width="120"
+                      height="120"
                       className="aspect-square w-full max-w-[6.5rem] rounded-2xl object-cover shadow-sm sm:max-w-[7.5rem]"
                     />
 

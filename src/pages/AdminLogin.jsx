@@ -21,8 +21,6 @@ function AdminLogin() {
     const email =
       result.user.email;
 
-    console.log(email);
-
     /* YOUR ADMIN EMAIL */
 
     if (
@@ -48,7 +46,7 @@ function AdminLogin() {
 
   } catch (error) {
 
-    console.log(error);
+    console.error("Admin login failed:", error);
 
     alert(error.message);
 

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  cloudinarySrcSet,
+  optimizeCloudinaryImage,
+} from "../utils/image";
 
 function CartPage() {
 
@@ -179,8 +183,20 @@ function CartPage() {
                   <div className="overflow-hidden rounded-[24px] bg-white">
                     <div className="fluid-image-frame w-full overflow-hidden rounded-[24px] bg-white">
                       <img
-                        src={item.image}
+                        src={optimizeCloudinaryImage(
+                          item.image,
+                          420
+                        )}
+                        srcSet={cloudinarySrcSet(
+                          item.image,
+                          [240, 360, 480]
+                        )}
+                        sizes="(min-width: 640px) 14rem, 100vw"
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
+                        width="420"
+                        height="315"
                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     </div>

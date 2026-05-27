@@ -1,22 +1,31 @@
+import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 
-import HomePage from "./pages/HomePage";
-import ReviewsPage from "./pages/ReviewsPage";
-import BuyNowPage from "./pages/BuyNowPage";
-import SuccessPage from "./pages/SuccessPage";
-import CheckoutPage from "./pages/CheckoutPage";
-import CartPage from "./pages/CartPage";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import RefundPolicy from "./pages/RefundPolicy";
-import ShippingPolicy from "./pages/ShippingPolicy";
-import TermsPage from "./pages/TermsPage";
-import AdminDashboard from "./pages/AdminDashboard";
+const HomePage = lazy(() => import("./pages/HomePage"));
+const ReviewsPage = lazy(() => import("./pages/ReviewsPage"));
+const BuyNowPage = lazy(() => import("./pages/BuyNowPage"));
+const SuccessPage = lazy(() => import("./pages/SuccessPage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const CartPage = lazy(() => import("./pages/CartPage"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
+const ShippingPolicy = lazy(() => import("./pages/ShippingPolicy"));
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+
+function PageFallback() {
+  return (
+    <div className="min-h-screen bg-[#fffaf5]" />
+  );
+}
 
 function App() {
 
   return (
 
-    <Routes>
+    <Suspense fallback={<PageFallback />}>
+
+      <Routes>
 
       <Route
         path="/"
@@ -70,7 +79,9 @@ function App() {
         element={<AdminDashboard />}
       />
 
-    </Routes>
+      </Routes>
+
+    </Suspense>
 
   );
 }

@@ -22,12 +22,6 @@ app.use(cors());
 
 app.use(express.json());
 
-console.log("[ENV] backend/.env loaded");
-console.log("[ENV] RAZORPAY_KEY_ID loaded:", Boolean(process.env.RAZORPAY_KEY_ID));
-console.log("[ENV] RAZORPAY_KEY_SECRET loaded:", Boolean(process.env.RAZORPAY_KEY_SECRET));
-console.log("[ENV] EMAIL_USER loaded:", Boolean(process.env.EMAIL_USER));
-console.log("[ENV] EMAIL_PASS loaded:", Boolean(process.env.EMAIL_PASS));
-
 /* RAZORPAY */
 
 const razorpay = new Razorpay({
@@ -67,7 +61,7 @@ app.post(
 
     } catch (error) {
 
-      console.log(error);
+      console.error("[CREATE ORDER] Order creation failed:", error);
 
       res.status(500).json({
         success: false,
@@ -86,9 +80,6 @@ app.post(
   "/api/payment/verify",
   async (req, res) => {
 
-    console.log("[VERIFY] /api/payment/verify route started");
-    console.log("[VERIFY] Request body:", req.body);
-
     try {
 
       const {
@@ -100,15 +91,6 @@ app.post(
         email,
         totalAmount,
       } = req.body;
-
-      console.log("[VERIFY] Received fields:", {
-        razorpay_order_id,
-        razorpay_payment_id,
-        hasSignature: Boolean(razorpay_signature),
-        customerName,
-        email,
-        totalAmount,
-      });
 
       if (
         !razorpay_order_id ||
@@ -139,23 +121,16 @@ app.post(
           .update(body.toString())
           .digest("hex");
 
-      console.log("[VERIFY] Expected signature:", expectedSignature);
-      console.log("[VERIFY] Received signature:", razorpay_signature);
-
       const isAuthentic =
         expectedSignature ===
         razorpay_signature;
 
       if (isAuthentic) {
 
-        console.log("[VERIFY] Payment verified successfully");
-
         let emailSent = false;
         let emailError = null;
 
         if (email) {
-
-          console.log("[VERIFY] Calling sendOrderMail...");
 
           try {
             await sendOrderMail({
@@ -176,7 +151,6 @@ app.post(
             });
 
             emailSent = true;
-            console.log("[VERIFY] Customer email sent successfully");
           } catch (mailError) {
             emailError = {
               message: mailError.message,
@@ -217,8 +191,8 @@ app.post(
 
     } catch (error) {
 
-      console.log(
-        "VERIFY ERROR:",
+      console.error(
+        "[VERIFY] Payment verification error:",
         error
       );
 
@@ -240,9 +214,6 @@ app.post(
   "/api/order/status-mail",
   async (req, res) => {
 
-    console.log("STATUS ROUTE HIT");
-    console.log("[STATUS ROUTE] Request body:", req.body);
-
     try {
 
       const {
@@ -251,13 +222,6 @@ app.post(
         orderId,
         status,
       } = req.body;
-
-      console.log("[STATUS ROUTE] Received fields:", {
-        customerName,
-        customerEmail,
-        orderId,
-        status,
-      });
 
       if (!customerEmail || !status) {
         console.error("[STATUS ROUTE] Missing required status email fields");
@@ -269,8 +233,6 @@ app.post(
         });
       }
 
-      console.log("[STATUS ROUTE] sendStatusMail called");
-
       const mailInfo = await sendStatusMail({
 
         customerName,
@@ -278,8 +240,6 @@ app.post(
         orderId,
         status,
       });
-
-      console.log("[STATUS ROUTE] Email sent successfully");
 
       res.json({
         success: true,

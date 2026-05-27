@@ -15,10 +15,6 @@ const getEmailConfig = () => {
   const emailUser = process.env.EMAIL_USER?.trim();
   const emailPass = process.env.EMAIL_PASS?.replace(/\s+/g, "");
 
-  console.log("[STATUS MAIL] EMAIL_USER loaded:", Boolean(emailUser));
-  console.log("[STATUS MAIL] EMAIL_PASS loaded:", Boolean(emailPass));
-  console.log("[STATUS MAIL] EMAIL_PASS length:", emailPass?.length || 0);
-
   if (!emailUser || !emailPass) {
     throw new Error(
       "Missing EMAIL_USER or EMAIL_PASS. Check backend/.env and deployment environment variables."
@@ -57,14 +53,6 @@ const sendStatusMail = async ({
   orderId,
   status,
 }) => {
-  console.log("[STATUS MAIL] sendStatusMail called");
-  console.log("[STATUS MAIL] Email payload:", {
-    customerName,
-    customerEmail,
-    orderId,
-    status,
-  });
-
   if (!customerEmail) {
     throw new Error("Customer email is missing. Cannot send status email.");
   }
@@ -77,11 +65,7 @@ const sendStatusMail = async ({
     const { emailUser } = getEmailConfig();
     const transporter = createTransporter();
 
-    console.log("[STATUS MAIL] Verifying Gmail SMTP transporter...");
     await transporter.verify();
-    console.log("[STATUS MAIL] SMTP connection and authentication successful");
-
-    console.log("[STATUS MAIL] Sending status email...");
 
     const info = await transporter.sendMail({
       from: `"Sita Rama Putharekulu" <${emailUser}>`,
@@ -98,13 +82,6 @@ const sendStatusMail = async ({
           <p>Thank you for shopping with Sita Rama Putharekulu.</p>
         </div>
       `,
-    });
-
-    console.log("[STATUS MAIL] Email sent successfully:", {
-      messageId: info.messageId,
-      accepted: info.accepted,
-      rejected: info.rejected,
-      response: info.response,
     });
 
     return info;
