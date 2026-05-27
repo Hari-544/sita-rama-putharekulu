@@ -91,7 +91,7 @@ const sendOrderMail = async ({
           <h3>Order ID: ${orderId}</h3>
           <h3>Amount: INR ${amount}</h3>
           <p>Use this Order ID in the Track Order page.</p>
-          <p>Click here<a href="https://sita-rama-putharekulu.vercel.app/track-order" target="_blank"> to Track Your Order</a></p>
+          <p>Click here<a href="https://sita-rama-putharekulu.vercel.app/#track-order" target="_blank"> to Track Your Order</a></p>
           <p>If you have any questions, feel free to reply to this email.</p>
           <br/>
           <p>- Sita Rama Putharekulu</p>
