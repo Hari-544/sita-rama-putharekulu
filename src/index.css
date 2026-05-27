@@ -343,6 +343,16 @@
   object-fit: cover;
 }
 
+.perf-deferred {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 900px;
+}
+
+.product-render-card {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 720px;
+}
+
 .scrollbar-hide {
   scrollbar-width: none;
   -ms-overflow-style: none;

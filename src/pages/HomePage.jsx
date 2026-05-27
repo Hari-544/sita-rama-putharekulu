@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { Link } from "react-router-dom";
@@ -76,6 +77,19 @@ const loadFallbackProducts = async () => {
   }));
 };
 
+const scheduleIdleTask = (callback) => {
+  if ("requestIdleCallback" in window) {
+    const id = window.requestIdleCallback(callback, {
+      timeout: 1200,
+    });
+
+    return () => window.cancelIdleCallback(id);
+  }
+
+  const id = window.setTimeout(callback, 250);
+  return () => window.clearTimeout(id);
+};
+
 const getCurrentStepIndex = (status) => {
   const currentStatus = status || "Preparing";
   const index = DELIVERY_STEPS.indexOf(currentStatus);
@@ -100,6 +114,58 @@ const formatDate = (value) => {
     timeStyle: "short",
   }).format(date);
 };
+
+function DeferredSection({
+  id,
+  minHeight = 720,
+  rootMargin = "360px",
+  render,
+}) {
+  const [shouldRender, setShouldRender] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (shouldRender) {
+      return undefined;
+    }
+
+    const element = ref.current;
+
+    if (!element || !("IntersectionObserver" in window)) {
+      setShouldRender(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      {
+        rootMargin,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [rootMargin, shouldRender]);
+
+  return (
+    <div
+      id={id}
+      ref={ref}
+      className="perf-deferred"
+      style={{
+        minHeight: shouldRender ? undefined : minHeight,
+      }}
+    >
+      {shouldRender ? render() : null}
+    </div>
+  );
+}
 
 function SectionHeading({ eyebrow, title, description, action }) {
   return (
@@ -169,7 +235,7 @@ const ProductCard = memo(function ProductCard({ product, quantity, onAdd, onDecr
 
   return (
     <article
-      className={`group relative w-full overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)] ${compact ? "h-full" : ""}`}
+      className={`product-render-card group relative w-full overflow-hidden rounded-[30px] border border-orange-100 bg-white shadow-[0_10px_35px_rgba(249,115,22,0.08)] transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_25px_60px_rgba(249,115,22,0.18)] ${compact ? "h-full" : ""}`}
     >
       <div className="absolute inset-0 bg-gradient-to-br from-orange-50/70 via-white to-amber-50/50" />
       <div className="absolute -right-14 -top-14 h-36 w-36 rounded-full bg-orange-200/30 blur-3xl transition duration-500 group-hover:scale-110" />
@@ -565,6 +631,7 @@ function CategorySection({ category, products, cartMap, onAdd, onDecrease }) {
 }
 
 function TrackOrderSection({
+  sectionId = "track-order",
   trackPhone,
   setTrackPhone,
   trackOrderId,
@@ -583,7 +650,7 @@ function TrackOrderSection({
       : "border-amber-200 bg-amber-50 text-amber-700";
 
   return (
-    <section id="track-order" className="relative overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50 py-16 sm:py-24">
+    <section id={sectionId} className="relative overflow-hidden bg-gradient-to-b from-orange-50 via-white to-orange-50 py-16 sm:py-24">
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,#fffaf5_0%,#fffdfb_18%,#fff7ef_100%)]" />
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
 
@@ -1002,6 +1069,7 @@ function HomePage() {
 
   useEffect(() => {
     let isActive = true;
+    let cancelIdleTask = () => {};
 
     const loadProducts = async () => {
       try {
@@ -1034,10 +1102,11 @@ function HomePage() {
       }
     };
 
-    loadProducts();
+    cancelIdleTask = scheduleIdleTask(loadProducts);
 
     return () => {
       isActive = false;
+      cancelIdleTask();
     };
   }, []);
 
@@ -1200,7 +1269,10 @@ function HomePage() {
           onDecrease={decreaseQty}
         />
 
-        {productsLoading ? (
+        <DeferredSection
+          minHeight={900}
+          render={() =>
+            productsLoading ? (
           <section className="py-6 sm:py-8">
             <div className={pageShell}>
               <SectionHeading
@@ -1255,9 +1327,16 @@ function HomePage() {
               </div>
             </div>
           </section>
-        )}
+            )
+          }
+        />
 
-        <TrackOrderSection
+        <DeferredSection
+          id="track-order"
+          minHeight={760}
+          render={() => (
+            <TrackOrderSection
+              sectionId={undefined}
           trackPhone={trackPhone}
           setTrackPhone={setTrackPhone}
           trackOrderId={trackOrderId}
@@ -1266,7 +1345,9 @@ function HomePage() {
           trackedOrder={trackedOrder}
           trackError={trackError}
           hasSearched={hasSearched}
-          onSearch={searchTrackedOrder}
+              onSearch={searchTrackedOrder}
+            />
+          )}
         />
       </main>
 
