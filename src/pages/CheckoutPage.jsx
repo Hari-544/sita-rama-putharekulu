@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import {
   collection,
@@ -16,6 +16,7 @@ import {
 import { setSeoMeta } from "../utils/seo";
 
 function CheckoutPage() {
+  const navigate = useNavigate();
 
   useEffect(() => {
     setSeoMeta({
@@ -396,25 +397,6 @@ function CheckoutPage() {
 
                 }
 
-                alert(
-                  verifyData.emailSent
-                    ? `Payment Successful ✅
-
-Your Order ID:
-${response.razorpay_order_id}
-
-Order confirmation has been sent to your email.`
-                    : `Payment Successful ✅
-
-Your Order ID:
-${response.razorpay_order_id}
-
-Order saved. Email delivery failed, so please save your Order ID.
-
-Email Error:
-${emailErrorMessage}`
-                );
-
                 /* CLEAR CART */
 
                 localStorage.removeItem(
@@ -435,12 +417,22 @@ ${emailErrorMessage}`
                   false
                 );
 
-                setTimeout(() => {
-
-                  window.location.href =
-                    "/";
-
-                }, 5000);
+                navigate(
+                  "/success",
+                  {
+                    replace: true,
+                    state: {
+                      orderId: response.razorpay_order_id,
+                      amount: totalAmount,
+                      customerName: customer.name.trim(),
+                      customerEmail: customer.email.trim(),
+                      emailSent: Boolean(verifyData.emailSent),
+                      emailError: verifyData.emailSent
+                        ? ""
+                        : emailErrorMessage,
+                    },
+                  }
+                );
 
                 return;
 
