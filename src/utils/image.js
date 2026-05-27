@@ -2,7 +2,7 @@ const CLOUDINARY_UPLOAD_SEGMENT = "/upload/";
 
 export const optimizeCloudinaryImage = (
   src,
-  width = 800
+  width = 600
 ) => {
   if (
     typeof src !== "string" ||
@@ -13,7 +13,7 @@ export const optimizeCloudinaryImage = (
   }
 
   const transforms =
-    `f_auto,q_auto:good,c_limit,w_${width}`;
+    `f_auto,q_auto,c_limit,w_${width}`;
 
   return src.replace(
     CLOUDINARY_UPLOAD_SEGMENT,
@@ -23,7 +23,7 @@ export const optimizeCloudinaryImage = (
 
 export const cloudinarySrcSet = (
   src,
-  widths = [320, 480, 768, 1024]
+  widths = [320, 480, 600, 768, 960]
 ) => {
   if (
     typeof src !== "string" ||

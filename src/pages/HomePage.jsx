@@ -230,7 +230,7 @@ const ProductCard = memo(function ProductCard({ product, quantity, onAdd, onDecr
   const inStock = product.stock !== false;
   const isFeatured = Boolean(product.featured);
   const category = normalizeCategory(product.category);
-  const imageSrc = optimizeCloudinaryImage(product.image || hero, compact ? 520 : 760);
+  const imageSrc = optimizeCloudinaryImage(product.image || hero, compact ? 480 : 600);
   const sizeText = product.sizes || product.description || "Small & Big Size";
 
   return (
@@ -278,7 +278,7 @@ const ProductCard = memo(function ProductCard({ product, quantity, onAdd, onDecr
                 product.image,
                 compact
                   ? [320, 420, 560]
-                  : [420, 640, 800]
+                  : [480, 600, 768]
               )}
               sizes={compact
                 ? "(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 82vw"
@@ -952,11 +952,11 @@ function TrackOrderSection({
                             <img
                               src={optimizeCloudinaryImage(
                                 product.image || hero,
-                                240
+                                200
                               )}
                               srcSet={cloudinarySrcSet(
                                 product.image,
-                                [160, 240, 360]
+                                [160, 200, 320]
                               )}
                               sizes="(min-width: 640px) 6rem, 100vw"
                               alt={product.name || "Order item"}

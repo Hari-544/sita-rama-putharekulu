@@ -1,4 +1,4 @@
-@tailwind base;
+﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -473,6 +473,32 @@
   .btn,
   .btn-group > * {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .panel-shell,
+  .review-card,
+  .site-footer,
+  .product-card,
+  .product-render-card,
+  .btn-outline {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .panel-shell,
+  .review-card,
+  .site-footer,
+  .product-card,
+  .product-render-card {
+    box-shadow: 0 10px 28px -14px rgba(67, 20, 7, 0.14);
+  }
+
+  .product-card:hover,
+  .product-render-card:hover,
+  .review-card:hover {
+    transform: none;
   }
 }
 

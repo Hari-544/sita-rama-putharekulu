@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 import {
   addDoc,
   collection,
-  onSnapshot,
-  orderBy,
-  query,
+  getDocs,
   serverTimestamp,
 } from "firebase/firestore";
 import { db } from "../firebase";
@@ -28,30 +26,37 @@ function ReviewsPage() {
   });
 
   useEffect(() => {
-    const q = query(collection(db, "reviews"), orderBy("createdAt", "desc"));
-    let unsubscribeFallback = null;
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const reviewsData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+    let isMounted = true;
+
+    const loadReviews = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "reviews"));
+
+        if (!isMounted) return;
+
+        const reviewsData = snapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .sort((left, right) => {
+            const leftTime = left.createdAt?.seconds || 0;
+            const rightTime = right.createdAt?.seconds || 0;
+            return rightTime - leftTime;
+          });
+
         setReviews(reviewsData);
-      },
-      (error) => {
-        console.error("Reviews snapshot error:", error);
-        // Fallback: listen without ordering if the ordered query fails (missing field/index)
-        unsubscribeFallback = onSnapshot(collection(db, "reviews"), (snap) => {
-          const reviewsData = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-          setReviews(reviewsData);
-        });
+      } catch (error) {
+        console.error("Reviews fetch error:", error);
+        if (!isMounted) return;
+        setReviews([]);
       }
-    );
+    };
+
+    void loadReviews();
 
     return () => {
-      unsubscribe();
-      if (unsubscribeFallback) unsubscribeFallback();
+      isMounted = false;
     };
   }, []);
 

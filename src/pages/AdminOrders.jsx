@@ -1,8 +1,6 @@
-import {
+﻿import {
   collection,
-  onSnapshot,
-  orderBy,
-  query,
+  getDocs,
   updateDoc,
   doc,
 } from "firebase/firestore";
@@ -43,70 +41,44 @@ function AdminOrders({ embedded = false }) {
   /* FETCH ORDERS */
 
   useEffect(() => {
+    let isMounted = true;
 
-    const q = query(
-      collection(db, "orders"),
-      orderBy("createdAt", "desc")
-    );
-
-    try {
-
-      const unsubscribe =
-        onSnapshot(
-
-          q,
-
-          (snapshot) => {
-
-            const ordersData =
-              snapshot.docs.map(
-                (doc) => ({
-                  id: doc.id,
-                  ...doc.data(),
-                })
-              );
-
-            setOrders(
-              ordersData
-            );
-
-            setLoading(false);
-
-          },
-
-          (err) => {
-
-            console.error(
-              "Orders snapshot error:",
-              err
-            );
-
-            setOrders([]);
-
-            setLoading(false);
-
-          }
-
+    const loadOrders = async () => {
+      try {
+        const snapshot = await getDocs(
+          collection(db, "orders")
         );
 
-      return () =>
-        unsubscribe();
+        if (!isMounted) return;
 
-    } catch (err) {
+        const ordersData = snapshot.docs
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
+          .sort((left, right) => {
+            const leftTime = left.createdAt?.seconds || 0;
+            const rightTime = right.createdAt?.seconds || 0;
+            return rightTime - leftTime;
+          });
 
-      console.error(
-        "Failed to initialize orders listener:",
-        err
-      );
-
-      queueMicrotask(() => {
+        setOrders(ordersData);
+      } catch (err) {
+        console.error("Orders fetch error:", err);
+        if (!isMounted) return;
         setOrders([]);
-        setLoading(false);
-      });
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-      return () => {};
+    void loadOrders();
 
-    }
+    return () => {
+      isMounted = false;
+    };
 
   }, []);
 

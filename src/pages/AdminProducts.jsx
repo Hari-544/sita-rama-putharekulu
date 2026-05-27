@@ -1,16 +1,13 @@
 import {
   collection,
   addDoc,
-  onSnapshot,
+  getDocs,
   deleteDoc,
   doc,
   updateDoc,
 } from "firebase/firestore";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import { db } from "../firebase";
 import { products as fallbackProducts } from "../data/products";
@@ -61,35 +58,31 @@ function AdminProducts({ embedded = false }) {
   /* FETCH PRODUCTS */
 
   useEffect(() => {
-    try {
-      const unsubscribe = onSnapshot(
-        collection(db, "products"),
-        (snapshot) => {
-          setProducts(
-            snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
-          );
-        },
-        (err) => {
-          console.error("Products snapshot error:", err);
-          if (err && err.code === "permission-denied") {
-            // fallback to local static product list for offline/admin-less viewers
-            const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
-            setProducts(fallback);
-          } else {
-            setProducts([]);
-          }
-        }
-      );
+    let isMounted = true;
 
-      return () => unsubscribe();
-    } catch (err) {
-      console.error("Failed to initialize products listener:", err);
-      const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
-      queueMicrotask(() => {
+    const loadProducts = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, "products"));
+
+        if (!isMounted) return;
+
+        setProducts(
+          snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+        );
+      } catch (err) {
+        console.error("Failed to load products:", err);
+        if (!isMounted) return;
+
+        const fallback = fallbackProducts.map((p) => ({ ...p, id: String(p.id) }));
         setProducts(fallback);
-      });
-      return () => {};
-    }
+      }
+    };
+
+    void loadProducts();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   /* ADD PRODUCT */
