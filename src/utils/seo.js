@@ -39,6 +39,7 @@ const setLinkHref = (selector, createNode, href) => {
 export const setSeoMeta = ({
   title,
   description,
+  keywords,
   path = "/",
   image = DEFAULT_IMAGE,
   noindex = false,
@@ -60,6 +61,17 @@ export const setSeoMeta = ({
       return node;
     },
     description
+  );
+
+  setNodeContent(
+    'meta[name="keywords"]',
+    () => {
+      const node = document.createElement("meta");
+      node.setAttribute("name", "keywords");
+      return node;
+    },
+    keywords ||
+      "Atreyapuram Putharekulu, homemade sweets, Andhra sweets, traditional sweets, pure ghee sweets, online sweets delivery"
   );
 
   setNodeContent(
