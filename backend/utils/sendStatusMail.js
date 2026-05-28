@@ -80,8 +80,11 @@ const sendStatusMail = async ({
           <p>Your order status has been updated.</p>
           <h3>Order ID: ${orderId || "Not available"}</h3>
           <h3>New Status: ${status}</h3>
-          <br/>
+          <p>click <a href="https://sita-rama-putharekulu.vercel.app/track-order">here</a> to track your order.</p>
+          <p>  </p>
           <p>Thank you for shopping with Sita Rama Putharekulu.</p>
+          <br />
+          <p>If you have any questions, feel free to reply to this email or contact our support team.</p>
         </div>
       `,
     });

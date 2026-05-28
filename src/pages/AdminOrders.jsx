@@ -108,6 +108,17 @@ function AdminOrders({ embedded = false }) {
 
         );
 
+        setOrders((previousOrders) =>
+          previousOrders.map((currentOrder) =>
+            currentOrder.id === order.id
+              ? {
+                  ...currentOrder,
+                  status,
+                }
+              : currentOrder
+          )
+        );
+
         /* SEND STATUS EMAIL */
 
         try {
