@@ -22,13 +22,13 @@ async function loadSecret() {
 }
 
 async function run() {
-  console.log('Testing backend at', BASE);
-
   // Test root
   try {
     const res = await fetch(`${BASE}/`);
     const text = await res.text();
-    console.log('/ ->', res.status, text.trim());
+    if (!res.ok) {
+      console.error('/ -> ERROR', res.status, text.trim());
+    }
   } catch (e) {
     console.error('/ -> ERROR', e.message);
   }
@@ -42,7 +42,9 @@ async function run() {
       body: JSON.stringify({ amount: 10 }),
     });
     const body = await res.json();
-    console.log('/api/payment/create-order ->', res.status, JSON.stringify(body));
+    if (!res.ok) {
+      console.error('/api/payment/create-order -> ERROR', JSON.stringify(body));
+    }
     orderId = body.id || body.order_id || null;
   } catch (e) {
     console.error('/api/payment/create-order -> ERROR', e.message);
@@ -64,7 +66,9 @@ async function run() {
         }),
       });
       const body = await res.text();
-      console.log('/api/payment/verify ->', res.status, body);
+      if (!res.ok) {
+        console.error('/api/payment/verify -> ERROR', body);
+      }
     } else {
       const paymentId = 'fake_payment_123';
       const targetOrder = orderId || 'test_order';
@@ -80,7 +84,9 @@ async function run() {
         }),
       });
       const body = await res.text();
-      console.log('/api/payment/verify ->', res.status, body);
+      if (!res.ok) {
+        console.error('/api/payment/verify -> ERROR', body);
+      }
     }
   } catch (e) {
     console.error('/api/payment/verify -> ERROR', e.message);

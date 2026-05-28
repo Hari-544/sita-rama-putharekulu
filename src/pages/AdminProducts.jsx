@@ -281,6 +281,12 @@ function AdminProducts({ embedded = false }) {
         );
 
         const data = await response.json();
+        if (!response.ok || !data?.secure_url) {
+          throw new Error(data?.error?.message || data?.message || "Image upload failed");
+        }
+        if (!response.ok || !data?.secure_url) {
+          throw new Error(data?.error?.message || data?.message || "Image upload failed");
+        }
         imageUrl = data.secure_url;
       }
 

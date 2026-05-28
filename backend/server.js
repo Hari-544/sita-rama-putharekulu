@@ -297,7 +297,7 @@ const PORT =
 
 app.listen(PORT, () => {
 
-  console.log(
+  console.info(
     `Server running on port ${PORT}`
   );
 

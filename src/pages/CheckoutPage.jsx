@@ -66,6 +66,14 @@ function CheckoutPage() {
       ? "http://localhost:5000"
       : "https://sita-rama-backend.onrender.com");
 
+  const parseResponseJson = async (response) => {
+    try {
+      return await response.json();
+    } catch {
+      return null;
+    }
+  };
+
   /* TOTAL */
 
   const subtotal = cart.reduce(
@@ -193,6 +201,12 @@ function CheckoutPage() {
 
       setProcessing(true);
 
+      if (!import.meta.env.VITE_RAZORPAY_KEY && !import.meta.env.VITE_RAZORPAY_KEY_ID) {
+        alert("Payment configuration is unavailable. Please contact support.");
+        setProcessing(false);
+        return;
+      }
+
       await loadRazorpay();
 
       /* CREATE ORDER */
@@ -216,7 +230,15 @@ function CheckoutPage() {
         );
 
       const order =
-        await orderResponse.json();
+        await parseResponseJson(orderResponse);
+
+      if (!orderResponse.ok || !order?.id || !order?.amount) {
+        throw new Error(
+          order?.message ||
+          order?.error ||
+          "Unable to create Razorpay order"
+        );
+      }
 
       /* RAZORPAY */
 
@@ -299,8 +321,16 @@ function CheckoutPage() {
                       ),
                   }
                 );
+                const verifyData =
+                  await parseResponseJson(verifyResponse);
 
-              const verifyData =
+                if (!verifyResponse.ok || !verifyData?.success) {
+                  throw new Error(
+                    verifyData?.message ||
+                    verifyData?.error ||
+                    "Payment verification failed"
+                  );
+                }
                 await verifyResponse.json();
 
               const emailErrorMessage =
@@ -316,10 +346,14 @@ function CheckoutPage() {
 
                 /* SAVE TO FIREBASE */
 
-                await saveOrderToFirebase(
+                const savedToFirebase = await saveOrderToFirebase(
                     "PAID",
                     response
                   );
+
+                if (!savedToFirebase) {
+                  alert("Payment completed, but order sync to Firebase failed. Please contact support if this persists.");
+                }
 
                 /* WEB3FORMS */
 
@@ -560,7 +594,7 @@ function CheckoutPage() {
       );
 
       alert(
-        "Something went wrong"
+          error?.message || "Something went wrong"
       );
 
       setProcessing(false);

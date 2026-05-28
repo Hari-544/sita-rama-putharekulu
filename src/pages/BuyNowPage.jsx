@@ -68,6 +68,12 @@ const handlePayment = async () => {
   setProcessing(true);
 
   try {
+    if (!import.meta.env.VITE_RAZORPAY_KEY_ID) {
+      alert("Payment configuration is unavailable. Please contact support.");
+      setProcessing(false);
+      return;
+    }
+
     await loadRazorpay();
 
     /* SEND ORDER DATA */
@@ -114,8 +120,14 @@ const handlePayment = async () => {
       image: "/favicon.svg",
 
       handler: function () {
-
+        setProcessing(false);
         window.location.href = "/success";
+      },
+
+      modal: {
+        ondismiss: function () {
+          setProcessing(false);
+        },
       },
 
       prefill: {
@@ -135,15 +147,19 @@ const handlePayment = async () => {
 
     const razorpay = new window.Razorpay(options);
 
-    razorpay.open();
+    razorpay.on("payment.failed", function (response) {
+      console.error("PAYMENT FAILED:", response);
+      alert("Payment failed. Please try again.");
+      setProcessing(false);
+    });
 
-    setProcessing(false);
+    razorpay.open();
 
   } catch (error) {
 
     console.error(error);
 
-    alert("Payment failed.");
+    alert(error?.message || "Payment failed.");
 
     setProcessing(false);
 

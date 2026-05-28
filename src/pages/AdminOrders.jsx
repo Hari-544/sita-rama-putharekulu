@@ -162,7 +162,7 @@ function AdminOrders({ embedded = false }) {
             );
 
           const statusMailData =
-            await statusMailResponse.json();
+            await statusMailResponse.json().catch(() => ({}));
 
           if (
             !statusMailResponse.ok ||
