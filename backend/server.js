@@ -44,9 +44,17 @@ app.post(
     try {
 
       const { amount } = req.body;
+      const payableAmount = Number(amount);
+
+      if (!Number.isFinite(payableAmount) || payableAmount <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid order amount",
+        });
+      }
 
       const options = {
-        amount: amount * 100,
+        amount: payableAmount * 100,
         currency: "INR",
         receipt:
           "receipt_" + Date.now(),
@@ -89,6 +97,9 @@ app.post(
 
         customerName,
         email,
+        subtotal,
+        handlingFee,
+        finalTotal,
         totalAmount,
       } = req.body;
 
@@ -133,7 +144,7 @@ app.post(
         if (email) {
 
           try {
-            await sendOrderMail({
+            const mailInfo = await sendOrderMail({
 
               customerName:
                 customerName ||
@@ -146,11 +157,17 @@ app.post(
                 razorpay_order_id,
 
               amount:
-                totalAmount,
+                finalTotal ?? totalAmount,
 
             });
 
-            emailSent = true;
+            emailSent = Boolean(mailInfo);
+            if (!emailSent) {
+              emailError = {
+                message:
+                  "Email notification skipped because Gmail SMTP authentication failed.",
+              };
+            }
           } catch (mailError) {
             emailError = {
               message: mailError.message,

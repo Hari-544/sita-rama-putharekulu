@@ -19,22 +19,33 @@ function AdminRoute({
   children,
 }) {
 
-  const [loading,
-  setLoading] =
-    useState(true);
+  const [
+    loading,
+    setLoading,
+  ] = useState(true);
 
-  const [user,
-  setUser] =
-    useState(null);
+  const [
+    user,
+    setUser,
+  ] = useState(null);
 
-  const ADMIN_EMAIL =
-    "patnalaharikrishna9544@gmail.com";
+  /* MULTIPLE ADMINS */
+
+  const ADMIN_EMAILS = [
+
+    "patnalaharikrishna9544@gmail.com",
+
+    "atreyapuramsweetpapers@gmail.com",
+
+  ];
 
   useEffect(() => {
 
     const unsubscribe =
       onAuthStateChanged(
+
         auth,
+
         (currentUser) => {
 
           setUser(
@@ -46,6 +57,7 @@ function AdminRoute({
           );
 
         }
+
       );
 
     return () =>
@@ -53,12 +65,16 @@ function AdminRoute({
 
   }, []);
 
+  /* LOADING */
+
   if (loading) {
 
     return (
 
       <div className="min-h-screen flex items-center justify-center text-2xl font-black">
+
         Checking Access...
+
       </div>
 
     );
@@ -75,12 +91,16 @@ function AdminRoute({
 
   }
 
+  /* CHECK ADMIN ACCESS */
+
+  const isAdmin =
+    ADMIN_EMAILS.includes(
+      user.email
+    );
+
   /* NOT ADMIN */
 
-  if (
-    user.email !==
-    ADMIN_EMAIL
-  ) {
+  if (!isAdmin) {
 
     return (
       <Navigate to="/" />
@@ -88,7 +108,7 @@ function AdminRoute({
 
   }
 
-  /* ADMIN */
+  /* ADMIN ACCESS */
 
   return children;
 

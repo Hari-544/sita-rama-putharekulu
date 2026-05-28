@@ -6,7 +6,9 @@ import AdminProducts from "./AdminProducts";
 import AdminOrders from "./AdminOrders";
 import { setSeoMeta } from "../utils/seo";
 
-const ADMIN_EMAIL = "patnalaharikrishna9544@gmail.com";
+const ADMIN_EMAIL = ["patnalaharikrishna9544@gmail.com",
+  "atreyapuramsweetpapers@gmail.com"
+];
 
 function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -35,7 +37,7 @@ function AdminDashboard() {
   }, []);
 
   const isAdmin = useMemo(
-    () => Boolean(user && user.email === ADMIN_EMAIL),
+    () => Boolean(user && ADMIN_EMAIL.includes(user.email)),
     [user]
   );
 
@@ -45,7 +47,7 @@ function AdminDashboard() {
       const result = await signInWithPopup(auth, googleProvider);
       const email = result.user.email;
 
-      if (email !== ADMIN_EMAIL) {
+      if (!ADMIN_EMAIL.includes(email)) {
         await signOut(auth);
         alert("Access Denied ❌");
         return;

@@ -47,6 +47,10 @@ const formatMailError = (error) => ({
   responseCode: error.responseCode,
 });
 
+const isAuthFailure = (error) =>
+  error?.code === "EAUTH" ||
+  error?.responseCode === 535;
+
 const sendStatusMail = async ({
   customerName,
   customerEmail,
@@ -64,8 +68,6 @@ const sendStatusMail = async ({
   try {
     const { emailUser } = getEmailConfig();
     const transporter = createTransporter();
-
-    await transporter.verify();
 
     const info = await transporter.sendMail({
       from: `"Sita Rama Putharekulu" <${emailUser}>`,
@@ -86,6 +88,15 @@ const sendStatusMail = async ({
 
     return info;
   } catch (error) {
+    if (isAuthFailure(error)) {
+      console.warn(
+        "[STATUS MAIL] Gmail SMTP auth failed. Skipping status email notification.",
+        formatMailError(error)
+      );
+
+      return null;
+    }
+
     console.error("[STATUS MAIL] Full mail error:", formatMailError(error));
     throw error;
   }

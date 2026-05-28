@@ -23,6 +23,15 @@ function BuyNowPage() {
     setCustomer((current) => ({ ...current, [field]: value }));
   };
 
+  const subtotal = product?.price ?? 0;
+  const handlingFee =
+    subtotal > 0 && subtotal < 500
+      ? 15
+      : subtotal >= 500
+        ? 25
+        : 0;
+  const finalTotal = subtotal + handlingFee;
+
   useEffect(() => {
     if (!product) {
       setSeoMeta({
@@ -83,7 +92,7 @@ const handlePayment = async () => {
 
           product_name: product.name,
 
-          amount: product.price,
+          amount: finalTotal,
         }),
       }
     );
@@ -94,7 +103,7 @@ const handlePayment = async () => {
 
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
 
-      amount: product.price * 100,
+      amount: finalTotal * 100,
 
       currency: "INR",
 
@@ -203,8 +212,16 @@ const handlePayment = async () => {
                 <span>Free</span>
               </div>
               <div className="flex justify-between items-baseline pt-2 border-t border-stone-100">
-                <span className="font-semibold text-stone-900">Total Amount Due</span>
-                <span className="text-2xl font-black text-orange-700">₹{product.price}</span>
+                <span className="font-semibold text-stone-900">Subtotal</span>
+                <span className="text-2xl font-black text-orange-700">₹{subtotal}</span>
+              </div>
+              <div className="flex justify-between text-sm text-stone-600">
+                <span>Handling Fee</span>
+                <span>₹{handlingFee}</span>
+              </div>
+              <div className="flex justify-between items-baseline pt-2 border-t border-stone-100">
+                <span className="font-semibold text-stone-900">Final Total Due</span>
+                <span className="text-2xl font-black text-orange-700">₹{finalTotal}</span>
               </div>
             </div>
           </section>
@@ -272,7 +289,7 @@ const handlePayment = async () => {
                     Processing Secure Order...
                   </span>
                 ) : (
-                  `Proceed To Payment • ₹${product.price}`
+                  `Proceed To Payment • ₹${finalTotal}`
                 )}
               </button>
 

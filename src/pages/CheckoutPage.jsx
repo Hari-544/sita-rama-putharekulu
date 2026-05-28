@@ -68,12 +68,22 @@ function CheckoutPage() {
 
   /* TOTAL */
 
-  const totalAmount = cart.reduce(
+  const subtotal = cart.reduce(
     (total, item) =>
       total +
       item.price * item.quantity,
     0
   );
+
+  const handlingFee =
+    subtotal > 0 && subtotal < 500
+      ? 15
+      : subtotal >= 500
+        ? 25
+        : 0;
+
+  const finalTotal =
+    subtotal + handlingFee;
 
   /* SAVE ORDER TO FIREBASE */
 
@@ -109,7 +119,13 @@ function CheckoutPage() {
               products:
                 cart,
 
-              totalAmount,
+              subtotal,
+
+              handlingFee,
+
+              finalTotal,
+
+              totalAmount: finalTotal,
 
               paymentStatus,
 
@@ -194,7 +210,7 @@ function CheckoutPage() {
 
             body: JSON.stringify({
               amount:
-                totalAmount,
+                finalTotal,
             }),
           }
         );
@@ -255,7 +271,14 @@ function CheckoutPage() {
                 email:
                   customer.email.trim(),
 
-                totalAmount,
+                subtotal,
+
+                handlingFee,
+
+                finalTotal,
+
+                totalAmount:
+                  finalTotal,
               };
 
               const verifyResponse =
@@ -423,7 +446,7 @@ function CheckoutPage() {
                     replace: true,
                     state: {
                       orderId: response.razorpay_order_id,
-                      amount: totalAmount,
+                      amount: finalTotal,
                       customerName: customer.name.trim(),
                       customerEmail: customer.email.trim(),
                       emailSent: Boolean(verifyData.emailSent),
@@ -643,17 +666,45 @@ function CheckoutPage() {
 
             {cart.length > 0 && (
 
+              <>
+
               <div className="border-t border-orange-100 mt-8 pt-6 flex items-center justify-between">
 
                 <span className="text-lg font-semibold text-stone-600">
-                  Total Amount
+                  Subtotal
                 </span>
 
                 <span className="text-4xl font-black text-orange-700">
-                  ₹{totalAmount}
+                  ₹{subtotal}
                 </span>
 
               </div>
+
+              <div className="flex items-center justify-between border-t border-orange-100 pt-4">
+
+                <span className="text-lg font-semibold text-stone-600">
+                  Handling Fee
+                </span>
+
+                <span className="text-2xl font-black text-orange-700">
+                  ₹{handlingFee}
+                </span>
+
+              </div>
+
+              <div className="flex items-center justify-between border-t border-orange-100 pt-4">
+
+                <span className="text-lg font-semibold text-stone-600">
+                  Final Total
+                </span>
+
+                <span className="text-4xl font-black text-orange-700">
+                  ₹{finalTotal}
+                </span>
+
+              </div>
+
+              </>
 
             )}
 
@@ -814,7 +865,7 @@ function CheckoutPage() {
 
                 ) : (
 
-                  `Pay ₹${totalAmount}`
+                  `Pay ₹${finalTotal}`
 
                 )}
 

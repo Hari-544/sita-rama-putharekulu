@@ -47,6 +47,10 @@ const formatMailError = (error) => ({
   responseCode: error.responseCode,
 });
 
+const isAuthFailure = (error) =>
+  error?.code === "EAUTH" ||
+  error?.responseCode === 535;
+
 const sendOrderMail = async ({
   customerName,
   customerEmail,
@@ -60,8 +64,6 @@ const sendOrderMail = async ({
   try {
     const { emailUser } = getEmailConfig();
     const transporter = createTransporter();
-
-    await transporter.verify();
 
     const info = await transporter.sendMail({
       from: `"Sita Rama Putharekulu" <${emailUser}>`,
@@ -85,6 +87,15 @@ const sendOrderMail = async ({
 
     return info;
   } catch (error) {
+    if (isAuthFailure(error)) {
+      console.warn(
+        "[MAIL] Gmail SMTP auth failed. Skipping order email notification.",
+        formatMailError(error)
+      );
+
+      return null;
+    }
+
     console.error("[MAIL] Exact mail error:", formatMailError(error));
     throw error;
   }

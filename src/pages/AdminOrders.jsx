@@ -236,7 +236,7 @@ function AdminOrders({ embedded = false }) {
       .reduce(
         (acc, item) =>
           acc +
-          item.totalAmount,
+          (item.finalTotal ?? item.totalAmount ?? 0),
         0
       );
 
@@ -400,9 +400,25 @@ function AdminOrders({ embedded = false }) {
                       <p className="text-3xl font-black text-orange-700">
                         ₹
                         {
-                          order.totalAmount
+                          order.finalTotal ?? order.totalAmount
                         }
                       </p>
+
+                      {order.subtotal != null || order.handlingFee != null ? (
+                        <div className="mt-2 space-y-1 text-sm text-stone-500">
+                          {order.subtotal != null ? (
+                            <p>Subtotal: ₹{order.subtotal}</p>
+                          ) : null}
+
+                          {order.handlingFee != null ? (
+                            <p>Handling Fee: ₹{order.handlingFee}</p>
+                          ) : null}
+
+                          {order.finalTotal != null ? (
+                            <p>Final Total: ₹{order.finalTotal}</p>
+                          ) : null}
+                        </div>
+                      ) : null}
 
                       <p
                         className={`font-bold mt-2 ${
