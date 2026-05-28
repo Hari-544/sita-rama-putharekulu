@@ -1,23 +1,16 @@
-import { useEffect, useMemo } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { setSeoMeta } from "../utils/seo";
 
 function SuccessPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const paymentDetails = location.state || null;
-
-  const formattedAmount = useMemo(() => {
-    const amount = Number(paymentDetails?.amount);
-
-    if (!Number.isFinite(amount)) {
-      return null;
-    }
-
-    return new Intl.NumberFormat("en-IN", {
-      maximumFractionDigits: 0,
-    }).format(amount);
-  }, [paymentDetails?.amount]);
+  const paymentDetails = window.history.state?.usr || null;
+  const amountValue = Number(
+    paymentDetails?.amount ?? paymentDetails?.finalTotal
+  );
+  const formattedAmount = Number.isFinite(amountValue)
+    ? new Intl.NumberFormat("en-IN", {
+        maximumFractionDigits: 0,
+      }).format(amountValue)
+    : null;
 
   useEffect(() => {
     setSeoMeta({
@@ -36,11 +29,11 @@ function SuccessPage() {
     }
 
     const timer = window.setTimeout(() => {
-      navigate("/", { replace: true });
+      window.location.replace("/");
     }, 2500);
 
     return () => window.clearTimeout(timer);
-  }, [navigate, paymentDetails]);
+  }, [paymentDetails]);
 
   if (!paymentDetails) {
     return (
@@ -58,9 +51,9 @@ function SuccessPage() {
             No payment confirmation data was found for this page. You will be redirected safely to the homepage.
           </p>
 
-          <Link to="/" className="btn btn-primary w-full py-4 mt-8 text-base sm:text-lg">
+          <a href="/" className="btn btn-primary w-full py-4 mt-8 text-base sm:text-lg">
             Continue Shopping
-          </Link>
+          </a>
         </section>
       </main>
     );
@@ -98,6 +91,24 @@ function SuccessPage() {
               <span className="break-all font-mono text-sm sm:text-base">{paymentDetails.orderId}</span>
             </p>
 
+            {Number.isFinite(Number(paymentDetails.subtotal)) ? (
+              <p>
+                <span className="font-semibold text-orange-900">Subtotal:</span> ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(Number(paymentDetails.subtotal))}
+              </p>
+            ) : null}
+
+            {Number.isFinite(Number(paymentDetails.handlingFee)) ? (
+              <p>
+                <span className="font-semibold text-orange-900">Handling Fee:</span> ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(Number(paymentDetails.handlingFee))}
+              </p>
+            ) : null}
+
+            {Number.isFinite(Number(paymentDetails.finalTotal)) ? (
+              <p>
+                <span className="font-semibold text-orange-900">Final Total:</span> ₹{new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 }).format(Number(paymentDetails.finalTotal))}
+              </p>
+            ) : null}
+
             {formattedAmount ? (
               <p>
                 <span className="font-semibold text-orange-900">Paid Amount:</span> ₹{formattedAmount}
@@ -119,16 +130,16 @@ function SuccessPage() {
           </div>
         </div>
 
-        <Link
-          to="/track-order"
+        <a
+          href="/track-order"
           className="btn btn-primary w-full py-4 mt-8 text-base sm:text-lg"
         >
           Track Order
-        </Link>
+        </a>
 
-        <Link to="/" className="btn btn-secondary w-full py-4 mt-5 text-base sm:text-lg">
+        <a href="/" className="btn btn-secondary w-full py-4 mt-5 text-base sm:text-lg">
           Continue Shopping
-        </Link>
+        </a>
       </section>
     </main>
   );

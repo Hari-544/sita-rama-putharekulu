@@ -370,7 +370,7 @@ function CheckoutPage() {
 
                   formData.append(
                     "Total Amount",
-                    `₹${totalAmount}`
+                    `₹${finalTotal}`
                   );
 
                   formData.append(
@@ -447,6 +447,9 @@ function CheckoutPage() {
                     state: {
                       orderId: response.razorpay_order_id,
                       amount: finalTotal,
+                      subtotal,
+                      handlingFee,
+                      finalTotal,
                       customerName: customer.name.trim(),
                       customerEmail: customer.email.trim(),
                       emailSent: Boolean(verifyData.emailSent),
