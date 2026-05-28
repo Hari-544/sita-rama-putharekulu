@@ -11,10 +11,13 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 
 import Footer from "../components/Footer";
 import hero from "../assets/premiumHero.jpg";
+import storyImage from "../assets/images/jaggery.jpg";
 import { db } from "../firebase";
 import {
   cloudinarySrcSet,
+  cloudinarySquareSrcSet,
   optimizeCloudinaryImage,
+  optimizeCloudinarySquareImage,
 } from "../utils/image";
 import {
   setPreloadImage,
@@ -30,6 +33,13 @@ const currencyFormatter = new Intl.NumberFormat("en-IN", {
 });
 
 const pageShell = "responsive-shell";
+
+const BRAND_PILLARS = [
+  "Freshly prepared only after order",
+  "No stored sweets, ever",
+  "Traditional Atreyapuram preparation",
+  "Pure ingredients and handcrafted quality",
+];
 
 const formatPrice = (value) => {
   const amount = Number(value);
@@ -234,7 +244,7 @@ const ProductCard = memo(function ProductCard({ product, quantity, onAdd, onDecr
   const inStock = product.stock !== false;
   const isFeatured = Boolean(product.featured);
   const category = normalizeCategory(product.category);
-  const imageSrc = optimizeCloudinaryImage(product.image || hero, compact ? 480 : 600);
+  const imageSrc = optimizeCloudinarySquareImage(product.image || hero, compact ? 480 : 600);
   const sizeText = product.sizes || product.description || "Small & Big Size";
 
   return (
@@ -278,7 +288,7 @@ const ProductCard = memo(function ProductCard({ product, quantity, onAdd, onDecr
           <div className="aspect-square overflow-hidden rounded-[24px] bg-white">
             <img
               src={imageSrc}
-              srcSet={cloudinarySrcSet(
+              srcSet={cloudinarySquareSrcSet(
                 product.image,
                 compact
                   ? [320, 420, 560]
@@ -954,11 +964,11 @@ function TrackOrderSection({
                         <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                           <div className="fluid-image-frame w-full overflow-hidden rounded-2xl bg-orange-100 sm:w-24 sm:flex-shrink-0">
                             <img
-                              src={optimizeCloudinaryImage(
+                              src={optimizeCloudinarySquareImage(
                                 product.image || hero,
                                 200
                               )}
-                              srcSet={cloudinarySrcSet(
+                              srcSet={cloudinarySquareSrcSet(
                                 product.image,
                                 [160, 200, 320]
                               )}
@@ -1051,9 +1061,11 @@ function HomePage() {
     setSeoMeta({
       title: "Sita Rama Putharekulu | Authentic Atreyapuram Putharekulu Online",
       description:
-        "Order authentic Atreyapuram Putharekulu online from Sita Rama Putharekulu. Handmade sweets, premium ingredients, and reliable delivery across India.",
+        "Buy authentic handmade Atreyapuram Putharekulu online. Freshly prepared homemade sweets made only after order using pure ghee, jaggery, and premium ingredients.",
       path: "/",
       image: "/og-image.svg",
+      keywords:
+        "Atreyapuram Putharekulu, homemade sweets, Andhra sweets, traditional sweets, pure ghee sweets, online sweets delivery, handmade sweets, freshly prepared sweets, authentic Atreyapuram Putharekulu, traditional handmade sweets",
     });
 
     return () => cleanupPreload();
@@ -1281,6 +1293,54 @@ function HomePage() {
         categoryCount={categorySections.length}
         totalCartCount={totalCartCount}
       />
+
+      <section className="py-8 sm:py-12 lg:py-16">
+        <div className={pageShell}>
+          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center xl:gap-10">
+            <div className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-3 shadow-[0_20px_70px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-4">
+              <div className="fluid-image-frame overflow-hidden rounded-[1.5rem] bg-orange-50">
+                <img
+                  src={storyImage}
+                  alt="Freshly prepared Atreyapuram Putharekulu sweets"
+                  loading="lazy"
+                  decoding="async"
+                  width="960"
+                  height="720"
+                  className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-5 rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50/60 to-amber-50/40 p-6 shadow-[0_20px_70px_rgba(249,115,22,0.08)] sm:p-8 lg:p-10">
+              <SectionHeading
+                eyebrow="Brand Story"
+                title="Why Choose Sita Rama Putharekulu"
+                description="At Sita Rama Putharekulu, every sweet is freshly prepared only after receiving your order to ensure authentic taste, freshness, and premium quality. We do not store previously prepared sweets. Our handmade Atreyapuram Putharekulu are crafted using traditional recipes, pure ingredients, and careful preparation methods passed through generations, making every order a fresh, premium homemade sweet experience."
+              />
+
+              <p className="text-sm leading-7 text-stone-600 sm:text-base">
+                This is our promise for customers looking for authentic Atreyapuram Putharekulu, pure ghee sweets, and traditional homemade sweets delivered with care.
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                {BRAND_PILLARS.map((pillar) => (
+                  <div
+                    key={pillar}
+                    className="flex items-start gap-3 rounded-2xl border border-orange-100 bg-white/90 px-4 py-4 shadow-sm"
+                  >
+                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-black text-orange-700">
+                      ✓
+                    </span>
+                    <p className="text-sm font-semibold leading-6 text-stone-700">
+                      {pillar}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <main>
         <FeaturedSection
