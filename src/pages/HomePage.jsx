@@ -1342,54 +1342,6 @@ function HomePage() {
         totalCartCount={totalCartCount}
       />
 
-      <section className="py-8 sm:py-12 lg:py-16">
-        <div className={pageShell}>
-          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center xl:gap-10">
-            <div className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-3 shadow-[0_20px_70px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-4">
-              <div className="fluid-image-frame overflow-hidden rounded-[1.5rem] bg-orange-50">
-                <img
-                  src={storyImage}
-                  alt="Freshly prepared Atreyapuram Putharekulu sweets"
-                  loading="lazy"
-                  decoding="async"
-                  width="960"
-                  height="720"
-                  className="h-full w-full object-cover transition duration-500 hover:scale-105"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-5 rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50/60 to-amber-50/40 p-6 shadow-[0_20px_70px_rgba(249,115,22,0.08)] sm:p-8 lg:p-10">
-              <SectionHeading
-                eyebrow="Brand Story"
-                title="Why Choose Sita Rama Putharekulu"
-                description="At Sita Rama Putharekulu, every sweet is freshly prepared only after receiving your order to ensure authentic taste, freshness, and premium quality. We do not store previously prepared sweets. Our handmade Atreyapuram Putharekulu are crafted using traditional recipes, pure ingredients, and careful preparation methods passed through generations, making every order a fresh, premium homemade sweet experience."
-              />
-
-              <p className="text-sm leading-7 text-stone-600 sm:text-base">
-                This is our promise for customers looking for authentic Atreyapuram Putharekulu, pure ghee sweets, and traditional homemade sweets delivered with care.
-              </p>
-
-              <div className="grid gap-3 sm:grid-cols-2">
-                {BRAND_PILLARS.map((pillar) => (
-                  <div
-                    key={pillar}
-                    className="flex items-start gap-3 rounded-2xl border border-orange-100 bg-white/90 px-4 py-4 shadow-sm"
-                  >
-                    <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-black text-orange-700">
-                      ✓
-                    </span>
-                    <p className="text-sm font-semibold leading-6 text-stone-700">
-                      {pillar}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <main>
         <FeaturedSection
           products={featuredProducts}
@@ -1401,125 +1353,157 @@ function HomePage() {
 
         <DeferredSection
           minHeight={900}
-          render={() =>
-            productsLoading ? (
-          <section className="py-6 sm:py-8">
-            <div className={pageShell}>
-              <SectionHeading
-                eyebrow="Shop by category"
-                title="Signature Collection"
-                description="Realtime Firestore-driven product categories with premium cards and conversion-focused spacing."
-              />
-
-              <div className="mt-8 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
-                {Array.from({ length: 6 }).map((_, index) => (
-                  <ProductSkeletonCard key={index} />
-                ))}
-              </div>
-            </div>
-          </section>
-        ) : categorySections.length ? (
-          <section className="py-6 sm:py-8">
-            <div className={pageShell}>
-              <SectionHeading
-                eyebrow="Shop by category"
-                title="Signature Collection"
-                description="Browse products grouped by category in a side-by-side responsive grid for faster scanning and less scrolling."
-              />
-
-              <div className="mt-8 grid grid-cols-1 gap-8 2xl:grid-cols-2">
-                {categorySections.map((section) => (
-                    <CategorySection
-                    key={section.category}
-                    category={section.category}
-                    products={section.items}
-                    cartMap={cartMap}
-                    onAdd={addToCart}
-                    onDecrease={decreaseQty}
-                    />
-                ))}
-            </div>
-            </div>
-          </section>
-        ) : (
-          <section className="py-10 sm:py-16">
-            <div className={pageShell}>
-              <div className="rounded-[2rem] border border-dashed border-orange-200 bg-white/85 p-8 text-center shadow-[0_20px_60px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-12">
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-3xl shadow-sm">
-                  🍬
-                </div>
-                <h2 className="mt-5 text-2xl font-black text-stone-950">
-                  No products available yet
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-stone-500">
-                  Add products in Firebase to automatically populate the featured and category sections.
-                </p>
-              </div>
-            </div>
-          </section>
-            )
-          }
-        />
-
-        <DeferredSection
-          id="track-order"
-          minHeight={760}
           render={() => (
-            <TrackOrderSection
-              sectionId={undefined}
-          trackPhone={trackPhone}
-          setTrackPhone={setTrackPhone}
-          trackOrderId={trackOrderId}
-          setTrackOrderId={setTrackOrderId}
-          tracking={tracking}
-          trackedOrder={trackedOrder}
-          trackError={trackError}
-          hasSearched={hasSearched}
-              onSearch={searchTrackedOrder}
-            />
+            <>
+              {productsLoading ? (
+                <section className="py-10 sm:py-12 lg:py-14">
+                  <div className={pageShell}>
+                    <SectionHeading
+                      eyebrow="Shop by category"
+                      title="Signature Collection"
+                      description="Realtime Firestore-driven product categories with premium cards and conversion-focused spacing."
+                    />
+
+                    <div className="mt-8 grid gap-6 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
+                      {Array.from({ length: 6 }).map((_, index) => (
+                        <ProductSkeletonCard key={index} />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              ) : categorySections.length ? (
+                <section className="py-10 sm:py-12 lg:py-14">
+                  <div className={pageShell}>
+                    <SectionHeading
+                      eyebrow="Shop by category"
+                      title="Signature Collection"
+                      description="Browse products grouped by category in a side-by-side responsive grid for faster scanning and less scrolling."
+                    />
+
+                    <div className="mt-8 grid grid-cols-1 gap-8 2xl:grid-cols-2">
+                      {categorySections.map((section) => (
+                        <CategorySection
+                          key={section.category}
+                          category={section.category}
+                          products={section.items}
+                          cartMap={cartMap}
+                          onAdd={addToCart}
+                          onDecrease={decreaseQty}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </section>
+              ) : (
+                <section className="py-12 sm:py-16">
+                  <div className={pageShell}>
+                    <div className="rounded-[2rem] border border-dashed border-orange-200 bg-white/85 p-8 text-center shadow-[0_20px_60px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-12">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-orange-50 text-3xl shadow-sm">
+                        🍬
+                      </div>
+                      <h2 className="mt-5 text-2xl font-black text-stone-950">
+                        No products available yet
+                      </h2>
+                      <p className="mt-3 text-sm leading-7 text-stone-500">
+                        Add products in Firebase to automatically populate the featured and category sections.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+              )}
+            </>
           )}
         />
+
+        <section className="py-10 sm:py-14 lg:py-16 scroll-mt-24">
+          <div className={pageShell}>
+            <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr] lg:items-center xl:gap-10">
+              <div className="overflow-hidden rounded-[2rem] border border-white/80 bg-white/90 p-3 shadow-[0_20px_70px_rgba(249,115,22,0.08)] backdrop-blur-xl sm:p-4">
+                <div className="fluid-image-frame overflow-hidden rounded-[1.5rem] bg-orange-50">
+                  <img
+                    src={storyImage}
+                    alt="Freshly prepared Atreyapuram Putharekulu sweets"
+                    loading="lazy"
+                    decoding="async"
+                    width="960"
+                    height="720"
+                    className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-5 rounded-[2rem] border border-orange-100 bg-gradient-to-br from-white via-orange-50/60 to-amber-50/40 p-6 shadow-[0_20px_70px_rgba(249,115,22,0.08)] sm:p-8 lg:p-10">
+                <SectionHeading
+                  eyebrow="Brand Story"
+                  title="Why Choose Sita Rama Putharekulu"
+                  description="At Sita Rama Putharekulu, every sweet is freshly prepared only after receiving your order to ensure authentic taste, freshness, and premium quality. We do not store previously prepared sweets. Our handmade Atreyapuram Putharekulu are crafted using traditional recipes, pure ingredients, and careful preparation methods passed through generations, making every order a fresh, premium homemade sweet experience."
+                />
+
+                <p className="text-sm leading-7 text-stone-600 sm:text-base">
+                  This is our promise for customers looking for authentic Atreyapuram Putharekulu, pure ghee sweets, and traditional homemade sweets delivered with care.
+                </p>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {BRAND_PILLARS.map((pillar) => (
+                    <div
+                      key={pillar}
+                      className="flex items-start gap-3 rounded-2xl border border-orange-100 bg-white/90 px-4 py-4 shadow-sm"
+                    >
+                      <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-black text-orange-700">
+                        ✓
+                      </span>
+                      <p className="text-sm font-semibold leading-6 text-stone-700">
+                        {pillar}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-orange-50">
-  <div className={pageShell}>
-    <div className="mx-auto max-w-4xl text-center">
-      <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-orange-600 shadow-sm">
-        FAQ
-      </span>
-
-      <h2 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] font-black text-stone-950">
-        Frequently Asked Questions
-      </h2>
-
-      <p className="mt-4 text-stone-600 leading-7">
-        Everything you need to know about our freshly prepared homemade
-        Atreyapuram Putharekulu.
-      </p>
-    </div>
-
-    <div className="mx-auto mt-10 max-w-5xl space-y-4">
-      {FAQS.map((faq) => (
-        <details
-          key={faq.question}
-          className="group rounded-3xl border border-orange-100 bg-white p-5 shadow-sm transition hover:shadow-md"
-        >
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-stone-900">
-            <span>{faq.question}</span>
-
-            <span className="text-2xl text-orange-600 transition group-open:rotate-45">
-              +
+      <section className="bg-gradient-to-b from-white to-orange-50 py-14 sm:py-18 lg:py-20 scroll-mt-24">
+        <div className={pageShell}>
+          <div className="mx-auto max-w-4xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-orange-600 shadow-sm">
+              FAQ
             </span>
-          </summary>
 
-          <p className="mt-4 leading-7 text-stone-600">
-            {faq.answer}
-          </p>
-        </details>
-      ))}
-    </div>
-  </div>
-</section>
+            <h2 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] font-black text-stone-950">
+              Frequently Asked Questions
+            </h2>
+
+            <p className="mt-4 text-stone-600 leading-7">
+              Everything you need to know about our freshly prepared homemade Atreyapuram Putharekulu.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-10 max-w-5xl space-y-4">
+            {FAQS.map((faq) => (
+              <details
+                key={faq.question}
+                className="group overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm transition hover:shadow-md"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-5 font-black text-stone-900 sm:px-6">
+                  <span className="text-sm leading-6 sm:text-base">{faq.question}</span>
+
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-orange-50 text-2xl text-orange-600 transition duration-300 group-open:rotate-45 group-open:bg-orange-100">
+                    +
+                  </span>
+                </summary>
+
+                <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+                  <p className="rounded-2xl bg-orange-50/70 px-4 py-4 text-sm leading-7 text-stone-600 sm:text-base">
+                    {faq.answer}
+                  </p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <nav className="fixed bottom-4 left-4 right-4 z-50 rounded-full border border-orange-100 bg-white/95 px-3 py-2 shadow-[0_18px_50px_rgba(249,115,22,0.18)] backdrop-blur-xl sm:hidden">
         <div className="grid grid-cols-4 gap-2 text-center text-[11px] font-bold text-stone-600">
