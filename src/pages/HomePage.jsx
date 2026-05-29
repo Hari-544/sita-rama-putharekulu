@@ -181,6 +181,54 @@ function DeferredSection({
   );
 }
 
+const FAQS = [
+  {
+    question: "Are the sweets freshly prepared?",
+    answer:
+      "Every order is freshly prepared only after receiving your order. We do not store previously prepared sweets, ensuring authentic taste, freshness, and premium quality.",
+  },
+  {
+    question: "Do you store sweets before shipping?",
+    answer:
+      "No. We prepare sweets only after an order is placed. Our goal is to deliver freshly made traditional sweets directly to our customers.",
+  },
+  {
+    question: "How long do Putharekulu stay fresh?",
+    answer:
+      "Putharekulu stay fresh for approximately 10 days when stored properly in a cool and dry place away from direct sunlight.",
+  },
+  {
+    question: "How long does delivery take?",
+    answer:
+      "Delivery usually takes 3–5 business days depending on your location and courier service availability.",
+  },
+  {
+    question: "What ingredients are used in your Putharekulu?",
+    answer:
+      "Our Putharekulu are prepared using premium-quality ingredients such as rice starch sheets, pure ghee, jaggery, sugar, dry fruits, and other traditional ingredients.",
+  },
+  {
+    question: "Do you use pure ghee?",
+    answer:
+      "Yes. We use quality ingredients, including pure ghee in applicable varieties, to preserve the authentic traditional taste of Atreyapuram Putharekulu.",
+  },
+  {
+    question: "Do you deliver across India?",
+    answer:
+      "Yes. We provide delivery services across India through trusted courier partners.",
+  },
+  {
+    question: "Can I place bulk orders for events or gifting?",
+    answer:
+      "Yes. We accept bulk orders for festivals, weddings, corporate gifting, family functions, and other special occasions. For bulk orders and customized requirements, please contact us directly through WhatsApp or phone call and we will be happy to assist you.",
+  },
+  {
+    question: "How can I track my order?",
+    answer:
+      "After placing an order, you can use your Order ID on the Order Tracking page to check the latest status of your order.",
+  },
+];
+
 function SectionHeading({ eyebrow, title, description, action }) {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -1432,6 +1480,46 @@ function HomePage() {
           )}
         />
       </main>
+
+      <section className="py-16 sm:py-20 bg-gradient-to-b from-white to-orange-50">
+  <div className={pageShell}>
+    <div className="mx-auto max-w-4xl text-center">
+      <span className="inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.3em] text-orange-600 shadow-sm">
+        FAQ
+      </span>
+
+      <h2 className="mt-4 text-[clamp(2rem,4vw,3.5rem)] font-black text-stone-950">
+        Frequently Asked Questions
+      </h2>
+
+      <p className="mt-4 text-stone-600 leading-7">
+        Everything you need to know about our freshly prepared homemade
+        Atreyapuram Putharekulu.
+      </p>
+    </div>
+
+    <div className="mx-auto mt-10 max-w-5xl space-y-4">
+      {FAQS.map((faq) => (
+        <details
+          key={faq.question}
+          className="group rounded-3xl border border-orange-100 bg-white p-5 shadow-sm transition hover:shadow-md"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-black text-stone-900">
+            <span>{faq.question}</span>
+
+            <span className="text-2xl text-orange-600 transition group-open:rotate-45">
+              +
+            </span>
+          </summary>
+
+          <p className="mt-4 leading-7 text-stone-600">
+            {faq.answer}
+          </p>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
 
       <nav className="fixed bottom-4 left-4 right-4 z-50 rounded-full border border-orange-100 bg-white/95 px-3 py-2 shadow-[0_18px_50px_rgba(249,115,22,0.18)] backdrop-blur-xl sm:hidden">
         <div className="grid grid-cols-4 gap-2 text-center text-[11px] font-bold text-stone-600">
