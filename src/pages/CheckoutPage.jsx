@@ -331,8 +331,6 @@ function CheckoutPage() {
                     "Payment verification failed"
                   );
                 }
-                await verifyResponse.json();
-
               const emailErrorMessage =
                 verifyData.emailError?.response ||
                 verifyData.emailError?.message ||
@@ -605,32 +603,32 @@ function CheckoutPage() {
 
   return (
 
-    <div className="adaptive-section safe-bottom min-h-screen bg-[#fffaf5] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div className="checkout-page min-h-screen bg-[#fffaf5] px-3 py-4 sm:px-5 sm:py-6 md:px-6 md:py-8 lg:px-8 xl:py-10">
 
-      <div className="responsive-shell mx-auto">
+      <div className="checkout-shell mx-auto w-full max-w-[1500px]">
 
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="checkout-header mb-6 flex flex-col gap-3 sm:mb-8 sm:flex-row sm:items-center sm:justify-between">
 
           <Link
             to="/"
-            className="text-orange-700 font-bold hover:text-orange-900"
+            className="checkout-back-link order-2 text-sm font-bold text-orange-700 hover:text-orange-900 sm:order-1 sm:text-base"
           >
             ← Back To Store
           </Link>
 
-          <h1 className="fluid-heading font-black text-stone-900">
+          <h1 className="checkout-title order-1 text-3xl font-black tracking-tight text-stone-900 sm:order-2 sm:text-4xl lg:text-5xl">
             Checkout
           </h1>
 
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] xl:gap-8">
+        <div className="checkout-grid grid grid-cols-1 gap-4 sm:gap-5 md:gap-6 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:items-start xl:gap-8 2xl:gap-10">
 
           {/* LEFT */}
 
-          <div className="panel-shell adaptive-card p-5 sm:p-6 lg:p-8">
+          <div className="panel-shell adaptive-card checkout-card p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8">
 
-            <h2 className="text-2xl font-black text-stone-900 mb-6">
+            <h2 className="mb-4 text-xl font-black text-stone-900 sm:mb-5 sm:text-2xl lg:mb-6">
               Order Summary
             </h2>
 
@@ -656,7 +654,7 @@ function CheckoutPage() {
 
                   <div
                     key={item.id}
-                    className="grid gap-4 border border-orange-100 rounded-2xl p-4 bg-orange-50/70 backdrop-blur-md sm:grid-cols-[auto,minmax(0,1fr)] sm:items-center"
+                    className="checkout-product-card grid grid-cols-[72px,minmax(0,1fr)] items-center gap-3 rounded-2xl border border-orange-100 bg-orange-50/70 p-3 sm:grid-cols-[88px,minmax(0,1fr)] sm:gap-4 sm:p-4"
                   >
 
                     <img
@@ -674,7 +672,7 @@ function CheckoutPage() {
                       decoding="async"
                       width="120"
                       height="120"
-                      className="aspect-square w-full max-w-[6.5rem] rounded-2xl object-cover shadow-sm sm:max-w-[7.5rem]"
+                      className="aspect-square w-full max-w-[72px] rounded-xl object-cover shadow-sm sm:max-w-[88px] sm:rounded-2xl"
                     />
 
                     <div className="min-w-0">
@@ -711,7 +709,7 @@ function CheckoutPage() {
                   Subtotal
                 </span>
 
-                <span className="text-4xl font-black text-orange-700">
+                <span className="text-2xl font-black text-orange-700 sm:text-3xl lg:text-4xl">
                   ₹{subtotal}
                 </span>
 
@@ -723,7 +721,7 @@ function CheckoutPage() {
                   Handling Fee
                 </span>
 
-                <span className="text-2xl font-black text-orange-700">
+                <span className="text-xl font-black text-orange-700 sm:text-2xl">
                   ₹{handlingFee}
                 </span>
 
@@ -735,7 +733,7 @@ function CheckoutPage() {
                   Final Total
                 </span>
 
-                <span className="text-4xl font-black text-orange-700">
+                <span className="text-2xl font-black text-orange-700 sm:text-3xl lg:text-4xl">
                   ₹{finalTotal}
                 </span>
 
@@ -749,9 +747,9 @@ function CheckoutPage() {
 
           {/* RIGHT */}
 
-          <div className="panel-shell adaptive-card p-5 sm:p-6 lg:p-8">
+          <div className="panel-shell adaptive-card checkout-card p-4 sm:p-5 md:p-6 lg:p-7 xl:p-8">
 
-            <h2 className="text-2xl font-black text-stone-900 mb-6">
+            <h2 className="mb-4 text-xl font-black text-stone-900 sm:mb-5 sm:text-2xl lg:mb-6">
               Delivery Details
             </h2>
 
@@ -773,7 +771,7 @@ function CheckoutPage() {
                       name: e.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
+                  className="min-h-[50px] w-full rounded-xl border border-orange-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 sm:min-h-[52px] sm:rounded-2xl sm:text-base"
                 />
 
               </div>
@@ -794,7 +792,7 @@ function CheckoutPage() {
                       email: e.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
+                  className="min-h-[50px] w-full rounded-xl border border-orange-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 sm:min-h-[52px] sm:rounded-2xl sm:text-base"
                 />
 
               </div>
@@ -815,7 +813,7 @@ function CheckoutPage() {
                       phone: e.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
+                  className="min-h-[50px] w-full rounded-xl border border-orange-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 sm:min-h-[52px] sm:rounded-2xl sm:text-base"
                 />
 
               </div>
@@ -836,7 +834,7 @@ function CheckoutPage() {
                       address: e.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
+                  className="min-h-[50px] w-full rounded-xl border border-orange-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 sm:min-h-[52px] sm:rounded-2xl sm:text-base"
                 />
 
               </div>
@@ -858,7 +856,7 @@ function CheckoutPage() {
                       pincode: e.target.value,
                     })
                   }
-                  className="w-full rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none transition focus:border-orange-500"
+                  className="min-h-[50px] w-full rounded-xl border border-orange-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-orange-500 sm:min-h-[52px] sm:rounded-2xl sm:text-base"
                 />
 
               </div>
@@ -866,7 +864,7 @@ function CheckoutPage() {
               <button
                 onClick={handlePayment}
                 disabled={processing}
-                className="btn btn-primary w-full py-4 mt-6 text-base font-bold"
+                className="btn btn-primary mt-5 min-h-[56px] w-full rounded-2xl py-4 text-base font-extrabold shadow-lg sm:mt-6 sm:min-h-[60px] sm:text-lg"
               >
 
                 {processing ? (

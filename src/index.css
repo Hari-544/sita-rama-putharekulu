@@ -747,3 +747,139 @@
     max-width: min(100%, 1680px);
   }
 }
+
+/* =========================================================
+   CHECKOUT RESPONSIVE SYSTEM
+   ========================================================= */
+
+.checkout-page {
+  width: 100%;
+  overflow-x: clip;
+}
+
+.checkout-shell {
+  width: 100%;
+}
+
+.checkout-card {
+  width: 100%;
+  min-width: 0;
+}
+
+.checkout-product-card {
+  min-width: 0;
+}
+
+.checkout-product-card h3,
+.checkout-product-card p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.checkout-header {
+  width: 100%;
+}
+
+.checkout-title {
+  line-height: 1.05;
+}
+
+/* Small phones */
+@media (max-width: 479px) {
+  .checkout-page {
+    padding-inline: 0.75rem;
+  }
+
+  .checkout-card {
+    border-radius: 20px;
+  }
+
+  .checkout-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .checkout-title {
+    font-size: 1.9rem;
+  }
+
+  .checkout-product-card {
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .checkout-product-card h3 {
+    font-size: 0.9rem;
+    line-height: 1.25;
+  }
+
+  .checkout-product-card p {
+    font-size: 0.8rem;
+  }
+}
+
+/* Normal phones */
+@media (min-width: 480px) and (max-width: 639px) {
+  .checkout-page {
+    padding-inline: 1rem;
+  }
+}
+
+/* Tablets */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .checkout-shell {
+    max-width: 760px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .checkout-grid {
+    align-items: start;
+  }
+
+  .checkout-card {
+    position: relative;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1440px) {
+  .checkout-shell {
+    max-width: 1500px;
+  }
+
+  .checkout-grid {
+    gap: 2.5rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 359px) {
+  .checkout-page {
+    padding-inline: 0.5rem;
+  }
+
+  .checkout-card {
+    padding: 0.875rem;
+    border-radius: 18px;
+  }
+
+  .checkout-title {
+    font-size: 1.7rem;
+  }
+
+  .checkout-product-card {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+
+  .checkout-product-card img {
+    max-width: 60px;
+  }
+}
+
+/* Checkout should not inherit the large global mobile bottom spacer. */
+@media (max-width: 1024px) {
+  body:has(.checkout-page) {
+    padding-bottom: 0;
+  }
+}
