@@ -331,7 +331,6 @@ function CheckoutPage() {
                     "Payment verification failed"
                   );
                 }
-                await verifyResponse.json();
 
               const emailErrorMessage =
                 verifyData.emailError?.response ||
